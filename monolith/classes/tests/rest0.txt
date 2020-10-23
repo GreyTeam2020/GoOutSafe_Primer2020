@@ -1,0 +1,6 @@
+ASEPizza
+43.720586
+10.408347
+red 10
+yellow 2
+pink 3

@@ -1,0 +1,14 @@
+<html>
+  <body>
+    <h1>{{name}} -- Likes: {{likes}}</h1> 
+    <h2>Phone: {{phone}}</h2> 
+    <ul>
+      {% if current_user.is_authenticated %}
+      <iframe width="600" height="400" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" 
+      src="https://www.openstreetmap.org/export/embed.html?bbox={{lon - 0.001}}%2C{{lat - 0.001}}%2C{{lon + 0.001}}%2C{{lat + 0.001}}&amp;layer=mapnik&amp;marker={{lat}}%2C{{lon}}" style="border: 1px solid black"></iframe><br/><small><a href="https://www.openstreetmap.org/#map=17/{{lat}}/{{lon}}">See it Larger</a></small>
+      
+      {% endif %}
+    </ul>
+  </body>
+</html>
+

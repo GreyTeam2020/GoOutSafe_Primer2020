@@ -1,0 +1,19 @@
+<h1>GoOutSafe</h1>
+
+{% if current_user.is_authenticated %}
+  Hi {{ current_user.firstname }}! <a href="/logout">Logout</a>
+
+  
+    <h2>Your Restaurants</h2>
+    {% for restaurant in restaurants%}
+      <div>
+        <li>
+          {{restaurant.name}} -- Likes:{{restaurant.likes}}
+        </li>
+      </div>
+    {% endfor %}
+
+
+{% else %}
+  Hi Anonymous, <a href="/login">Log in</a>
+{% endif %}

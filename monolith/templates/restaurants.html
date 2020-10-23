@@ -1,0 +1,17 @@
+<html>
+  <body>
+    <h1>Restaurant List</h1>
+    <h5>{{message}}</h5>
+    <ul>
+      {% for restaurant in restaurants: %}
+      <li>
+      "{{restaurant.name}}"    Likes: {{restaurant.likes}} 
+      {% if current_user.is_authenticated %}
+      <a href="{{base_url}}/like/{{restaurant.id}}">Like it!</a>
+      <a href="{{base_url}}/{{restaurant.id}}">See Details!</a>
+      {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </body>
+</html>
