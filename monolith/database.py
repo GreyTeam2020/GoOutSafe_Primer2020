@@ -7,7 +7,7 @@ db = SQLAlchemy()
 
 
 class User(db.Model):
-    __tablename__ = 'user'
+    __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.Unicode(128), nullable=False, unique = True)
     firstname = db.Column(db.Unicode(128))
@@ -46,15 +46,17 @@ class User(db.Model):
 
 
 class Restaurant(db.Model):
-    __tablename__ = 'restaurant'
+    __tablename__ = "restaurant"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    name = db.Column(db.Text(100)) 
-    
-    likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
+    name = db.Column(db.Text(100))
 
-    lat = db.Column(db.Float) # restaurant latitude
-    lon = db.Column(db.Float) # restaurant longitude
+    likes = db.Column(
+        db.Integer
+    )  # will store the number of likes, periodically updated in background
+
+    lat = db.Column(db.Float)  # restaurant latitude
+    lon = db.Column(db.Float)  # restaurant longitude
 
     #menu = db.Column(db.Text(255)) #we keep a text field? or we create a menu table?
 
@@ -66,14 +68,16 @@ class Restaurant(db.Model):
 
 
 class Like(db.Model):
-    __tablename__ = 'like'
+    __tablename__ = "like"
+
+    liker_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    liker = relationship("User", foreign_keys="Like.liker_id")
+
+    restaurant_id = db.Column(
+        db.Integer, db.ForeignKey("restaurant.id"), primary_key=True
+    )
+    restaurant = relationship("Restaurant", foreign_keys="Like.restaurant_id")
     
-    liker_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    liker = relationship('User', foreign_keys='Like.liker_id')
-
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), primary_key=True)
-    restaurant = relationship('Restaurant', foreign_keys='Like.restaurant_id')
-
     marked = db.Column(db.Boolean, default = False) # True iff it has been counted in Restaurant.likes 
 
 
@@ -162,4 +166,3 @@ class MenuPhotoGallery(db.Model):
     #menu reference
     menu_id = db.Column(db.Integer, db.ForeignKey('menu.id'))
     menu = relationship('Menu', foreign_keys='MenuPhotoGallery.menu_id')
-    
