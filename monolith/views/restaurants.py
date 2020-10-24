@@ -1,19 +1,18 @@
-from flask import Blueprint, redirect, render_template, request
+from flask import Blueprint, render_template, request
 from monolith.database import db, Restaurant, Like
-from monolith.auth import admin_required, current_user
-from flask_login import current_user, login_user, logout_user, login_required
-from monolith.forms import UserForm
+from flask_login import current_user, login_required
+from monolith.forms import RestaurantForm
 
 restaurants = Blueprint("restaurants", __name__)
 
 
 @restaurants.route("/restaurants")
 def _restaurants(message=""):
-    allrestaurants = db.session.query(Restaurant)
+    all_restaurants = db.session.query(Restaurant)
     return render_template(
         "restaurants.html",
         message=message,
-        restaurants=allrestaurants,
+        restaurants=all_restaurants,
         base_url="http://127.0.0.1:5000/restaurants",
     )
 
@@ -35,7 +34,7 @@ def restaurant_sheet(restaurant_id):
 @login_required
 def _like(restaurant_id):
     q = Like.query.filter_by(liker_id=current_user.id, restaurant_id=restaurant_id)
-    if q.first() != None:
+    if q.first() is not None:
         new_like = Like()
         new_like.liker_id = current_user.id
         new_like.restaurant_id = restaurant_id
@@ -45,3 +44,18 @@ def _like(restaurant_id):
     else:
         message = "You've already liked this place!"
     return _restaurants(message)
+
+
+@_restaurants.route("/restaurants/create_restaurant", methods=["POST"])
+def _create_restaurant():
+    """
+    TODO (vincenzopalazzo)
+    In this case is better use the PUT method?
+    """
+    form = RestaurantForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            new_restaurant = Restaurant()
+            form.populate_obj(new_restaurant)
+            db.session.add(new_restaurant)
+            db.session.commit()
