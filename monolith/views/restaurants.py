@@ -52,14 +52,11 @@ def _like(restaurant_id):
 def create_restaurant():
     form = RestaurantForm()
     if request.method == "POST":
-
         if form.validate_on_submit():
             new_restaurant= Restaurant()
             form.populate_obj(new_restaurant)
             db.session.add(new_restaurant)
             db.session.commit()
-
             return redirect("/")
-
     return render_template("create_restaurant.html", form=form)
 

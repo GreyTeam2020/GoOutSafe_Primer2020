@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 import wtforms as f
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 
 
 class LoginForm(FlaskForm):
@@ -20,7 +20,8 @@ class UserForm(FlaskForm):
 
 class RestaurantForm(FlaskForm):
     name = f.StringField("name", validators=[DataRequired()])
-    phone = f.StringField("phone", validators=[DataRequired()])
+    ## FIXME(vincenzopalazzo) modify the phone length
+    phone = f.StringField("phone", validators=[DataRequired(), Length(min=8, max=15)])
     lat = f.StringField("latitude", validators=[DataRequired()])
     lon = f.StringField("longitude", validators=[DataRequired()])
     display = ["name", "phone", "lat", "lon"]
