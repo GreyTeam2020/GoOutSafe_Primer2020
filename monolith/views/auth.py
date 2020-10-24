@@ -1,9 +1,8 @@
-from flask import Blueprint, render_template, redirect, request, flash
+from flask import Blueprint, render_template, redirect, request
 from flask_login import current_user, login_user, logout_user, login_required
+
 from monolith.database import db, User
 from monolith.forms import LoginForm
-from flask import current_app
-
 
 auth = Blueprint("auth", __name__)
 
@@ -15,12 +14,10 @@ def login():
         email, password = form.data["email"], form.data["password"]
         q = db.session.query(User).filter(User.email == email)
         user = q.first()
+        print(q.first().id)
         if user is not None and user.authenticate(password):
-            current_app.logger.debug("User authenticate")
             login_user(user)
             return redirect("/")
-        else:
-            current_app.logger.debug("User not authenticate")
     return render_template("login.html", form=form)
 
 
