@@ -59,5 +59,5 @@ def _create_restaurant():
             form.populate_obj(new_restaurant)
             db.session.add(new_restaurant)
             db.session.commit()
-            return redirect("/users")
+            return redirect("/restaurants")
     return render_template("create_restaurant.html", form=form)
