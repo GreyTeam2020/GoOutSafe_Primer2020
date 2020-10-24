@@ -16,3 +16,14 @@ class UserForm(FlaskForm):
     password = f.PasswordField("password", validators=[DataRequired()])
     dateofbirth = f.DateField("dateofbirth", format="%d/%m/%Y")
     display = ["email", "firstname", "lastname", "password", "dateofbirth"]
+
+class RestaurantForm(FlaskForm):
+    """
+    This class include the data that we want insert from the restaurant  from
+    """
+    name_rest = f.StringField("name restaurant", validators=[DataRequired()])
+    lat_rest = f.StringField("latitude", validators=[DataRequired()])
+    lon_rest = f.StringField("longitude", validators=[DataRequired()])
+    phone = f.StringField("phone", validators=[DataRequired()])
+    password = f.PasswordField("password", validators=[DataRequired()])
+    display = ["name_rest", "lon_rest", "lon_rest", "phone", "password"]
