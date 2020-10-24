@@ -27,5 +27,6 @@ class RestaurantForm(FlaskForm):
     lat_rest = f.StringField("lat_rest", validators=[DataRequired()])
     lon_rest = f.StringField("lon_rest", validators=[DataRequired()])
     ## TODO(vincenzopalazzo) insert the real phone number lenght
-    phone = f.StringField("phone_rest", validators=[DataRequired(), Length(min=5, max=25)])
-    display = ["name_rest", "password_rest", "phone", "lat_rest", "lon_rest"]
+    phone_rest = f.StringField("phone_rest", validators=[DataRequired(), Length(min=5, max=25)])
+    max_space = f.StringField("max_space", validators=[DataRequired(), Length(min=1, max=6)])
+    display = ["name_rest", "password_rest", "phone_rest", "max_space", "lat_rest", "lon_rest"]
