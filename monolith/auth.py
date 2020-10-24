@@ -13,6 +13,7 @@ def admin_required(func):
         if not admin:
             return login_manager.unauthorized()
         return func(*args, **kw)
+
     return _admin_required
 
 

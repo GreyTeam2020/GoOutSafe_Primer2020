@@ -2,7 +2,6 @@ from .table import Table
 
 
 class Restaurant:
-
     def __init__(self, filename):
         self.tables = []
         self.name = None

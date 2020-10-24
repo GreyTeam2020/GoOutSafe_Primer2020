@@ -7,7 +7,7 @@ db = SQLAlchemy()
 
 
 class User(db.Model):
-    __tablename__ = 'user'
+    __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.Unicode(128), nullable=False)
     firstname = db.Column(db.Unicode(128))
@@ -39,26 +39,32 @@ class User(db.Model):
 
 
 class Restaurant(db.Model):
-    __tablename__ = 'restaurant'
+    __tablename__ = "restaurant"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
 
-    name = db.Column(db.Text(100)) 
-    
-    likes = db.Column(db.Integer) # will store the number of likes, periodically updated in background
+    name = db.Column(db.Text(100))
 
-    lat = db.Column(db.Float) # restaurant latitude
-    lon = db.Column(db.Float) # restaurant longitude
+    likes = db.Column(
+        db.Integer
+    )  # will store the number of likes, periodically updated in background
+
+    lat = db.Column(db.Float)  # restaurant latitude
+    lon = db.Column(db.Float)  # restaurant longitude
 
     phone = db.Column(db.Integer)
 
 
 class Like(db.Model):
-    __tablename__ = 'like'
-    
-    liker_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
-    liker = relationship('User', foreign_keys='Like.liker_id')
+    __tablename__ = "like"
 
-    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), primary_key=True)
-    restaurant = relationship('Restaurant', foreign_keys='Like.restaurant_id')
+    liker_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    liker = relationship("User", foreign_keys="Like.liker_id")
 
-    marked = db.Column(db.Boolean, default = False) # True iff it has been counted in Restaurant.likes 
+    restaurant_id = db.Column(
+        db.Integer, db.ForeignKey("restaurant.id"), primary_key=True
+    )
+    restaurant = relationship("Restaurant", foreign_keys="Like.restaurant_id")
+
+    marked = db.Column(
+        db.Boolean, default=False
+    )  # True iff it has been counted in Restaurant.likes
