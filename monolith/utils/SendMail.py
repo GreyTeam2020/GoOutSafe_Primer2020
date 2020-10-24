@@ -1,20 +1,20 @@
 from flask import Flask
 from flask_mail import Mail, Message
-
+import os
 """
 Methods and configuration for send email
 """
 app = Flask(__name__)
-
+app.config.from_pyfile(os.path.join("..", "config/app.conf"), silent=False)
 """
 EMAIL CONFIG
 """
-app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'greyteam2020@gmail.com'
-app.config['MAIL_PASSWORD'] = 'PUTPASSWORD'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
+app.config['MAIL_SERVER'] = app.config.get("MAIL_SERVER")
+app.config['MAIL_PORT'] = app.config.get("MAIL_PORT")
+app.config['MAIL_USERNAME'] = app.config.get("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = app.config.get("MAIL_PASSWORD")
+app.config['MAIL_USE_TLS'] = app.config.get("MAIL_USE_TLS")
+app.config['MAIL_USE_SSL'] = app.config.get("MAIL_USE_SSL")
 mail = Mail(app)
 
 """
