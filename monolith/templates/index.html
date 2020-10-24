@@ -30,7 +30,8 @@
                 {% for restaurant in restaurants%}
                   <div>
                     <li>
-                      {{restaurant.name}} -- Likes:{{restaurant.likes}}
+                      <b>{{restaurant.name}}</b> -- Likes:{{restaurant.likes}}<br>
+                      Position: {{restaurant.lat}},{{restaurant.lon}}
                     </li>
                   </div>
                 {% endfor %}
