@@ -1,8 +1,6 @@
 from flask import Blueprint, render_template
-
 from monolith.database import db, Restaurant, Like
 from monolith.auth import current_user
-
 
 home = Blueprint("home", __name__)
 
@@ -13,4 +11,4 @@ def index():
         restaurants = db.session.query(Restaurant)
     else:
         restaurants = None
-    return render_template("index.html", restaurants=restaurants)
+    return render_template("index.html", restaurants=restaurants, enumerate=enumerate)
