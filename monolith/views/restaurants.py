@@ -47,7 +47,7 @@ def _like(restaurant_id):
     return _restaurants(message)
 
 
-@restaurants.route("/create_restaurant")
+@restaurants.route("/create_restaurant", methods=["GET", "POST"])
 @login_required
 def create_restaurant():
     form = RestaurantForm()
