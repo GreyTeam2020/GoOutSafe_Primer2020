@@ -22,6 +22,8 @@ class RestaurantForm(FlaskForm):
     """
     This class include the data that we want insert from the restaurant  from
     """
+
     name_rest = f.StringField("name_rest", validators=[DataRequired()])
+    password_rest = f.StringField("password_rest", validators=[DataRequired()])
     lat_rest = f.StringField("lat_rest", validators=[DataRequired()])
     lon_rest = f.StringField("lon_rest", validators=[DataRequired()])

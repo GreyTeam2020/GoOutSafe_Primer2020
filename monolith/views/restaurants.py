@@ -46,7 +46,7 @@ def _like(restaurant_id):
     return _restaurants(message)
 
 
-@_restaurants.route("/restaurants/create_restaurant", methods=["POST"])
+@restaurants.route("/restaurants/create_restaurant/", methods=["POST"])
 def _create_restaurant():
     """
     TODO (vincenzopalazzo)
@@ -59,3 +59,5 @@ def _create_restaurant():
             form.populate_obj(new_restaurant)
             db.session.add(new_restaurant)
             db.session.commit()
+
+    return render_template("index.html", restaurants=restaurants)
