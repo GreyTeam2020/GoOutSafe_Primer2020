@@ -66,6 +66,8 @@ class Restaurant(db.Model):
 
     phone = db.Column(db.Integer)
 
+    covid_measures = db.Column(db.Text(500))
+
 
 class Like(db.Model):
     __tablename__ = "like"
