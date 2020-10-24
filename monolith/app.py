@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, flash
 from monolith.database import db, User, Restaurant
 from monolith.views import blueprints
 from monolith.auth import login_manager
@@ -52,4 +52,4 @@ def create_app():
 
 if __name__ == "__main__":
     app = create_app()
-    app.run(host="0.0.0.0")
+    app.run(host="0.0.0.0", port=8080, debug=True)
