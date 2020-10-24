@@ -16,6 +16,10 @@ class User(db.Model):
     dateofbirth = db.Column(db.DateTime)
     is_active = db.Column(db.Boolean, default=True)
     is_admin = db.Column(db.Boolean, default=False)
+    #user role
+    role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    restaurant = relationship('Role', foreign_keys='User.role_id')
+    #
     is_anonymous = False
 
     def __init__(self, *args, **kw):
@@ -24,6 +28,9 @@ class User(db.Model):
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
+
+    def set_role(self, role):
+        self.role = role
 
     @property
     def is_authenticated(self):
@@ -49,6 +56,12 @@ class Restaurant(db.Model):
     lat = db.Column(db.Float) # restaurant latitude
     lon = db.Column(db.Float) # restaurant longitude
 
+    #menu = db.Column(db.Text(255)) #we keep a text field? or we create a menu table?
+
+    #resturant owner
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    owner = relationship('User', foreign_keys='Restaurant.owner_id')
+
     phone = db.Column(db.Integer)
 
 
@@ -62,3 +75,91 @@ class Like(db.Model):
     restaurant = relationship('Restaurant', foreign_keys='Like.restaurant_id')
 
     marked = db.Column(db.Boolean, default = False) # True iff it has been counted in Restaurant.likes 
+
+
+class RestaurantTable(db.Model):
+    __tablename__ = 'restaurant_table'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    restaurant = relationship('Restaurant', foreign_keys='RestaurantTable.restaurant_id')
+
+    name = db.Column(db.Text(100)) #table name
+    
+    max_seats = db.Column(db.Integer) #max seats of the table
+
+    available = db.Column(db.Boolean, default = False) #I don't understand the purpose of this field..
+
+class Role(db.Model):
+    #this is the role of a user (like operator, customer....)
+    __tablename__ = 'role'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    value = db.Column(db.Text(100)) 
+    label = db.Column(db.Text(100)) 
+
+class Positive(db.Model):
+    #all covid positives
+    __tablename__ = 'positive'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    from_date = db.Column(db.Date)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user = relationship('User', foreign_keys='Positive.user_id')
+
+class Reservation(db.Model):
+    #reservations
+    __tablename__ = 'reservation'
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    reservation_date = db.Column(db.DateTime)
+    #customer that did the the reservation
+    customer_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    custumer = relationship('User', foreign_keys='Reservation.customer_id')
+    #
+    #reserved table
+    table_id = db.Column(db.Integer, db.ForeignKey('restaurant_table.id'))
+    table = relationship('RestaurantTable', foreign_keys='Reservation.table_id')
+    #
+
+class PhotoGallery(db.Model):
+    __tablename__ = 'photo_gallery'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    url = db.Column(db.Text(255)) 
+    caption = db.Column(db.Text(200)) 
+    #restaurant
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    restaurant = relationship('Restaurant', foreign_keys='PhotoGallery.restaurant_id')
+
+class OpeningHours(db.Model):
+    #opening hours
+    __tablename__ = 'opening_hours'
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'), primary_key=True)
+    restaurant = relationship('Restaurant', foreign_keys='OpeningHours.restaurant_id')
+    week_day = db.Column(db.Integer, primary_key=True)
+    open_lunch = db.Column(db.Time)
+    close_lunch = db.Column(db.Time)
+    open_dinner = db.Column(db.Time)
+    close_dinner = db.Column(db.Time)
+
+class Menu(db.Model):
+    #menu
+    __tablename__ = 'menu'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    #restaurant
+    restaurant_id = db.Column(db.Integer, db.ForeignKey('restaurant.id'))
+    restaurant = relationship('Restaurant', foreign_keys='Menu.restaurant_id')
+    #
+    cusine = db.Column(db.Text(100))
+    description = db.Column(db.Text(255))
+
+class MenuPhotoGallery(db.Model):
+    #menu photos
+    __tablename__ = 'menu_photo_gallery'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    url = db.Column(db.Text(255)) 
+    caption = db.Column(db.Text(200)) 
+    #menu reference
+    menu_id = db.Column(db.Integer, db.ForeignKey('menu.id'))
+    menu = relationship('Menu', foreign_keys='MenuPhotoGallery.menu_id')
+    
