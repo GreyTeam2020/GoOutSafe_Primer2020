@@ -55,7 +55,7 @@ def create_restaurants():
             new_restaurant = Restaurant()
             form.populate_obj(new_restaurant)
             new_restaurant.set_password(
-                form.password.data
+                form.password_rest.data
             )  # pw should be hashed with some salt
             db.session.add(new_restaurant)
             db.session.commit()
