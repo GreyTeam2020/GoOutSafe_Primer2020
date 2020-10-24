@@ -2,6 +2,7 @@ from flask import Blueprint, redirect, render_template, request
 from monolith.database import db, User
 from monolith.auth import admin_required
 from monolith.forms import UserForm
+from flask_login import login_user
 
 users = Blueprint("users", __name__)
 
@@ -25,6 +26,13 @@ def create_user():
             )  # pw should be hashed with some salt
             db.session.add(new_user)
             db.session.commit()
-            return redirect("/users")
+
+            email, password = form.data["email"], form.data["password"]
+            q = db.session.query(User).filter(User.email == email)
+            user = q.first()
+            print(q.first().id)
+            if user is not None and user.authenticate(password):
+                login_user(user)
+            return redirect("/")
 
     return render_template("create_user.html", form=form)

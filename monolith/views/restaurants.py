@@ -2,7 +2,7 @@ from flask import Blueprint, redirect, render_template, request
 from monolith.database import db, Restaurant, Like
 from monolith.auth import admin_required, current_user
 from flask_login import current_user, login_user, logout_user, login_required
-from monolith.forms import UserForm
+from monolith.forms import RestaurantForm
 
 restaurants = Blueprint("restaurants", __name__)
 
@@ -45,3 +45,21 @@ def _like(restaurant_id):
     else:
         message = "You've already liked this place!"
     return _restaurants(message)
+
+
+@restaurants.route("/create_restaurant")
+@login_required
+def create_restaurant():
+    form = RestaurantForm()
+    if request.method == "POST":
+
+        if form.validate_on_submit():
+            new_restaurant= Restaurant()
+            form.populate_obj(new_restaurant)
+            db.session.add(new_restaurant)
+            db.session.commit()
+
+            return redirect("/")
+
+    return render_template("create_restaurant.html", form=form)
+

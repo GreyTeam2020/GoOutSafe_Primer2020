@@ -26,7 +26,7 @@
               Hi {{ current_user.firstname }}! <a href="/logout">Logout</a>
 
 
-                <h2>Your Restaurants</h2>
+                <h2>Restaurants</h2>
                 {% for restaurant in restaurants%}
                   <div>
                     <li>
@@ -34,12 +34,13 @@
                     </li>
                   </div>
                 {% endfor %}
-
+                
+                <br><br>
+                Do you have a restaurant? <a href="/create_restaurant">Register it</a>
 
             {% else %}
               Hi Anonymous, <a href="/login">Log in</a><br><br>
-              Don't have an account? <a href="/create_user">Sign up</a><br>
-              Do you have a restaurant? <a href="/create_restaurant">Register it</a>
+              Don't you have an account? <a href="/create_user">Sign up</a><br>
             {% endif %}
         </p>
       </div>
