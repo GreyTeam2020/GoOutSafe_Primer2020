@@ -1,14 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>GoOutSafe</title>
-
-    <link href="{{ url_for('static',filename='styles/bootstrap.min.css') }}" rel="stylesheet" >
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-</head>
-<body>
+{% include "header.html" %}
       <!-- Navigation -->
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
           <a class="navbar-brand" href="/">GoOutSafe</a>
@@ -35,10 +25,4 @@
     </div>
   </div>
 
-
-
-  <!-- Bootstrap core JavaScript -->
-  <script src="{{ url_for('static',filename='js/jquery.slim.min.js') }}"></script>
-  <script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js') }}"></script>
-</body>
-</html>
+{% include "footer.html" %}
