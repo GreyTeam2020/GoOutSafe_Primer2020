@@ -7,10 +7,17 @@
             {% if current_user.is_authenticated %}
                 <p class="lead"> Hi {{ current_user.firstname }}! <a href="/logout">Logout</a> </p>
                 <p class="mt-3 lead"> Do you have a restaurant? <a href="/create_restaurant">Register it</a></p>
+            {% else %}
+                <p>
+                 Hi Anonymous, <a href="/login">Log in</a><br><br>
+                 Don't you have an account? <a href="/create_user">Sign up</a><br>
+                </p>
+            {% endif %}
                 <h2 class="mt-5 lead">Restaurants</h2>
-                <div class="lead d-flex justify-content-center">
+                <div class="row lead d-flex justify-content-center">
                 {% for restaurant in restaurants%}
-                        <div class="card lead" style="width: 18rem;">
+
+                    <div class="col-lg-3 col-md-4 card lead m-1" style="width: 18rem;">
                          <img src="https://images.pexels.com/photos/6267/menu-restaurant-vintage-table.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500"
                             class="card-img-top" alt="logo restaurant">
                           <div class="card-body">
@@ -24,12 +31,6 @@
                           </div>
                          </div>
                 {% endfor %}
-            {% else %}
-                <p>
-                 Hi Anonymous, <a href="/login">Log in</a><br><br>
-                 Don't you have an account? <a href="/create_user">Sign up</a><br>
-                </p>
-            {% endif %}
       </div>
     </div>
   </div>
