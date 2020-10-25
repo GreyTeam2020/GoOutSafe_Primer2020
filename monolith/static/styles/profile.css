@@ -1,0 +1,9 @@
+.profile-head {
+    transform: translateY(5rem)
+}
+
+.cover {
+    background: black;
+    background-size: cover;
+    background-repeat: no-repeat
+}
