@@ -1,5 +1,5 @@
 from flask import Flask
-from monolith.database import db, User, Restaurant
+from monolith.database import db, User, Restaurant, Role
 from monolith.views import blueprints
 from monolith.auth import login_manager
 import datetime
@@ -22,6 +22,29 @@ def create_app():
 
     # create a first admin user
     with app.app_context():
+
+        # create the user roles
+        q = db.session.query(Role).filter(Role.id == 1)
+        role = q.first()
+        if role is None:
+            role = Role()
+            role.value = "ADMIN"
+            role.label = "Admin role"
+            db.session.add(role)
+            role = Role()
+            role.value = "OPERATOR"
+            role.label = "Operator role"
+            db.session.add(role)
+            role = Role()
+            role.value = "CUSTOMER"
+            role.label = "Customer role"
+            db.session.add(role)
+            role = Role()
+            role.value = "HEALTH"
+            role.label = "Health role"
+            db.session.add(role)
+            db.session.commit()
+
         q = db.session.query(User).filter(User.email == "example@example.com")
         user = q.first()
         if user is None:
@@ -32,6 +55,7 @@ def create_app():
             example.dateofbirth = datetime.datetime(2020, 10, 5)
             example.is_admin = True
             example.set_password("admin")
+            example.role_id = 1
             db.session.add(example)
             db.session.commit()
 
@@ -46,6 +70,8 @@ def create_app():
             example.lon = 10.408347
             db.session.add(example)
             db.session.commit()
+
+
 
     return app
 
