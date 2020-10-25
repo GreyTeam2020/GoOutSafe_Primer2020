@@ -28,4 +28,5 @@ def login():
 @auth.route("/logout")
 def logout():
     logout_user()
+    session.clear()  # remove all session objects, like role
     return redirect("/")
