@@ -1,7 +1,7 @@
 $("#newBook").click(function(){
     $("#bookTableForm").submit();
 });
-$("#showBooking").click(showBookRestaurant);
+$(".showBooking").click(showBookRestaurant);
 
 function showBookRestaurant(){
     $("#restaurantID").val($(this).data("id"));
