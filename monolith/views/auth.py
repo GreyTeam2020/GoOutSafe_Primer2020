@@ -1,7 +1,7 @@
-from flask import Blueprint, render_template, redirect, request
+from flask import Blueprint, render_template, redirect, request, session
 from flask_login import current_user, login_user, logout_user, login_required
 
-from monolith.database import db, User
+from monolith.database import db, User, Role
 from monolith.forms import LoginForm
 
 auth = Blueprint("auth", __name__)
@@ -16,6 +16,9 @@ def login():
         user = q.first()
         if user is not None and user.authenticate(password):
             login_user(user)
+            q = db.session.query(Role).filter(Role.id == user.role_id)
+            role = q.first()
+            session['ROLE'] = role.value
             return redirect("/")
         else:
             return render_template("login.html", form=form, message="User not exist")
@@ -25,4 +28,5 @@ def login():
 @auth.route("/logout")
 def logout():
     logout_user()
+    session.clear()  # remove all session objects, like role
     return redirect("/")

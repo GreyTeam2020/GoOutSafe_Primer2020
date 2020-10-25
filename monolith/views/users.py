@@ -59,3 +59,9 @@ def _testsendemail():
     )
     # ------------------------
     return render_template("sendemailok.html", testEmail=testEmail)
+
+
+@users.route("/testtpl")
+def _testtpl():
+    return render_template("testtpl.html")
+
