@@ -1,5 +1,5 @@
 from flask import Blueprint, redirect, render_template, request, session
-from monolith.database import db, User
+from monolith.database import db, User, Like
 from monolith.forms import UserForm
 from monolith.utils import SendMail
 from flask_login import login_user
@@ -18,6 +18,11 @@ def create_user():
     form = UserForm()
     if request.method == "POST":
         if form.validate_on_submit():
+            q = db.session.query(User).filter_by(email=form.email.data)
+            if q.first() is not None:
+                return render_template("create_user.html",
+                                       form=form,
+                                       message="Email {} already registered".format(form.email.data))
             new_user = User()
             form.populate_obj(new_user)
             new_user.set_password(

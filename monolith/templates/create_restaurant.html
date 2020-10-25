@@ -29,6 +29,11 @@
             {% endfor %}
          {% endif %}
        {% endfor %}
+       {% if message %}
+          <div class="alert alert-danger" role="alert">
+              {{ message }}
+          </div>
+      {% endif  %}
       </dl>
     <button class="btn btn-lg btn-primary btn-block" type="submit">Register your restaurant</button>
   </form>

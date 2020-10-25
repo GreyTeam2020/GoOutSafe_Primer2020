@@ -68,6 +68,9 @@ class Restaurant(db.Model):
 
     covid_measures = db.Column(db.Text(500))
 
+    def __init__(self, *args, **kw):
+        super(Restaurant, self).__init__(*args, **kw)
+
 
 class Like(db.Model):
     __tablename__ = "like"
