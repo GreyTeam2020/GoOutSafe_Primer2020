@@ -18,7 +18,8 @@ def login():
             login_user(user)
             q = db.session.query(Role).filter(Role.id == user.role_id)
             role = q.first()
-            session["ROLE"] = role.value
+            if role is not None:
+                session["ROLE"] = role.value
             return redirect("/")
         else:
             return render_template("login.html", form=form, message="User not exist")
