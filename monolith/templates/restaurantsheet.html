@@ -35,13 +35,32 @@
                     </li>
                 </ul>
             </div>
-            <div class="px-4 py-3">
-                <h5 class="mb-0">Map</h5>
-                <div class="p-4 rounded shadow-sm bg-light">
-                    <iframe width="600" height="400" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-                     src="https://www.openstreetmap.org/export/embed.html?bbox={{lon - 0.001}}%2C{{lat - 0.001}}%2C{{lon + 0.001}}%2C{{lat + 0.001}}&amp;layer=mapnik&amp;marker={{lat}}%2C{{lon}}" style="border: 1px solid black"></iframe><br/><small><a href="https://www.openstreetmap.org/#map=17/{{lat}}/{{lon}}">See it Larger</a></small>
+            <div class="row">
+                <div class="col-md-6">
+                    <h5 class="mb-0">Info</h5>
+                    <div class="p-4 rounded shadow-sm bg-light">
+                        <b>Opening hours:</b> (static, not implemented)<br>
+                        <ul>
+                            <li>Thuesday-Sunday: all day</li>
+                            <li>Monday: close</li>
+                        </ul>
+                        <b>Phone:</b><br>
+                        <p>{{ phone }}</p>
+                        <b>Cuisine Type:</b><br>
+                        <p>Italian (static, not implemented)</p>
+                        <b>Anti-COVID Measures:</b> (static, not implemented)<br>
+                        <p>We have hand-sanitizer available at the entrance and all our operators have masks</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <h5 class="mb-0">Map</h5>
+                    <div class="p-4 rounded shadow-sm bg-light">
+                        <iframe height="400" width="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
+                         src="https://www.openstreetmap.org/export/embed.html?bbox={{lon - 0.001}}%2C{{lat - 0.001}}%2C{{lon + 0.001}}%2C{{lat + 0.001}}&amp;layer=mapnik&amp;marker={{lat}}%2C{{lon}}" style="border: 1px solid black"></iframe><br/><small><a href="https://www.openstreetmap.org/#map=17/{{lat}}/{{lon}}">See it Larger</a></small>
+                    </div>
                 </div>
             </div>
+
             <div class="py-4 px-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <h5 class="mb-0">Photos</h5>
