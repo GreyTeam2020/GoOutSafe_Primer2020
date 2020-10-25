@@ -14,13 +14,14 @@ def login():
         email, password = form.data["email"], form.data["password"]
         q = db.session.query(User).filter(User.email == email)
         user = q.first()
-        print(q.first().id)
         if user is not None and user.authenticate(password):
             login_user(user)
             q = db.session.query(Role).filter(Role.id == user.role_id)
             role = q.first()
             session['ROLE'] = role.value
             return redirect("/")
+        else:
+            return render_template("login.html", form=form, message="User not exist")
     return render_template("login.html", form=form)
 
 
