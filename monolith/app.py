@@ -71,7 +71,17 @@ def create_app():
             db.session.add(example)
             db.session.commit()
 
-
+        q = db.session.query(User).filter(User.email == "health_authority@gov.com")
+        user = q.first()
+        if user is None:
+            health_authority = User()
+            health_authority.firstname = "Health"
+            health_authority.lastname = "Authority"
+            health_authority.email = "health_authority@gov.com"
+            health_authority.is_admin = False
+            health_authority.set_password("nocovid")
+            db.session.add(health_authority)
+            db.session.commit()
 
     return app
 
