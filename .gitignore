@@ -2,4 +2,3 @@
 .idea/
 **/__pycache__
 gooutsafe.db
-/monolith/config/app.conf
