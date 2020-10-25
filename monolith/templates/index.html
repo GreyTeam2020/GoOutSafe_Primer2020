@@ -33,7 +33,9 @@
                             <p>
                                 <i class="material-icons">thumb_down</i>  <i class="material-icons">thumb_up</i> {{ restaurant.likes }}
                             </p>
-                            <a href="/restaurants/{{ restaurant.id }}">  Visit</a>
+
+                            <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-warning">Visit</button></a>&nbsp;
+                            <button class="btn btn-primary" id="showBooking" data-id="{{ restaurant.id }}">Book</button>
                           </div>
                          </div>
                 {% endfor %}
@@ -47,10 +49,37 @@
     </div>
   </div>
 
-
+    <div class="modal" tabindex="-1" role="dialog" id="bookTable">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">New Booking</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <form method="POST" action="/newbooking" id="bookTableForm">
+                <input type="hidden" name="restaurantID" id="restaurantID"/>
+                <label>Date</label>
+                <input type="text" class="form-control" name="date" placeholder="Date">
+                <label>Time</label>
+                <input type="text" class="form-control" name="time" placeholder="Time">
+                <label>Number of People</label>
+                <input type="text" class="form-control" name="people" placeholder="N. of people">
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="newBook">Book!</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
 
   <!-- Bootstrap core JavaScript -->
   <script src="{{ url_for('static',filename='js/jquery.slim.min.js') }}"></script>
   <script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js') }}"></script>
+  <script src="{{ url_for('static',filename='js/app.js') }}"></script>
 </body>
 </html>

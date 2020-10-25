@@ -39,10 +39,18 @@ def create_user():
 @users.route("/testsendemail")
 def _testsendemail():
     # ------------------------
-    testEmail = 'PUTYOUREMAIL'  # PUT YOUR EMAIL FOR TEST and click to /login
-    SendMail.sendPossibilePositiveContact(testEmail, 'John Doe', '01/01/2020 21:30', 'Il Paninaro')
-    SendMail.sendReservationConfirm(testEmail, 'John Doe', '01/01/2020 21:30', 'Il Paninaro', 10)
-    SendMail.sendRegistrationConfirm(testEmail, 'John Doe', 'qwertyuiopasdfghjklzxcvbnm')
-    SendMail.sendReservationNotification(testEmail, 'John Doe', 'Il Paninaro', 'Richard Smith', '01/01/2020 21:30', 12, 8)
+    testEmail = "PUTYOUREMAIL"  # PUT YOUR EMAIL FOR TEST and click to /login
+    SendMail.sendPossibilePositiveContact(
+        testEmail, "John Doe", "01/01/2020 21:30", "Il Paninaro"
+    )
+    SendMail.sendReservationConfirm(
+        testEmail, "John Doe", "01/01/2020 21:30", "Il Paninaro", 10
+    )
+    SendMail.sendRegistrationConfirm(
+        testEmail, "John Doe", "qwertyuiopasdfghjklzxcvbnm"
+    )
+    SendMail.sendReservationNotification(
+        testEmail, "John Doe", "Il Paninaro", "Richard Smith", "01/01/2020 21:30", 12, 8
+    )
     # ------------------------
     return render_template("sendemailok.html", testEmail=testEmail)
