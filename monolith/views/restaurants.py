@@ -23,6 +23,7 @@ def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
     return render_template(
         "restaurantsheet.html",
+        id = restaurant_id,
         name=record.name,
         likes=record.likes,
         lat=record.lat,

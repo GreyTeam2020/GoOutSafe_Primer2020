@@ -23,7 +23,7 @@
 
                             <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-warning">Visit</button></a>&nbsp;
                             {% if session['ROLE'] == 'CUSTOMER' %}
-                              <button class="btn btn-primary" id="showBooking" data-id="{{ restaurant.id }}">Book</button>
+                              <button class="btn btn-primary showBooking" data-id="{{ restaurant.id }}">Book</button>
                             {% endif %}
                           </div>
                          </div>
