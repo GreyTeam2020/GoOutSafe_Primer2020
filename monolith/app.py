@@ -4,6 +4,7 @@ from monolith.views import blueprints
 from monolith.auth import login_manager
 import datetime
 
+
 def create_app():
     app = Flask(__name__)
     app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"

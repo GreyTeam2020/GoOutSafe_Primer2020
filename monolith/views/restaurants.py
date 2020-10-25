@@ -53,16 +53,20 @@ def create_restaurant():
     form = RestaurantForm()
     if request.method == "POST":
         if form.validate_on_submit():
-            q = db.session.query(Restaurant).filter_by(name=form.name.data, phone=form.phone.data,
-                                              lat=form.lat.data, lon=form.lon.data)
+            q = db.session.query(Restaurant).filter_by(
+                name=form.name.data,
+                phone=form.phone.data,
+                lat=form.lat.data,
+                lon=form.lon.data,
+            )
             if q.first() is not None:
-                return render_template("create_restaurant.html",
-                                form=form,
-                                message="Restaurant {} in {}:{} already existed".format(
-                                    form.name.data,
-                                    form.lat.data,
-                                    form.lon.data
-                                ))
+                return render_template(
+                    "create_restaurant.html",
+                    form=form,
+                    message="Restaurant {} in {}:{} already existed".format(
+                        form.name.data, form.lat.data, form.lon.data
+                    ),
+                )
             new_restaurant = Restaurant()
             form.populate_obj(new_restaurant)
             db.session.add(new_restaurant)
