@@ -90,7 +90,6 @@ def create_restaurant():
             db.session.commit()
 
             #inserimento dei tavoli nel database
-<<<<<<< HEAD
             for i in range(int(form.n_tables.data)):
                 new_table = RestaurantTable()
                 new_table.restaurant_id = new_restaurant.id
@@ -101,23 +100,13 @@ def create_restaurant():
                 db.session.add(new_table)
                 db.session.commit()
 
+            """TEST 
             q_test= db.session.query(RestaurantTable).filter_by(restaurant_id=new_restaurant.id)
             q_test.all()
             for q in q_test:
                 print("id: ")
-                print(q.id)
+                print(q.id)"""
 
-=======
-
-            new_table = RestaurantTable()
-            new_table.restaurant_id = new_restaurant.id
-            new_table.max_seats = _maxSeats
-            new_table.available = True
-            new_table.name = ""
-            
-            db.session.add(new_table)
-            db.session.commit()
->>>>>>> b558c9a3b3a681be6332632ef03e80650fc66e40
 
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
