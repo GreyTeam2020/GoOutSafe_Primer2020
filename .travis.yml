@@ -6,6 +6,7 @@ install:
   - pip install coverage==4.5.4
   - pip install python-coveralls
 script:
+  - source venv/bin/activate
   - python -m pytest
 notifications:
   email: false
