@@ -44,6 +44,11 @@ def create_user():
     return render_template("create_user.html", form=form)
 
 
+@users.route("/myreservations")
+def myreservation():
+    return render_template("user_reservations.html")
+
+
 @users.route("/testsendemail")
 def _testsendemail():
     # ------------------------
@@ -62,8 +67,3 @@ def _testsendemail():
     )
     # ------------------------
     return render_template("sendemailok.html", testEmail=testEmail)
-
-
-@users.route("/testtpl")
-def _testtpl():
-    return render_template("testtpl.html")

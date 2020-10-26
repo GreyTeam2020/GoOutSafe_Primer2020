@@ -21,12 +21,13 @@
                             <br/>
                             <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
                             {% if session['ROLE'] == 'CUSTOMER' %}
-                              <button class="btn btn-primary text-dark showBooking" data-id="{{ restaurant.id }}">Book</button>
+                              <button class="btn btn-primary showBooking" data-id="{{ restaurant.id }}">Book</button>
                             {% endif %}
                         </p>
                       </div>
                     </div>
                 {% endfor %}
+                </div>
       </div>
     </div>
   </div>

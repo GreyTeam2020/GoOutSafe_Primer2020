@@ -1,0 +1,32 @@
+{% include 'header.html' %}
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+          <h1 class="mt-5 mb-5">All Restaurants</h1>
+          <table id="allrestaurants" class="display" style="width:100%">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Last Reservation</th>
+                <th>Quarantined</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>{{ user.firstname }} {{ user.lastname }}</td>
+                        <td>{ { to implement }}</td>
+                        <td>{ { to implement }}</td>
+                        <td><button class="btn btn-danger">Report Positive</button></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+{% include 'footer.html' %}
