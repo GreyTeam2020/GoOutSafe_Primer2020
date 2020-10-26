@@ -12,10 +12,10 @@ _maxSeats = 6
 def _restaurants(message=""):
     allrestaurants = db.session.query(Restaurant)
     return render_template(
-        "restaurants.html",
+        "index.html",
         message=message,
         restaurants=allrestaurants,
-        base_url="http://127.0.0.1:5000/restaurants",
+        base_url="http://127.0.0.1:5000/",
     )
 
 
