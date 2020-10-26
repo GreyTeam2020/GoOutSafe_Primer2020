@@ -1,10 +1,12 @@
 from flask import Blueprint, redirect, render_template, request, session, current_app
-from monolith.database import db, Restaurant, Like, User
-from monolith.auth import roles_allowed
-from flask_login import current_user, login_required
+from monolith.database import db, Restaurant, Like, Reservation, User, RestaurantTable
+from monolith.auth import admin_required, current_user, roles_allowed
+from flask_login import current_user, login_user, logout_user, login_required
 from monolith.forms import RestaurantForm
 
 restaurants = Blueprint("restaurants", __name__)
+
+_maxSeats = 6
 
 
 @restaurants.route("/restaurants")
@@ -72,28 +74,51 @@ def create_restaurant():
             new_restaurant = Restaurant()
             q_user = db.session.query(User).filter_by(id=current_user.id).first()
             if q_user is None:
-                return render_template("create_restaurant.html",
-                                       form=form,
-                                       message="User not logged")
+                return render_template(
+                    "create_restaurant.html", form=form, message="User not logged"
+                )
             print(q_user)
             if q_user.role_id is 3:
                 q_user.role_id = 2
                 db.session.commit()
-                current_app.logger.debug("User {} with id {} update from role {} to {}"
-                                         .format(q_user.email, q_user.id, 3, q_user.role_id))
+                current_app.logger.debug(
+                    "User {} with id {} update from role {} to {}".format(
+                        q_user.email, q_user.id, 3, q_user.role_id
+                    )
+                )
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
-            new_restaurant.covid_measures = "no information"
+            new_restaurant.covid_measures = form.covid_m.data
+
             db.session.add(new_restaurant)
             db.session.commit()
+
+            # inserimento dei tavoli nel database
+            for i in range(int(form.n_tables.data)):
+                new_table = RestaurantTable()
+                new_table.restaurant_id = new_restaurant.id
+                new_table.max_seats = _maxSeats
+                new_table.available = True
+                new_table.name = ""
+
+                db.session.add(new_table)
+                db.session.commit()
+
+            """TEST 
+            q_test= db.session.query(RestaurantTable).filter_by(restaurant_id=new_restaurant.id)
+            q_test.all()
+            for q in q_test:
+                print("id: ")
+                print(q.id)"""
+
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
 
 
-@restaurants.route("/list_reservations")
+@restaurants.route("/my_reservations")
 @login_required
 @roles_allowed(roles=["OPERATOR"])
-def list_reservations():
+def my_reservations():
     # http://localhost:5000/list_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
 
     # for security reason, that are retrive on server side, not passed by params
@@ -101,16 +126,18 @@ def list_reservations():
     restaurant_id = session["RESTAURANT_ID"]
 
     # filter params
-    fromDate = request.args.get('fromDate', type=str)
-    toDate = request.args.get('toDate', type=str)
-    email = request.args.get('email', type=str)
+    fromDate = request.args.get("fromDate", type=str)
+    toDate = request.args.get("toDate", type=str)
+    email = request.args.get("email", type=str)
 
-    queryString = "select reserv.reservation_date, reserv.people_number, cust.firstname, cust.lastname, cust.email, tab.name as tabname from reservation reserv " \
-        "join user cust on cust.id = reserv.customer_id " \
-        "join restaurant_table tab on reserv.table_id = tab.id "  \
-        "join restaurant rest on rest.id = tab.restaurant_id " \
-        "where rest.owner_id = :owner_id " \
+    queryString = (
+        "select reserv.reservation_date, reserv.people_number, cust.firstname, cust.lastname, cust.email, tab.name as tabname from reservation reserv "
+        "join user cust on cust.id = reserv.customer_id "
+        "join restaurant_table tab on reserv.table_id = tab.id "
+        "join restaurant rest on rest.id = tab.restaurant_id "
+        "where rest.owner_id = :owner_id "
         "and rest.id = :restaurant_id "
+    )
 
     # add filters...
     if fromDate:
@@ -137,6 +164,5 @@ def list_reservations():
     reservations_as_list = result.fetchall()
 
     return render_template(
-        "list_reservations.html",
-        reservations_as_list=reservations_as_list
+        "list_reservations.html", reservations_as_list=reservations_as_list
     )

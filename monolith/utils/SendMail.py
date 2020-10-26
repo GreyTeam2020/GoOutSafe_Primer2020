@@ -6,7 +6,7 @@ import os
 Methods and configuration for send email
 """
 app = Flask(__name__)
-app.config.from_pyfile(os.path.join("..", "config/app.conf"), silent=False)
+app.config.from_pyfile(os.path.join("..", "config/app.config"), silent=False)
 """
 EMAIL CONFIG
 """

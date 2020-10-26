@@ -1,5 +1,4 @@
 import functools
-from functools import wraps
 from flask_login import current_user, LoginManager
 from flask import session
 from monolith.database import User
@@ -30,10 +29,11 @@ def roles_allowed(func=None, roles=None):
 
     @functools.wraps(func)
     def f(*args, **kwargs):
-        role = session.get('ROLE')
+        role = session.get("ROLE")
         if not any(role in s for s in roles):
             return login_manager.unauthorized()
         return func(*args, **kwargs)
+
     return f
 
 
