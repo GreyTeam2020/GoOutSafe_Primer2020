@@ -4,6 +4,17 @@
     <div class="row justify-content-center">
       <div class="col-lg-5 text-center">
           <h1 class="mt-5 mb-5">My Restaurant Data</h1>
+          {% if message %}
+              <div class="alert alert-success" role="alert">
+                <b>Success</b><br>
+                {{ message }}
+              </div>
+          {%  elif error%}
+              <div class="alert alert-danger" role="alert">
+                <b>Error</b><br>
+                {{ error }}
+              </div>
+          {% endif %}
           <form class="form-signin"  action="" method="POST">
               {{ form.hidden_tag() }}
               <dl>
