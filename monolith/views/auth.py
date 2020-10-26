@@ -18,7 +18,6 @@ def login():
             login_user(user)
             q = db.session.query(Role).filter(Role.id == user.role_id)
             role = q.first()
-<<<<<<< HEAD
 
             if role is not None:
                 session["ROLE"] = role.value
@@ -29,15 +28,6 @@ def login():
                     session["RESTAURANT_ID"] = restaurant.id
                     session["RESTAURANT_NAME"] = restaurant.name
 
-=======
-            session["ROLE"] = role.value
-            # if is operator, load restaurant information and load in session
-            if role.value == 'OPERATOR':
-                q = db.session.query(Restaurant).filter(Restaurant.owner_id == user.id)
-                restaurant = q.first()
-                session["RESTAURANT_ID"] = restaurant.id
-                session["RESTAURANT_NAME"] = restaurant.name
->>>>>>> 2abf67867e863be3e0d0cdb66acddd5403f231d5
             return redirect("/")
         else:
             return render_template("login.html", form=form, message="User not exist")

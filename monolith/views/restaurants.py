@@ -1,10 +1,5 @@
-<<<<<<< HEAD
-from flask import Blueprint, redirect, render_template, request, session
-from monolith.database import db, Restaurant, Like, Reservation
-=======
 from flask import Blueprint, redirect, render_template, request, session, current_app
 from monolith.database import db, Restaurant, Like, Reservation, User
->>>>>>> 2abf67867e863be3e0d0cdb66acddd5403f231d5
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
 from monolith.forms import RestaurantForm
@@ -95,10 +90,10 @@ def create_restaurant():
     return render_template("create_restaurant.html", form=form)
 
 
-@restaurants.route("/list_reservations")
+@restaurants.route("/my_reservations")
 @login_required
 @roles_allowed(roles=["OPERATOR"])
-def list_reservations():
+def my_reservations():
     # http://localhost:5000/list_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
 
     # for security reason, that are retrive on server side, not passed by params
