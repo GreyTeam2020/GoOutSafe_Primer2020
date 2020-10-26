@@ -1,7 +1,7 @@
-from flask import Blueprint, redirect, render_template, request, session
-from monolith.database import db, Restaurant, Like, Reservation
-from monolith.auth import admin_required, current_user, roles_allowed
-from flask_login import current_user, login_user, logout_user, login_required
+from flask import Blueprint, redirect, render_template, request, session, current_app
+from monolith.database import db, Restaurant, Like, User
+from monolith.auth import roles_allowed
+from flask_login import current_user, login_required
 from monolith.forms import RestaurantForm
 
 restaurants = Blueprint("restaurants", __name__)
