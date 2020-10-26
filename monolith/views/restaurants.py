@@ -1,11 +1,12 @@
 from flask import Blueprint, redirect, render_template, request, session, current_app
-from monolith.database import db, Restaurant, Like, User
-from monolith.auth import roles_allowed
-from flask_login import current_user, login_required
+from monolith.database import db, Restaurant, Like, Reservation, User, RestaurantTable
+from monolith.auth import admin_required, current_user, roles_allowed
+from flask_login import current_user, login_user, logout_user, login_required
 from monolith.forms import RestaurantForm
 
 restaurants = Blueprint("restaurants", __name__)
 
+_maxSeats = 6
 
 @restaurants.route("/restaurants")
 def _restaurants(message=""):
@@ -83,9 +84,30 @@ def create_restaurant():
                                          .format(q_user.email, q_user.id, 3, q_user.role_id))
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
-            new_restaurant.covid_measures = "no information"
+            new_restaurant.covid_measures = form.covid_m.data
+
             db.session.add(new_restaurant)
             db.session.commit()
+
+            #inserimento dei tavoli nel database
+            for i in range(int(form.n_tables.data)):
+                new_table = RestaurantTable()
+                new_table.restaurant_id = new_restaurant.id
+                new_table.max_seats = _maxSeats
+                new_table.available = True
+                new_table.name = ""
+                
+                db.session.add(new_table)
+                db.session.commit()
+
+            """TEST 
+            q_test= db.session.query(RestaurantTable).filter_by(restaurant_id=new_restaurant.id)
+            q_test.all()
+            for q in q_test:
+                print("id: ")
+                print(q.id)"""
+
+
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
 
