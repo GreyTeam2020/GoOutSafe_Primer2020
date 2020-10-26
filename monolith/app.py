@@ -1,5 +1,5 @@
 from flask import Flask
-from monolith.database import db, User, Restaurant, Role
+from monolith.database import db, User, Restaurant, Role, RestaurantTable, Reservation, OpeningHours
 from monolith.views import blueprints
 from monolith.auth import login_manager
 import datetime
@@ -119,8 +119,123 @@ def create_app():
             first_restaurant.owner_id = user.id
             db.session.add(first_restaurant)
             db.session.commit()
-        #TODO: create some tables and reservation
 
+        # a table
+        q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 1)
+        table = q.first()
+        if table is None:
+            # insert the first table
+            q = db.session.query(Restaurant).filter(Restaurant.name == "Trial Restaurant")
+            restaurant = q.first()
+            first_table = RestaurantTable()
+            first_table.restaurant_id = restaurant.id
+            first_table.name = "Table 1"
+            first_table.max_seats = 6
+            first_table.available = True
+            db.session.add(first_table)
+            db.session.commit()
+
+        # another table
+        q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 2)
+        table = q.first()
+        if table is None:
+            # insert the first table
+            q = db.session.query(Restaurant).filter(Restaurant.name == "Trial Restaurant")
+            restaurant = q.first()
+            second_table = RestaurantTable()
+            second_table.restaurant_id = restaurant.id
+            second_table.name = "Table 2"
+            second_table.max_seats = 4
+            second_table.available = True
+            db.session.add(second_table)
+            db.session.commit()
+
+        #a reservation
+        q = db.session.query(Reservation).filter(Reservation.id == 1)
+        reservation = q.first()
+        if reservation is None:
+            # insert the first table
+            q = db.session.query(User).filter(User.email == "john.doe@email.com")
+            customer = q.first()
+            q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 1)
+            table = q.first()
+            first_reservation = Reservation()
+            first_reservation.reservation_date = datetime.datetime(2020, 10, 28, hour=12)
+            first_reservation.customer_id=customer.id
+            first_reservation.table_id=table.id
+            first_reservation.people_number = 2
+            db.session.add(first_reservation)
+            db.session.commit()
+        
+        '''
+        #another reservation
+        q = db.session.query(Reservation).filter(Reservation.id == 2)
+        reservation = q.first()
+        if reservation is None:
+            second_reservation = Reservation()
+            q = db.session.query(User).filter(User.email == "john.doe@email.com")
+            customer = q.first()
+            q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 2)
+            table = q.first()
+            second_reservation.reservation_date = datetime.datetime(2020, 10, 28, hour=12)
+            second_reservation.customer_id=customer.id
+            second_reservation.table_id=table.id
+            second_reservation.people_number = 6
+            db.session.add(second_reservation)
+            db.session.commit()
+        '''
+            
+        
+
+        # insert some opening hours
+        q = db.session.query(OpeningHours).filter(OpeningHours.restaurant_id == 1).filter(OpeningHours.week_day == 0)
+        openinghour = q.first()
+        if openinghour is None:
+            q = db.session.query(Restaurant).filter(Restaurant.name == "Trial Restaurant")
+            restaurant = q.first()
+            first_opening_hours = OpeningHours()
+            first_opening_hours.restaurant_id = restaurant.id
+            first_opening_hours.week_day = 0
+            first_opening_hours.open_lunch = datetime.time(hour=12)
+            first_opening_hours.close_lunch = datetime.time(hour=15)
+            first_opening_hours.open_dinner = datetime.time(hour=20)
+            first_opening_hours.close_dinner = datetime.time(hour=22)
+            db.session.add(first_opening_hours)
+            db.session.commit()
+        
+
+        # insert some opening hours
+        q = db.session.query(OpeningHours).filter(OpeningHours.restaurant_id == 1).filter(OpeningHours.week_day == 2)
+        openinghour = q.first()
+        if openinghour is None:
+            q = db.session.query(Restaurant).filter(Restaurant.name == "Trial Restaurant")
+            restaurant = q.first()
+            second_opening_hours = OpeningHours()
+            second_opening_hours.restaurant_id = restaurant.id
+            second_opening_hours.week_day = 2
+            second_opening_hours.open_lunch = datetime.time(hour=12)
+            second_opening_hours.close_lunch = datetime.time(hour=15)
+            second_opening_hours.open_dinner = datetime.time(hour=20)
+            second_opening_hours.close_dinner = datetime.time(hour=22)
+            db.session.add(second_opening_hours)
+            db.session.commit()
+    
+        # insert some opening hours
+        q = db.session.query(OpeningHours).filter(OpeningHours.restaurant_id == 1).filter(OpeningHours.week_day == 4)
+        openinghour = q.first()
+        if openinghour is None:
+            q = db.session.query(Restaurant).filter(Restaurant.name == "Trial Restaurant")
+            restaurant = q.first()
+            third_opening_hours = OpeningHours()
+            third_opening_hours.restaurant_id = restaurant.id
+            third_opening_hours.week_day = 4
+            third_opening_hours.open_lunch = datetime.time(hour=12)
+            third_opening_hours.close_lunch = datetime.time(hour=15)
+            third_opening_hours.open_dinner = datetime.time(hour=20)
+            third_opening_hours.close_dinner = datetime.time(hour=22)
+            db.session.add(third_opening_hours)
+            db.session.commit()
+    
     return app
 
 
