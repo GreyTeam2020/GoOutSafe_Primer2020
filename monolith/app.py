@@ -1,5 +1,5 @@
 from flask import Flask
-from monolith.database import db, User, Restaurant, Role
+from monolith.database import db, User, Restaurant, Role, RestaurantTable, Reservation
 from monolith.views import blueprints
 from monolith.auth import login_manager
 import datetime
@@ -119,6 +119,71 @@ def create_app():
             first_restaurant.owner_id = user.id
             db.session.add(first_restaurant)
             db.session.commit()
+
+        # a table
+        q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 1)
+        table = q.first()
+        if table is None:
+            # insert the first table
+            q = db.session.query(Restaurant).filter(Restaurant.name == "Trial Restaurant")
+            restaurant = q.first()
+            first_table = RestaurantTable()
+            first_table.restaurant_id = restaurant.id
+            first_table.name = "Table 1"
+            first_table.max_seats = 6
+            first_table.available = True
+            db.session.add(first_table)
+            db.session.commit()
+
+        # another table
+        q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 2)
+        table = q.first()
+        if table is None:
+            # insert the first table
+            q = db.session.query(Restaurant).filter(Restaurant.name == "Trial Restaurant")
+            restaurant = q.first()
+            second_table = RestaurantTable()
+            second_table.restaurant_id = restaurant.id
+            second_table.name = "Table 2"
+            second_table.max_seats = 4
+            second_table.available = True
+            db.session.add(second_table)
+            db.session.commit()
+
+        #a reservation
+        q = db.session.query(Reservation).filter(Reservation.id == 1)
+        reservation = q.first()
+        if reservation is None:
+            # insert the first table
+            q = db.session.query(User).filter(User.email == "john.doe@email.com")
+            customer = q.first()
+            q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 1)
+            table = q.first()
+            first_reservation = Reservation()
+            first_reservation.reservation_date = datetime.datetime(2020, 10, 28, hour=12)
+            first_reservation.customer_id=customer.id
+            first_reservation.table_id=table.id
+            first_reservation.people_number = 2
+            db.session.add(first_reservation)
+            db.session.commit()
+            '''
+        #another reservation
+        q = db.session.query(Reservation).filter(Reservation.id == 2)
+        reservation = q.first()
+        if reservation is None:
+            second_reservation = Reservation()
+            q = db.session.query(User).filter(User.email == "john.doe@email.com")
+            customer = q.first()
+            q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 2)
+            table = q.first()
+            second_reservation.reservation_date = datetime.datetime(2020, 10, 28, hour=12)
+            second_reservation.customer_id=customer.id
+            second_reservation.table_id=table.id
+            second_reservation.people_number = 6
+            db.session.add(second_reservation)
+            db.session.commit()
+            '''
+
         #TODO: create some tables and reservation
 
     return app
