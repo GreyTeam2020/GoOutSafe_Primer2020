@@ -1,5 +1,10 @@
+<<<<<<< HEAD
+from flask import Blueprint, redirect, render_template, request, session
+from monolith.database import db, Restaurant, Like, Reservation
+=======
 from flask import Blueprint, redirect, render_template, request, session, current_app
 from monolith.database import db, Restaurant, Like, Reservation, User
+>>>>>>> 2abf67867e863be3e0d0cdb66acddd5403f231d5
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
 from monolith.forms import RestaurantForm
