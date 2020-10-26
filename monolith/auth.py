@@ -1,5 +1,4 @@
 import functools
-from functools import wraps
 from flask_login import current_user, LoginManager
 from flask import session
 from monolith.database import User

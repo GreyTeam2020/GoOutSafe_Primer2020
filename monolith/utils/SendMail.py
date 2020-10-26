@@ -6,7 +6,7 @@ import os
 Methods and configuration for send email
 """
 app = Flask(__name__)
-app.config.from_pyfile(os.path.join("..", "config/app.conf"), silent=False)
+app.config.from_pyfile(os.path.join("..", "config/app.config"), silent=False)
 """
 EMAIL CONFIG
 """
@@ -33,7 +33,7 @@ def sendPossibilePositiveContact(toEmail, toName, datePossibleContact, restauran
     body = body.replace("{toName}", toName)
     body = body.replace("{restaurantName}", restaurantName)
     body = body.replace("{datePossibleContact}", datePossibleContact)
-    sendmailTest(subject, body, toEmail)
+    sendmail(subject, body, toEmail)
 
 
 """
@@ -55,7 +55,7 @@ def sendReservationConfirm(
     body = body.replace("{restaurantName}", restaurantName)
     body = body.replace("{dateReservation}", dateReservation)
     body = body.replace("{numberSeat}", str(numberSeat))
-    sendmailTest(subject, body, toEmail)
+    sendmail(subject, body, toEmail)
 
 
 """
@@ -90,7 +90,7 @@ def sendReservationNotification(
     body = body.replace("{numberSeat}", str(numberSeat))
     body = body.replace("{dateReservation}", dateReservation)
     body = body.replace("{tableNumber}", str(tableNumber))
-    sendmailTest(subject, body, toEmail)
+    sendmail(subject, body, toEmail)
 
 
 """
@@ -108,7 +108,7 @@ def sendRegistrationConfirm(toEmail, toName, token):
     )
     body = body.replace("{toName}", toName)
     body = body.replace("{token}", token)
-    sendmailTest(subject, body, toEmail)
+    sendmail(subject, body, toEmail)
 
 
 """
@@ -116,7 +116,7 @@ Internal method for send email
 """
 
 
-def sendmailTest(subject, body, recipient):
+def sendmail(subject, body, recipient):
     subject = "[GoOutSafe] " + subject
     msg = Message(
         recipients=[recipient],
