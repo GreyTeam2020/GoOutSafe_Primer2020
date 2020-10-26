@@ -4,6 +4,7 @@ from monolith.views import blueprints
 from monolith.auth import login_manager
 import datetime
 
+
 def create_app():
     app = Flask(__name__)
     app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
@@ -101,7 +102,7 @@ def create_app():
             db.session.add(health_authority)
             db.session.commit()
 
-        # an restaurant
+        # a restaurant
         q = db.session.query(Restaurant).filter(Restaurant.id == 1)
         restaurant = q.first()
         if restaurant is None:
@@ -118,6 +119,7 @@ def create_app():
             first_restaurant.owner_id = user.id
             db.session.add(first_restaurant)
             db.session.commit()
+        #TODO: create some tables and reservation
 
     return app
 

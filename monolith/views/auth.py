@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, redirect, request, session
 from flask_login import current_user, login_user, logout_user, login_required
 
-from monolith.database import db, User, Role
+from monolith.database import db, User, Role, Restaurant
 from monolith.forms import LoginForm
 
 auth = Blueprint("auth", __name__)
@@ -18,7 +18,13 @@ def login():
             login_user(user)
             q = db.session.query(Role).filter(Role.id == user.role_id)
             role = q.first()
-            session['ROLE'] = role.value
+            session["ROLE"] = role.value
+            # if is operator, load restaurant information and load in session
+            if role.value == 'OPERATOR':
+                q = db.session.query(Restaurant).filter(Restaurant.owner_id == user.id)
+                restaurant = q.first()
+                session["RESTAURANT_ID"] = restaurant.id
+                session["RESTAURANT_NAME"] = restaurant.name
             return redirect("/")
         else:
             return render_template("login.html", form=form, message="User not exist")

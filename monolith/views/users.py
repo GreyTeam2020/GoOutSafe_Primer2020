@@ -20,9 +20,11 @@ def create_user():
         if form.validate_on_submit():
             q = db.session.query(User).filter_by(email=form.email.data)
             if q.first() is not None:
-                return render_template("create_user.html",
-                                       form=form,
-                                       message="Email {} already registered".format(form.email.data))
+                return render_template(
+                    "create_user.html",
+                    form=form,
+                    message="Email {} already registered".format(form.email.data),
+                )
             new_user = User()
             form.populate_obj(new_user)
             new_user.set_password(
@@ -64,4 +66,3 @@ def _testsendemail():
 @users.route("/testtpl")
 def _testtpl():
     return render_template("testtpl.html")
-
