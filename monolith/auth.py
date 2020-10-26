@@ -1,7 +1,8 @@
 import functools
+from functools import wraps
 from flask_login import current_user, LoginManager
+from flask import session
 from monolith.database import User
-
 
 login_manager = LoginManager()
 
@@ -15,6 +16,25 @@ def admin_required(func):
         return func(*args, **kw)
 
     return _admin_required
+
+
+# Check if the user has at least one required role
+#
+# Parameters:
+#
+# -func: the function to decorate
+# -roles: an array of allowed roles
+def roles_allowed(func=None, roles=None):
+    if not func:
+        return functools.partial(roles_allowed, roles=roles)
+
+    @functools.wraps(func)
+    def f(*args, **kwargs):
+        role = session.get('ROLE')
+        if not any(role in s for s in roles):
+            return login_manager.unauthorized()
+        return func(*args, **kwargs)
+    return f
 
 
 @login_manager.user_loader
