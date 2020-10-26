@@ -81,7 +81,7 @@ def create_restaurant():
 
 @restaurants.route("/list_reservations")
 @login_required
-@roles_allowed(roles=["OPERATOR", "CUSTOMER"])
+@roles_allowed(roles=["OPERATOR"])
 def list_reservations():
     # http://localhost:5000/list_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
 
