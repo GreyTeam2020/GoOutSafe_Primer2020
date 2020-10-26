@@ -8,26 +8,31 @@
                 <p class="lead"> Hi {{ current_user.firstname }}! <a href="/logout">Logout</a> </p>
                 <p class="mt-3 lead"> Do you have a restaurant? <a href="/create_restaurant">Register it</a></p>
             {% endif %}
-                <h2 class="mt-5 lead">Restaurants</h2>
-                <div class="row lead d-flex justify-content-center">
-                {% for restaurant in restaurants%}
-                    <div class="card text-white bg-light mb-3" style="max-width: 20rem;">
-                      <div class="card-header text-dark text-capitalize">{{ restaurant.name }}</div>
-                      <div class="card-body">
-                        <img src="https://images.pexels.com/photos/6267/menu-restaurant-vintage-table.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                            class="card-img-top" alt="logo restaurant"/>
-                        <p class="card-text text-dark mt-3">
-                            <i class="material-icons text-dark ">thumb_down</i>  <i class="material-icons text-dark">thumb_up</i> {{ restaurant.likes }}
-                            <br/>
-                            <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
-                            {% if session['ROLE'] == 'CUSTOMER' %}
-                              <button class="btn btn-primary showBooking" data-id="{{ restaurant.id }}">Book</button>
-                            {% endif %}
-                        </p>
-                      </div>
+                <h2 class="mt-5">Restaurants</h2>
+                <button class="btn btn-secondary mb-3" id="switchView">Switch to Map View</button>
+
+                <div id="card-view">
+                    <div class="row lead d-flex justify-content-center">
+                    {% for restaurant in restaurants%}
+                        <div class="card text-white bg-light m-1" style="max-width: 20rem;">
+                          <div class="card-header text-dark text-capitalize">{{ restaurant.name }}</div>
+                          <div class="card-body">
+                            <img src="https://images.pexels.com/photos/6267/menu-restaurant-vintage-table.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+                                class="card-img-top" alt="logo restaurant"/>
+                            <p class="card-text text-dark mt-3">
+                                <i class="material-icons text-dark ">thumb_down</i>  <i class="material-icons text-dark">thumb_up</i> {{ restaurant.likes }}
+                                <br/>
+                                <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
+                                {% if session['ROLE'] == 'CUSTOMER' %}
+                                  <button class="btn btn-primary showBooking" data-id="{{ restaurant.id }}">Book</button>
+                                {% endif %}
+                            </p>
+                          </div>
+                        </div>
+                    {% endfor %}
                     </div>
-                {% endfor %}
                 </div>
+                <div id="map-view" style="height:600px;display:none"></div>
       </div>
     </div>
   </div>
@@ -59,4 +64,14 @@
         </div>
       </div>
     </div>
+
+    <script>
+        var map = L.map('map-view').setView([51.505, -0.09], 13);
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+        var markers = []
+        {% for restaurant in restaurants%}
+            markers.push(L.marker([{{ restaurant.lat }}, {{ restaurant.lon }}]).addTo(map));
+        {% endfor %}
+        var group = new L.featureGroup(markers);
+    </script>
 {% include 'footer.html' %}
