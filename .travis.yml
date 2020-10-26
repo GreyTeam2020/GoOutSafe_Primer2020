@@ -3,10 +3,14 @@ python: 3.6
 env:
   - TOX_ENV=py36
 install:
+  - pip install virtualenv
   - pip install coverage==4.5.4
   - pip install python-coveralls
 script:
-  - source venv/bin/activate
+  - virtualenv flask
+  - source flask/bin/activate
   - python -m pytest
+after_success:
+  - coveralls
 notifications:
   email: false
