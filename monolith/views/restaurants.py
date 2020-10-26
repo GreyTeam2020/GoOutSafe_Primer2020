@@ -8,6 +8,7 @@ restaurants = Blueprint("restaurants", __name__)
 
 _maxSeats = 6
 
+
 @restaurants.route("/restaurants")
 def _restaurants(message=""):
     allrestaurants = db.session.query(Restaurant)
@@ -22,6 +23,19 @@ def _restaurants(message=""):
 @restaurants.route("/restaurants/<restaurant_id>")
 def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
+    tables = len(
+        db.session.query(RestaurantTable)
+        .filter_by(restaurant_id=int(restaurant_id))
+        .all()
+    )
+    photos = [
+        "https://i.pinimg.com/originals/d9/ff/1f/d9ff1fe1d930ea701cd5e188757ed3ff.jpg",
+        "",
+        "https://www.google.com/url?sa=i&url=https%3A%2F%2Ffinediningindian.com%2F2011%2F09%2F29%2Ftop-restaurant-website-keywords-searched-on-google-for-restaurants-in-india%2F&psig=AOvVaw3z9ZxFMm8_NjNOZIpDrJr9&ust=1603816758302000&source=images&cd=vfe&ved=2ahUKEwjP8cmS2dLsAhURyaQKHdIvD9UQjRx6BAgAEAc",
+        "",
+        "https://www.elitetraveler.com/wp-content/uploads/2017/10/Hotel-Eden-La-Terrazza-scaled-e1600071873644.jpg",
+        "https://s3.eu-west-1.amazonaws.com/openreply-poltronafrau/prod/cappellini/contentmanager/content/cate_progetti/cena18settembre_077.jpg",
+    ]
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -31,6 +45,7 @@ def restaurant_sheet(restaurant_id):
         lon=record.lon,
         phone=record.phone,
         covid_measures=record.covid_measures,
+        tables=tables,
     )
 
 
@@ -73,15 +88,18 @@ def create_restaurant():
             new_restaurant = Restaurant()
             q_user = db.session.query(User).filter_by(id=current_user.id).first()
             if q_user is None:
-                return render_template("create_restaurant.html",
-                                       form=form,
-                                       message="User not logged")
+                return render_template(
+                    "create_restaurant.html", form=form, message="User not logged"
+                )
             print(q_user)
             if q_user.role_id is 3:
                 q_user.role_id = 2
                 db.session.commit()
-                current_app.logger.debug("User {} with id {} update from role {} to {}"
-                                         .format(q_user.email, q_user.id, 3, q_user.role_id))
+                current_app.logger.debug(
+                    "User {} with id {} update from role {} to {}".format(
+                        q_user.email, q_user.id, 3, q_user.role_id
+                    )
+                )
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
             new_restaurant.covid_measures = form.covid_m.data
@@ -89,14 +107,14 @@ def create_restaurant():
             db.session.add(new_restaurant)
             db.session.commit()
 
-            #inserimento dei tavoli nel database
+            # inserimento dei tavoli nel database
             for i in range(int(form.n_tables.data)):
                 new_table = RestaurantTable()
                 new_table.restaurant_id = new_restaurant.id
                 new_table.max_seats = _maxSeats
                 new_table.available = True
                 new_table.name = ""
-                
+
                 db.session.add(new_table)
                 db.session.commit()
 
@@ -106,7 +124,6 @@ def create_restaurant():
             for q in q_test:
                 print("id: ")
                 print(q.id)"""
-
 
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
@@ -123,16 +140,18 @@ def my_reservations():
     restaurant_id = session["RESTAURANT_ID"]
 
     # filter params
-    fromDate = request.args.get('fromDate', type=str)
-    toDate = request.args.get('toDate', type=str)
-    email = request.args.get('email', type=str)
+    fromDate = request.args.get("fromDate", type=str)
+    toDate = request.args.get("toDate", type=str)
+    email = request.args.get("email", type=str)
 
-    queryString = "select reserv.reservation_date, reserv.people_number, cust.firstname, cust.lastname, cust.email, tab.name as tabname from reservation reserv " \
-        "join user cust on cust.id = reserv.customer_id " \
-        "join restaurant_table tab on reserv.table_id = tab.id "  \
-        "join restaurant rest on rest.id = tab.restaurant_id " \
-        "where rest.owner_id = :owner_id " \
+    queryString = (
+        "select reserv.reservation_date, reserv.people_number, cust.firstname, cust.lastname, cust.email, tab.name as tabname from reservation reserv "
+        "join user cust on cust.id = reserv.customer_id "
+        "join restaurant_table tab on reserv.table_id = tab.id "
+        "join restaurant rest on rest.id = tab.restaurant_id "
+        "where rest.owner_id = :owner_id "
         "and rest.id = :restaurant_id "
+    )
 
     # add filters...
     if fromDate:
@@ -159,6 +178,5 @@ def my_reservations():
     reservations_as_list = result.fetchall()
 
     return render_template(
-        "list_reservations.html",
-        reservations_as_list=reservations_as_list
+        "list_reservations.html", reservations_as_list=reservations_as_list
     )

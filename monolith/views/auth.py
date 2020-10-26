@@ -21,8 +21,10 @@ def login():
             if role is not None:
                 session["ROLE"] = role.value
                 # if is operator, load restaurant information and load in session
-                if role.value == 'OPERATOR':
-                    q = db.session.query(Restaurant).filter(Restaurant.owner_id == user.id)
+                if role.value == "OPERATOR":
+                    q = db.session.query(Restaurant).filter(
+                        Restaurant.owner_id == user.id
+                    )
                     restaurant = q.first()
                     if restaurant is not None:
                         session["RESTAURANT_ID"] = restaurant.id

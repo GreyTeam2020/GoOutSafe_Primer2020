@@ -119,7 +119,7 @@ def create_app():
             first_restaurant.owner_id = user.id
             db.session.add(first_restaurant)
             db.session.commit()
-        #TODO: create some tables and reservation
+        # TODO: create some tables and reservation
 
     return app
 
