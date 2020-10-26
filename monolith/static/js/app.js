@@ -23,4 +23,24 @@ $(document).ready(function() {
     if ($("#myreservations").length){
         $('#myreservations').DataTable();
     }
+
+    var switchView = $("#switchView");
+    if (switchView.length){
+        console.log("ci sono")
+        switchView.click(function(){
+            var cards = $("#card-view");
+            var mapview = $("#map-view");
+            if (mapview.is(":hidden")){
+                cards.hide();
+                mapview.show();
+                map.invalidateSize()
+                map.fitBounds(group.getBounds());
+                switchView.html("Switch to Cards View");
+            } else {
+                mapview.hide();
+                cards.show();
+                switchView.html("Switch to Map View");
+            }
+        });
+    }
 });
