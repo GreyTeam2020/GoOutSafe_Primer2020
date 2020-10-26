@@ -23,7 +23,7 @@ def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
     return render_template(
         "restaurantsheet.html",
-        id = restaurant_id,
+        id=restaurant_id,
         name=record.name,
         likes=record.likes,
         lat=record.lat,
@@ -71,9 +71,44 @@ def create_restaurant():
                 )
             new_restaurant = Restaurant()
             form.populate_obj(new_restaurant)
-            new_restaurant.likes=0
-            new_restaurant.covid_measures="no information"
+            new_restaurant.likes = 0
+            new_restaurant.covid_measures = "no information"
             db.session.add(new_restaurant)
             db.session.commit()
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
+
+
+@restaurants.route("/my_restaurant_data", methods=["GET", "POST"])
+@login_required
+def my_restaurant_data():
+    form = RestaurantForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            # TODO: implement logic
+            # you should user error= if you want to display an error, for success instead use message=
+            return render_template(
+                "my_restaurant_data.html", form=form, error="not implemented yet"
+            )
+    return render_template("my_restaurant_data.html", form=form)
+
+
+@restaurants.route("/my_restaurant_menu")
+@login_required
+def my_menu():
+    # TODO: pass menu entries
+    return render_template("my_menu.html")
+
+
+@restaurants.route("/my_restaurant_photogallery")
+@login_required
+def my_photogallery():
+    # TODO: pass menu entries
+    return render_template("my_photogallery.html")
+
+
+@restaurants.route("/my_reservations")
+@login_required
+def my_reservations():
+    # TODO: pass reservations
+    return render_template("my_reservations.html")

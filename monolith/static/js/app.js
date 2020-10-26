@@ -16,4 +16,11 @@ $(document).ready(function() {
     if ($("#allrestaurants").length){
         $('#allrestaurants').DataTable();
     }
+    if ($("#mymenu").length){
+        $('#mymenu').DataTable();
+        $("#submitDish").click(() => {$("#addDishForm").submit();});
+    }
+    if ($("#myreservations").length){
+        $('#myreservations').DataTable();
+    }
 });

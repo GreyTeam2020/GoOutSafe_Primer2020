@@ -1,0 +1,30 @@
+{% include 'header.html' %}
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+          <h1 class="mt-5 mb-5">My Restaurant Reservations</h1>
+          <table id="myreservations" class="display" style="width:100%">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Customer</th>
+                <th>People</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+                <!-- TODO { % for reservation in reservations %} -->
+                    <tr>
+                        <td>{ { reservation.id }}</td>
+                        <td>{ { reservation.customer.fullname }}</td>
+                        <td>{ { reservation.people }}</td>
+                        <td>{ { reservation.date }}</td>
+                    </tr>
+                <!-- { % endfor %} -->
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+{% include 'footer.html' %}

@@ -43,6 +43,7 @@ def create_user():
             return redirect("/")
     return render_template("create_user.html", form=form)
 
+
 @users.route("/myreservations")
 def myreservation():
     return render_template("user_reservations.html")

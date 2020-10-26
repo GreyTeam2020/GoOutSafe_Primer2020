@@ -9,6 +9,7 @@ def allrestaurants():
     restaurants = db.session.query(Restaurant)
     return render_template("all_restaurants.html", restaurants=restaurants)
 
+
 @health.route("/report_positive")
 def report_positive():
     users = db.session.query(User)
