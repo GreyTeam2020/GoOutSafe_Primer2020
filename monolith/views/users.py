@@ -26,6 +26,8 @@ def create_user():
                     message="Email {} already registered".format(form.email.data),
                 )
             new_user = User()
+            ## By default I assume CUSTOMER
+            new_user.role_id = "CUSTOMER"
             form.populate_obj(new_user)
             new_user.set_password(
                 form.password.data
@@ -36,7 +38,6 @@ def create_user():
             email, password = form.data["email"], form.data["password"]
             q = db.session.query(User).filter(User.email == email)
             user = q.first()
-            print(q.first().id)
             if user is not None and user.authenticate(password):
                 login_user(user)
             return redirect("/")

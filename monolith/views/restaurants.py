@@ -23,11 +23,13 @@ def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
     return render_template(
         "restaurantsheet.html",
+        id = restaurant_id,
         name=record.name,
         likes=record.likes,
         lat=record.lat,
         lon=record.lon,
         phone=record.phone,
+        covid_measures=record.covid_measures,
     )
 
 
@@ -69,6 +71,8 @@ def create_restaurant():
                 )
             new_restaurant = Restaurant()
             form.populate_obj(new_restaurant)
+            new_restaurant.likes=0
+            new_restaurant.covid_measures="no information"
             db.session.add(new_restaurant)
             db.session.commit()
             return redirect("/")

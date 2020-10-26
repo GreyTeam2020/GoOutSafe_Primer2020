@@ -1,4 +1,4 @@
-FROM python:alpine3.12
+FROM python:3.7.0-stretch
 LABEL mantainer="Vincenzo Palazzo v.palazzo1@studenti.unipi.it"
 ADD . /code
 WORKDIR code

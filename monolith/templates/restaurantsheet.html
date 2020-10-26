@@ -1,25 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>GoOutSafe</title>
-
-    <link href="{{ url_for('static',filename='styles/bootstrap.min.css') }}" rel="stylesheet" >
-    <link href="{{ url_for('static',filename='styles/profile.css') }}" rel="stylesheet" >
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-</head>
-<body>
-  <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark static-top">
-      <a class="navbar-brand" href="/">GoOutSafe</a>
-  </nav>
+{%  include "header.html" %}
   <!-- Page Content -->
   <div class="row py-5 px-4">
     <div class="col-md-8 mx-auto">
         <!-- Profile widget -->
         <div class="bg-white shadow rounded overflow-hidden">
-            <div class="px-4 pt-0 pb-4 cover">
+            <div class="px-4 pt-0 pb-4 profile-cover">
                 <div class="media align-items-end profile-head">
                     <div class="profile mr-3"><img src="https://images.pexels.com/photos/6267/menu-restaurant-vintage-table.jpg?auto=compress&cs=tinysrgb&w=130" alt="restaurant" width="130" class="rounded mb-2 img-thumbnail"></div>
                     <div class="media-body mb-5 text-white">
@@ -35,6 +20,9 @@
                     </li>
                 </ul>
             </div>
+            {% if session['ROLE'] == 'CUSTOMER' %}
+                <p align="center"><button class="btn btn-primary showBooking" data-id="{{ id }}">Book a Table</button></p>
+            {% endif %}
             <div class="row">
                 <div class="col-md-6">
                     <h5 class="mb-0">Info</h5>
@@ -48,8 +36,8 @@
                         <p>{{ phone }}</p>
                         <b>Cuisine Type:</b><br>
                         <p>Italian (static, not implemented)</p>
-                        <b>Anti-COVID Measures:</b> (static, not implemented)<br>
-                        <p>We have hand-sanitizer available at the entrance and all our operators have masks</p>
+                        <b>Anti-COVID Measures:</b><br>
+                        <p>{{ covid_measures }}</p>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -105,11 +93,6 @@
       </div>
     </div>
 
-  <!-- Bootstrap core JavaScript -->
-  <script src="{{ url_for('static',filename='js/jquery.slim.min.js') }}"></script>
-  <script src="{{ url_for('static',filename='js/bootstrap.bundle.min.js') }}"></script>
-  <script src="{{ url_for('static',filename='js/app.js') }}"></script>
-</body>
-</html>
+{%  include "footer.html" %}
 
 

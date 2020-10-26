@@ -2,7 +2,7 @@
     transform: translateY(5rem)
 }
 
-.cover {
+.profile-cover {
     background: black;
     background-size: cover;
     background-repeat: no-repeat

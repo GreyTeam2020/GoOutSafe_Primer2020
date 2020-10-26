@@ -9,8 +9,5 @@ home = Blueprint("home", __name__)
 
 @home.route("/")
 def index():
-    if current_user is not None and hasattr(current_user, "id"):
-        restaurants = db.session.query(Restaurant)
-    else:
-        restaurants = None
+    restaurants = db.session.query(Restaurant)
     return render_template("index.html", restaurants=restaurants)
