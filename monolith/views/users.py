@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, request, session
+from flask import Blueprint, redirect, render_template, request, current_app
 from monolith.database import db, User, Like
 from monolith.forms import UserForm
 from monolith.utils import SendMail
@@ -27,7 +27,7 @@ def create_user():
                 )
             new_user = User()
             ## By default I assume CUSTOMER
-            new_user.role_id = "CUSTOMER"
+            new_user.role_id = 3
             form.populate_obj(new_user)
             new_user.set_password(
                 form.password.data
@@ -42,6 +42,11 @@ def create_user():
                 login_user(user)
             return redirect("/")
     return render_template("create_user.html", form=form)
+
+
+@users.route("/myreservations")
+def myreservation():
+    return render_template("user_reservations.html")
 
 
 @users.route("/testsendemail")

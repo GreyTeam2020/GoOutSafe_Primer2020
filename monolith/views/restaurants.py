@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 from flask import Blueprint, redirect, render_template, request, session
 from monolith.database import db, Restaurant, Like, Reservation
+=======
+from flask import Blueprint, redirect, render_template, request, session, current_app
+from monolith.database import db, Restaurant, Like, Reservation, User
+>>>>>>> 2abf67867e863be3e0d0cdb66acddd5403f231d5
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
 from monolith.forms import RestaurantForm
@@ -23,7 +28,7 @@ def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
     return render_template(
         "restaurantsheet.html",
-        id = restaurant_id,
+        id=restaurant_id,
         name=record.name,
         likes=record.likes,
         lat=record.lat,
@@ -70,9 +75,20 @@ def create_restaurant():
                     ),
                 )
             new_restaurant = Restaurant()
+            q_user = db.session.query(User).filter_by(id=current_user.id).first()
+            if q_user is None:
+                return render_template("create_restaurant.html",
+                                       form=form,
+                                       message="User not logged")
+            print(q_user)
+            if q_user.role_id is 3:
+                q_user.role_id = 2
+                db.session.commit()
+                current_app.logger.debug("User {} with id {} update from role {} to {}"
+                                         .format(q_user.email, q_user.id, 3, q_user.role_id))
             form.populate_obj(new_restaurant)
-            new_restaurant.likes=0
-            new_restaurant.covid_measures="no information"
+            new_restaurant.likes = 0
+            new_restaurant.covid_measures = "no information"
             db.session.add(new_restaurant)
             db.session.commit()
             return redirect("/")

@@ -11,22 +11,23 @@
                 <h2 class="mt-5 lead">Restaurants</h2>
                 <div class="row lead d-flex justify-content-center">
                 {% for restaurant in restaurants%}
-                    <div class="col-lg-3 col-md-4 card lead m-1" style="width: 18rem;">
-                         <img src="https://images.pexels.com/photos/6267/menu-restaurant-vintage-table.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500"
-                            class="card-img-top" alt="logo restaurant">
-                          <div class="card-body">
-                            <p class="card-text">{{ restaurant.name }}</p>
-                            <p>
-                                <i class="material-icons">thumb_down</i>  <i class="material-icons">thumb_up</i> {{ restaurant.likes }}
-                            </p>
-
-                            <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-warning">Visit</button></a>&nbsp;
+                    <div class="card text-white bg-light mb-3" style="max-width: 20rem;">
+                      <div class="card-header text-dark text-capitalize">{{ restaurant.name }}</div>
+                      <div class="card-body">
+                        <img src="https://images.pexels.com/photos/6267/menu-restaurant-vintage-table.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500"
+                            class="card-img-top" alt="logo restaurant"/>
+                        <p class="card-text text-dark mt-3">
+                            <i class="material-icons text-dark ">thumb_down</i>  <i class="material-icons text-dark">thumb_up</i> {{ restaurant.likes }}
+                            <br/>
+                            <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
                             {% if session['ROLE'] == 'CUSTOMER' %}
                               <button class="btn btn-primary showBooking" data-id="{{ restaurant.id }}">Book</button>
                             {% endif %}
-                          </div>
-                         </div>
+                        </p>
+                      </div>
+                    </div>
                 {% endfor %}
+                </div>
       </div>
     </div>
   </div>
