@@ -112,10 +112,10 @@ def create_restaurant():
     return render_template("create_restaurant.html", form=form)
 
 
-@restaurants.route("/list_reservations")
+@restaurants.route("/my_reservations")
 @login_required
 @roles_allowed(roles=["OPERATOR"])
-def list_reservations():
+def my_reservations():
     # http://localhost:5000/list_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
 
     # for security reason, that are retrive on server side, not passed by params
