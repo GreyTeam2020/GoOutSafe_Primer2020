@@ -1,8 +1,9 @@
 from flask import Blueprint, redirect, render_template, request, session, current_app
-from monolith.database import db, Restaurant, Like, Reservation, User, RestaurantTable
+from monolith.database import db, Restaurant, Like, Reservation, User, RestaurantTable, OpeningHours, Menu
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
 from monolith.forms import RestaurantForm
+from datetime import datetime, time
 
 restaurants = Blueprint("restaurants", __name__)
 
@@ -22,6 +23,10 @@ def _restaurants(message=""):
 @restaurants.route("/restaurants/<restaurant_id>")
 def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
+
+    q_hours= db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
+    q_cuisine= db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
+    
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -31,6 +36,8 @@ def restaurant_sheet(restaurant_id):
         lon=record.lon,
         phone=record.phone,
         covid_measures=record.covid_measures,
+        hours=q_hours,
+        cuisine=q_cuisine
     )
 
 
@@ -100,13 +107,32 @@ def create_restaurant():
                 db.session.add(new_table)
                 db.session.commit()
 
-            """TEST 
-            q_test= db.session.query(RestaurantTable).filter_by(restaurant_id=new_restaurant.id)
-            q_test.all()
-            for q in q_test:
-                print("id: ")
-                print(q.id)"""
+            #inserimento orari di apertura
+            days = form.open_days.data
+            for i in range(len(days)):
+                new_opening = OpeningHours()
+                new_opening.restaurant_id = new_restaurant.id
+                new_opening.week_day = days[i]
 
+                new_opening.open_lunch = datetime.strptime(form.open_lunch.data, '%H:%M').time()
+                new_opening.close_lunch = datetime.strptime(form.close_lunch.data, '%H:%M').time()
+                new_opening.open_dinner = datetime.strptime(form.open_dinner.data, '%H:%M').time()
+                new_opening.close_dinner = datetime.strptime(form.close_dinner.data, '%H:%M').time()
+                
+                db.session.add(new_opening)
+                db.session.commit()
+
+
+            #inserimento tipi di cucina
+            cuisin_type=form.cuisine.data
+            for i in range(len(cuisin_type)):
+
+                new_cuisine = Menu()
+                new_cuisine.restaurant_id = new_restaurant.id
+                new_cuisine.cusine=cuisin_type[i]
+                new_cuisine.description = ""
+                db.session.add(new_cuisine)
+                db.session.commit()
 
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
