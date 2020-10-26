@@ -14,14 +14,16 @@
               </tr>
             </thead>
             <tbody>
-                <!-- TODO { % for reservation in reservations %} -->
+                <{% for reservation in reservations %}
                     <tr>
-                        <td>{ { reservation.id }}</td>
-                        <td>{ { reservation.customer.fullname }}</td>
-                        <td>{ { reservation.people }}</td>
-                        <td>{ { reservation.date }}</td>
+                        <td>{{reservation.id}}</td>
+                        <td>{{reservation.reservation_date}}</td>
+                        <td>{{reservation.people_number}}</td>
+                        <td>{{reservation.firstname}}</td>
+                        <td>{{reservation.lastname}}</td>
+                        <td>{{reservation.email}}</td>
                     </tr>
-                <!-- { % endfor %} -->
+                {% endfor %}
             </tbody>
           </table>
       </div>

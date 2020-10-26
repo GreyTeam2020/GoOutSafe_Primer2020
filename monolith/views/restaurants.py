@@ -175,14 +175,12 @@ def my_reservations():
     toDate = request.args.get("toDate", type=str)
     email = request.args.get("email", type=str)
 
-    queryString = (
-        "select reserv.reservation_date, reserv.people_number, cust.firstname, cust.lastname, cust.email, tab.name as tabname from reservation reserv "
-        "join user cust on cust.id = reserv.customer_id "
-        "join restaurant_table tab on reserv.table_id = tab.id "
-        "join restaurant rest on rest.id = tab.restaurant_id "
-        "where rest.owner_id = :owner_id "
-        "and rest.id = :restaurant_id "
-    )
+    queryString = "select reserv.id, reserv.reservation_date, reserv.people_number, cust.firstname, cust.lastname, cust.email from reservation reserv " \
+                  "join user cust on cust.id = reserv.customer_id " \
+                  "join restaurant_table tab on reserv.table_id = tab.id " \
+                  "join restaurant rest on rest.id = tab.restaurant_id " \
+                  "where rest.owner_id = :owner_id " \
+                  "and rest.id = :restaurant_id "
 
     # add filters...
     if fromDate:
@@ -209,5 +207,6 @@ def my_reservations():
     reservations_as_list = result.fetchall()
 
     return render_template(
-        "list_reservations.html", reservations_as_list=reservations_as_list
+        "my_reservations.html",
+        reservations_as_list=reservations_as_list
     )
