@@ -1,0 +1,31 @@
+{% include 'header.html' %}
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+          <h1 class="mt-5 mb-5">Your Reservations</h1>
+          <table id="myreservation" class="display" style="width:100%">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Restaurant</th>
+                <th>Date</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+                <!-- TODO { % for reservation in reservations % } -->
+                <!-- TODO remove space between parenthesis when implemented -->
+                    <tr>
+                        <td>{ { reservation.id }}</td>
+                        <td>{ { reservation.restaurant.name }}</td>
+                        <td>{ { reservation.date }}</td>
+                        <td><a href="/restaurants/{ { reservation.restaurant.id }}"><button class="btn btn-primary">View Restaurant</button></a></td>
+                    </tr>
+                <!-- { % endfor % } -->
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+{% include 'footer.html' %}

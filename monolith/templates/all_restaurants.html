@@ -1,0 +1,28 @@
+{% include 'header.html' %}
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+          <h1 class="mt-5 mb-5">All Restaurants</h1>
+          <table id="allrestaurants" class="display" style="width:100%">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Restaurant</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for restaurant in restaurants %}
+                    <tr>
+                        <td>{{ restaurant.id }}</td>
+                        <td>{{ restaurant.name }}</td>
+                        <td><a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-primary">View Restaurant</button></a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+{% include 'footer.html' %}
