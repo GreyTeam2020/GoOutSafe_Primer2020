@@ -24,4 +24,6 @@ class RestaurantForm(FlaskForm):
     phone = f.StringField("phone", validators=[DataRequired(), Length(min=8, max=15)])
     lat = f.StringField("latitude", validators=[DataRequired()])
     lon = f.StringField("longitude", validators=[DataRequired()])
-    display = ["name", "phone", "lat", "lon"]
+    n_tables = f.StringField("number of tables", validators=[DataRequired()])
+    covid_m = f.StringField("Anti-Covid measures", validators=[DataRequired()])
+    display = ["name", "phone", "lat", "lon", "n_tables", "covid_m"]
