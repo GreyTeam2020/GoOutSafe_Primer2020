@@ -19,7 +19,6 @@ class User(db.Model):
     # user role
     role_id = db.Column(db.Integer, db.ForeignKey("role.id"))
     restaurant = relationship("Role", foreign_keys="User.role_id")
-    #
     is_anonymous = False
 
     def __init__(self, *args, **kw):
@@ -139,7 +138,7 @@ class Reservation(db.Model):
     table_id = db.Column(db.Integer, db.ForeignKey("restaurant_table.id"))
     table = relationship("RestaurantTable", foreign_keys="Reservation.table_id")
     #
-
+    people_number = db.Column(db.Integer)  # number of people in this reservation
 
 class PhotoGallery(db.Model):
     __tablename__ = "photo_gallery"

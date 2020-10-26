@@ -1,6 +1,7 @@
-from flask import Blueprint, redirect, render_template, request, current_app
-from monolith.database import db, Restaurant, Like, User
-from flask_login import current_user, login_required
+from flask import Blueprint, redirect, render_template, request, session, current_app
+from monolith.database import db, Restaurant, Like, Reservation, User
+from monolith.auth import admin_required, current_user, roles_allowed
+from flask_login import current_user, login_user, logout_user, login_required
 from monolith.forms import RestaurantForm
 
 restaurants = Blueprint("restaurants", __name__)
@@ -79,7 +80,7 @@ def create_restaurant():
                 q_user.role_id = 2
                 db.session.commit()
                 current_app.logger.debug("User {} with id {} update from role {} to {}"
-                                         .format(q_user.name, q_user.id, 3, q_user.role_id))
+                                         .format(q_user.email, q_user.id, 3, q_user.role_id))
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
             new_restaurant.covid_measures = "no information"
@@ -89,36 +90,53 @@ def create_restaurant():
     return render_template("create_restaurant.html", form=form)
 
 
-@restaurants.route("/my_restaurant_data", methods=["GET", "POST"])
+@restaurants.route("/list_reservations")
 @login_required
-def my_restaurant_data():
-    form = RestaurantForm()
-    if request.method == "POST":
-        if form.validate_on_submit():
-            # TODO: implement logic
-            # you should user error= if you want to display an error, for success instead use message=
-            return render_template(
-                "my_restaurant_data.html", form=form, error="not implemented yet"
-            )
-    return render_template("my_restaurant_data.html", form=form)
+@roles_allowed(roles=["OPERATOR"])
+def list_reservations():
+    # http://localhost:5000/list_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
 
+    # for security reason, that are retrive on server side, not passed by params
+    owner_id = current_user.id
+    restaurant_id = session["RESTAURANT_ID"]
 
-@restaurants.route("/my_restaurant_menu")
-@login_required
-def my_menu():
-    # TODO: pass menu entries
-    return render_template("my_menu.html")
+    # filter params
+    fromDate = request.args.get('fromDate', type=str)
+    toDate = request.args.get('toDate', type=str)
+    email = request.args.get('email', type=str)
 
+    queryString = "select reserv.reservation_date, reserv.people_number, cust.firstname, cust.lastname, cust.email, tab.name as tabname from reservation reserv " \
+        "join user cust on cust.id = reserv.customer_id " \
+        "join restaurant_table tab on reserv.table_id = tab.id "  \
+        "join restaurant rest on rest.id = tab.restaurant_id " \
+        "where rest.owner_id = :owner_id " \
+        "and rest.id = :restaurant_id "
 
-@restaurants.route("/my_restaurant_photogallery")
-@login_required
-def my_photogallery():
-    # TODO: pass menu entries
-    return render_template("my_photogallery.html")
+    # add filters...
+    if fromDate:
+        queryString = queryString + " and  reserv.reservation_date > :fromDate"
+    if toDate:
+        queryString = queryString + " and  reserv.reservation_date < :toDate"
+    if email:
+        queryString = queryString + " and  cust.email = :email"
+    queryString = queryString + " order by reserv.reservation_date desc"
 
+    stmt = db.text(queryString)
 
-@restaurants.route("/my_reservations")
-@login_required
-def my_reservations():
-    # TODO: pass reservations
-    return render_template("my_reservations.html")
+    # bind filter params...
+    params = {"owner_id": owner_id, "restaurant_id": restaurant_id}
+    if fromDate:
+        params["fromDate"] = fromDate + " 00:00:00.000"
+    if toDate:
+        params["toDate"] = toDate + " 23:59:59.999"
+    if email:
+        params["email"] = email
+
+    # execute and retrive results...
+    result = db.engine.execute(stmt, params)
+    reservations_as_list = result.fetchall()
+
+    return render_template(
+        "list_reservations.html",
+        reservations_as_list=reservations_as_list
+    )
