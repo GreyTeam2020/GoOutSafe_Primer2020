@@ -1,5 +1,8 @@
 # GoOutSafe
 
+![Travis (.org)](https://img.shields.io/travis/GreyTeam2020/GoOutSafe_Primer2020?style=for-the-badge)
+![Coveralls github](https://img.shields.io/coveralls/github/GreyTeam2020/GoOutSafe_Primer2020?style=for-the-badge)
+
 ## Table of Content
 
 ## How Build the project
