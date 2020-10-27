@@ -270,7 +270,16 @@ def my_tables():
 @roles_allowed(roles=["OPERATOR"])
 def my_photogallery():
     if request.method == "POST":
-        # TODO: add logic to add photo
+        form = PhotoGalleryForm()
+        #add photo to the db
+        if form.validate_on_submit():
+            photo_gallery = PhotoGallery()
+            photo_gallery.caption = form.data['caption']
+            photo_gallery.url = form.data['url']
+            photo_gallery.restaurant_id = session["RESTAURANT_ID"]
+            db.session.add(photo_gallery)
+            db.session.commit()
+
         return redirect("/my_restaurant_photogallery")
     else:
         photos = PhotoGallery.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
