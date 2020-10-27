@@ -1,9 +1,18 @@
 from flask import Blueprint, redirect, render_template, request, session, current_app
-from monolith.database import db, Restaurant, Like, Reservation, User, RestaurantTable
+from monolith.database import (
+    db,
+    Restaurant,
+    Like,
+    Reservation,
+    User,
+    RestaurantTable,
+    OpeningHours,
+    Menu,
+)
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
 from monolith.forms import RestaurantForm
-from datetime import datetime
+from datetime import datetime, time
 
 restaurants = Blueprint("restaurants", __name__)
 
@@ -24,6 +33,12 @@ def _restaurants(message=""):
 @restaurants.route("/restaurants/<restaurant_id>")
 def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
+
+    q_hours = (
+        db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
+    )
+    q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
+
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -33,6 +48,8 @@ def restaurant_sheet(restaurant_id):
         lon=record.lon,
         phone=record.phone,
         covid_measures=record.covid_measures,
+        hours=q_hours,
+        cuisine=q_cuisine,
     )
 
 
@@ -75,15 +92,18 @@ def create_restaurant():
             new_restaurant = Restaurant()
             q_user = db.session.query(User).filter_by(id=current_user.id).first()
             if q_user is None:
-                return render_template("create_restaurant.html",
-                                       form=form,
-                                       message="User not logged")
+                return render_template(
+                    "create_restaurant.html", form=form, message="User not logged"
+                )
             print(q_user)
             if q_user.role_id is 3:
                 q_user.role_id = 2
                 db.session.commit()
-                current_app.logger.debug("User {} with id {} update from role {} to {}"
-                                         .format(q_user.email, q_user.id, 3, q_user.role_id))
+                current_app.logger.debug(
+                    "User {} with id {} update from role {} to {}".format(
+                        q_user.email, q_user.id, 3, q_user.role_id
+                    )
+                )
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
             new_restaurant.covid_measures = form.covid_m.data
@@ -102,12 +122,39 @@ def create_restaurant():
                 db.session.add(new_table)
                 db.session.commit()
 
-            """TEST 
-            q_test= db.session.query(RestaurantTable).filter_by(restaurant_id=new_restaurant.id)
-            q_test.all()
-            for q in q_test:
-                print("id: ")
-                print(q.id)"""
+            # inserimento orari di apertura
+            days = form.open_days.data
+            for i in range(len(days)):
+                new_opening = OpeningHours()
+                new_opening.restaurant_id = new_restaurant.id
+                new_opening.week_day = days[i]
+
+                new_opening.open_lunch = datetime.strptime(
+                    form.open_lunch.data, "%H:%M"
+                ).time()
+                new_opening.close_lunch = datetime.strptime(
+                    form.close_lunch.data, "%H:%M"
+                ).time()
+                new_opening.open_dinner = datetime.strptime(
+                    form.open_dinner.data, "%H:%M"
+                ).time()
+                new_opening.close_dinner = datetime.strptime(
+                    form.close_dinner.data, "%H:%M"
+                ).time()
+
+                db.session.add(new_opening)
+                db.session.commit()
+
+            # inserimento tipi di cucina
+            cuisin_type = form.cuisine.data
+            for i in range(len(cuisin_type)):
+
+                new_cuisine = Menu()
+                new_cuisine.restaurant_id = new_restaurant.id
+                new_cuisine.cusine = cuisin_type[i]
+                new_cuisine.description = ""
+                db.session.add(new_cuisine)
+                db.session.commit()
 
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
@@ -124,16 +171,18 @@ def my_reservations():
     restaurant_id = session["RESTAURANT_ID"]
 
     # filter params
-    fromDate = request.args.get('fromDate', type=str)
-    toDate = request.args.get('toDate', type=str)
-    email = request.args.get('email', type=str)
+    fromDate = request.args.get("fromDate", type=str)
+    toDate = request.args.get("toDate", type=str)
+    email = request.args.get("email", type=str)
 
-    queryString = "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv " \
-                  "join user cust on cust.id = reserv.customer_id " \
-                  "join restaurant_table tab on reserv.table_id = tab.id " \
-                  "join restaurant rest on rest.id = tab.restaurant_id " \
-                  "where rest.owner_id = :owner_id " \
-                  "and rest.id = :restaurant_id "
+    queryString = (
+        "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv "
+        "join user cust on cust.id = reserv.customer_id "
+        "join restaurant_table tab on reserv.table_id = tab.id "
+        "join restaurant rest on rest.id = tab.restaurant_id "
+        "where rest.owner_id = :owner_id "
+        "and rest.id = :restaurant_id "
+    )
 
     # add filters...
     if fromDate:
@@ -162,10 +211,10 @@ def my_reservations():
     return render_template(
         "my_reservations.html",
         reservations_as_list=reservations_as_list,
-        my_date_formatter=my_date_formatter
+        my_date_formatter=my_date_formatter,
     )
 
 
 def my_date_formatter(text):
-    date_dt2 = datetime.strptime(text, '%Y-%m-%d %H:%M:%S.%f')
+    date_dt2 = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f")
     return date_dt2.strftime("%d/%m/%Y %H:%M:%S")

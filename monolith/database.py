@@ -141,6 +141,7 @@ class Reservation(db.Model):
     #
     people_number = db.Column(db.Integer)  # number of people in this reservation
 
+
 class PhotoGallery(db.Model):
     __tablename__ = "photo_gallery"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
