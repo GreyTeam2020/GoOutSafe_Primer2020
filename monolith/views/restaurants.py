@@ -7,11 +7,11 @@ from monolith.database import (
     User,
     RestaurantTable,
     OpeningHours,
-    Menu,
+    Menu, PhotoGallery,
 )
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
-from monolith.forms import RestaurantForm, RestaurantTableForm
+from monolith.forms import RestaurantForm, RestaurantTableForm, PhotoGalleryForm
 from datetime import datetime, time
 
 restaurants = Blueprint("restaurants", __name__)
@@ -240,6 +240,19 @@ def my_tables():
     elif request.method == "GET":
         # TODO: Delete logic, you have table id in GET ?id=
         return redirect("/my_restaurant_data")
+
+
+@restaurants.route("/my_restaurant_photogallery", methods=["GET", "POST"])
+@login_required
+@roles_allowed(roles=["OPERATOR"])
+def my_photogallery():
+    if request.method == "POST":
+        # TODO: add logic to add photo
+        return redirect("/my_restaurant_photogallery")
+    else:
+        photos = PhotoGallery.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+        form = PhotoGalleryForm()
+        return render_template("my_photogallery.html", form=form, photos=photos)
 
 
 def my_date_formatter(text):

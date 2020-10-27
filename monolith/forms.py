@@ -75,3 +75,9 @@ class RestaurantTableForm(FlaskForm):
     name = f.StringField("name", validators=[DataRequired()])
     capacity = f.IntegerField("capacity", validators=[DataRequired()])
     display = ["name", "capacity"]
+
+
+class PhotoGalleryForm(FlaskForm):
+    url = f.StringField("URL", validators=[DataRequired()])
+    caption = f.StringField("caption")
+    display = ["url", "caption"]

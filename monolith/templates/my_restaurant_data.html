@@ -15,12 +15,12 @@
                 {{ error }}
               </div>
           {% endif %}
-          <form class="form-signin"  action="" method="POST">
+          <form action="" method="POST">
               {{ form.hidden_tag() }}
               <dl>
                {% for field in form.display %}
                    {% if form[field].name in only %}
-                       <dt>{{ form[field].label(class_="sr-only") }}</dt>
+                       <dt>{{ form[field].label(class_="") }}</dt>
                        <dd>{{ form[field](class_="form-control", placeholder=form[field].label.text) }}</dd>
                          {% if form[field].errors %}
                             {% for e in form[field].errors %}
