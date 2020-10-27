@@ -1,5 +1,5 @@
-from flask import Blueprint, redirect, render_template, request, current_app
-from monolith.database import db, User, Like
+from flask import Blueprint, redirect, render_template, request
+from monolith.database import db, User
 from monolith.forms import UserForm
 from monolith.utils import send_mail
 from flask_login import login_user
@@ -41,10 +41,48 @@ def create_user():
     return render_template("create_user.html", form=form)
 
 
-@users.route("/myreservations")
+@users.route("/customer/reservations")
+@login_required
+@roles_allowed(roles=["CUSTOMER"])
 def myreservation():
-    return render_template("user_reservations.html")
 
+    # for security reason, that are retrive on server side, not passed by params
+    customer_id = current_user.id
+
+    # filter params
+    fromDate = request.args.get("fromDate", type=str)
+    toDate = request.args.get("toDate", type=str)
+    email = request.args.get("email", type=str)
+
+    queryString = (
+        "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, rest.name "
+        "from reservation reserv "
+        "join user cust on cust.id = reserv.customer_id "
+        "join restaurant_table tab on reserv.table_id = tab.id "
+        "join restaurant rest on rest.id = tab.restaurant_id "
+        "where cust.id = :customer_id"
+    )
+
+    stmt = db.text(queryString)
+
+    # bind filter params...
+    params = {"customer_id": customer_id}
+    if fromDate:
+        params["fromDate"] = fromDate + " 00:00:00.000"
+    if toDate:
+        params["toDate"] = toDate + " 23:59:59.999"
+    if email:
+        params["email"] = email
+
+    # execute and retrive results...
+    result = db.engine.execute(stmt, params)
+    reservations_as_list = result.fetchall()
+
+    return render_template(
+        "user_reservations.html",
+        reservations_as_list=reservations_as_list,
+        my_date_formatter=my_date_formatter,
+    )
 
 @users.route("/testsendemail")
 def _testsendemail():
@@ -64,8 +102,3 @@ def _testsendemail():
     )
     # ------------------------
     return render_template("sendemailok.html", testEmail=testEmail)
-
-
-@users.route("/testtpl")
-def _testtpl():
-    return render_template("testtpl.html")

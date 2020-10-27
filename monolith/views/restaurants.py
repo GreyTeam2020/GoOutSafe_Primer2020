@@ -138,7 +138,7 @@ def create_restaurant():
     return render_template("create_restaurant.html", form=form)
 
 
-@restaurants.route("/my_reservations")
+@restaurants.route("/restaurants/reservations")
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_reservations():
