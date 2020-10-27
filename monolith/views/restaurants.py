@@ -116,7 +116,7 @@ def create_restaurant():
             
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
-            new_restaurant.covid_measures = form.covid_m.data
+            new_restaurant.covid_measures = form.covid_measures.data
 
             db.session.add(new_restaurant)
             db.session.commit()

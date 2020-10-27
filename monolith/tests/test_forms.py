@@ -126,7 +126,7 @@ def test_register_new_restaurant(client):
     restaurant_form.lat = 12
     restaurant_form.lon = 12
     restaurant_form.n_tables = 50
-    restaurant_form.covid_m = "We can survive"
+    restaurant_form.covid_measures = "We can survive"
     restaurant_form.cuisine = "0"
     restaurant_form.open_days = "0"
     restaurant_form.open_lunch = "12:00"
@@ -182,7 +182,7 @@ def test_register_new_restaurant(client):
     restaurant_form.lat = 12
     restaurant_form.lon = 12
     restaurant_form.n_tables = 50
-    restaurant_form.covid_m = "We can survive"
+    restaurant_form.covid_measures = "We can survive"
     restaurant_form.cuisine = ["Italian food"]
     restaurant_form.open_days = ["0"]
     restaurant_form.open_lunch = "12:00"
