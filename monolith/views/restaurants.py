@@ -11,7 +11,7 @@ from monolith.database import (
 )
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
-from monolith.forms import RestaurantForm
+from monolith.forms import RestaurantForm, RestaurantTableForm
 from datetime import datetime, time
 
 restaurants = Blueprint("restaurants", __name__)
@@ -95,7 +95,10 @@ def create_restaurant():
                 return render_template(
                     "create_restaurant.html", form=form, message="User not logged"
                 )
-            print(q_user)
+
+            #set the owner
+            new_restaurant.owner_id=q_user.id
+
             if q_user.role_id is 3:
                 q_user.role_id = 2
                 db.session.commit()
@@ -104,6 +107,10 @@ def create_restaurant():
                         q_user.email, q_user.id, 3, q_user.role_id
                     )
                 )
+            #set the new role in session
+            #if not the role will be anonymous
+            session["ROLE"] = 'OPERATOR'
+            
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
             new_restaurant.covid_measures = form.covid_m.data
@@ -127,21 +134,11 @@ def create_restaurant():
             for i in range(len(days)):
                 new_opening = OpeningHours()
                 new_opening.restaurant_id = new_restaurant.id
-                new_opening.week_day = days[i]
-
-                new_opening.open_lunch = datetime.strptime(
-                    form.open_lunch.data, "%H:%M"
-                ).time()
-                new_opening.close_lunch = datetime.strptime(
-                    form.close_lunch.data, "%H:%M"
-                ).time()
-                new_opening.open_dinner = datetime.strptime(
-                    form.open_dinner.data, "%H:%M"
-                ).time()
-                new_opening.close_dinner = datetime.strptime(
-                    form.close_dinner.data, "%H:%M"
-                ).time()
-
+                new_opening.week_day = int(days[i])
+                new_opening.open_lunch = form.open_lunch.data
+                new_opening.close_lunch = form.close_lunch.data
+                new_opening.open_dinner = form.open_dinner.data
+                new_opening.close_dinner = form.close_dinner.data
                 db.session.add(new_opening)
                 db.session.commit()
 
@@ -213,6 +210,36 @@ def my_reservations():
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
     )
+
+@restaurants.route("/my_restaurant_data", methods=["GET", "POST"])
+@login_required
+@roles_allowed(roles=["OPERATOR"])
+def my_data():
+    if request.method == "POST":
+        # TODO: add logic to update data
+        return redirect("/my_restaurant_data")
+    else:
+        q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
+        if q is not None:
+            print(q.covid_measures)
+            form = RestaurantForm(obj=q)
+            form2 = RestaurantTableForm()
+            tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+            return render_template("my_restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures"],
+                                   tables=tables, form2=form2)
+        else:
+            return redirect("/create_restaurant")
+
+@restaurants.route("/mytables", methods=["GET", "POST"])
+@login_required
+@roles_allowed(roles=["OPERATOR"])
+def my_tables():
+    if request.method == "POST":
+        # TODO: Add logic
+        return redirect("/my_restaurant_data")
+    elif request.method == "GET":
+        # TODO: Delete logic, you have table id in GET ?id=
+        return redirect("/my_restaurant_data")
 
 
 def my_date_formatter(text):

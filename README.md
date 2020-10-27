@@ -11,8 +11,8 @@
 
 ## Developing
 
-Each programmer has a personal style on write code and we accept this, but to make readble the
-code from all component of the team, we used a google tool to format the code in automatically.
+Each programmer has a personal style on write code and we accept this, but to make readability the
+code from all component of the team, we used a good tool to format the code in automatically.
 
 It is [black](https://github.com/psf/black), and it is installed with the requirements.txt
 
@@ -29,3 +29,4 @@ All done! ✨ 🍰 ✨
 ## Additional information
 
 - Deadline - November 6th, 2020 at 08:59 am
+  - (Sub) Deadline for the priority one - October 28th, 2020 at 06:00pm.

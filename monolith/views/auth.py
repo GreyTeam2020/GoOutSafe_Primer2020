@@ -29,6 +29,7 @@ def login():
                     if restaurant is not None:
                         session["RESTAURANT_ID"] = restaurant.id
                         session["RESTAURANT_NAME"] = restaurant.name
+
             return redirect("/")
         else:
             return render_template("login.html", form=form, message="User not exist")
