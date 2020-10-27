@@ -252,7 +252,7 @@ def my_photogallery():
         # TODO: add logic to add photo
         return redirect("/my_restaurant_photogallery")
     else:
-        photos = PhotoGallery.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+        photos = PhotoGallery.query.filter_by(restaurant_id=session["RESTAURANT_ID"]).all()
         form = PhotoGalleryForm()
         return render_template("my_photogallery.html", form=form, photos=photos)
 
