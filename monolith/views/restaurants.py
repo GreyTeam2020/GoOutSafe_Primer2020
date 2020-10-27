@@ -218,20 +218,30 @@ def my_reservations():
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_data():
+    message = None
     if request.method == "POST":
         # TODO: add logic to update data
-        return redirect("/my_restaurant_data")
-    else:
-        q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
-        if q is not None:
-            print(q.covid_measures)
-            form = RestaurantForm(obj=q)
-            form2 = RestaurantTableForm()
-            tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
-            return render_template("my_restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures"],
-                                   tables=tables, form2=form2)
+        
+        #print (request.form.get("name"))
+        q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).update({"name":request.form.get("name"), "lat":request.form.get("lat"), "lon":request.form.get("lon"), "covid_measures":request.form.get("covid_measures")})
+        if q == 0:
+            message = "Some Errors occurs"
         else:
-            return redirect("/create_restaurant")
+            db.session.commit()
+            message = "Restaurant data has been modified."
+
+        #return render_template("my_restaurant_data.html", message="Success")
+    
+    q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
+    if q is not None:
+        print(q.covid_measures)
+        form = RestaurantForm(obj=q)
+        form2 = RestaurantTableForm()
+        tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+        return render_template("my_restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures"],
+                                tables=tables, form2=form2, message=message)
+    else:
+        return redirect("/create_restaurant")
 
 @restaurants.route("/mytables", methods=["GET", "POST"])
 @login_required
