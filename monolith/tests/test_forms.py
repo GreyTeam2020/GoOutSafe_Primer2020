@@ -194,7 +194,7 @@ def test_register_new_restaurant(client):
     assert restaurant_form.name in response.data.decode("utf-8")
 
     rest = get_rest_with_name_and_phone(restaurant_form.name, restaurant_form.phone)
-    assert  rest is not None
+    assert rest is not None
     db.session.query(User).filter_by(id=user.id).delete()
     db.session.commit()
 

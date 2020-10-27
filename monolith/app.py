@@ -13,11 +13,14 @@ from monolith.auth import login_manager
 import datetime
 
 
-def create_app():
+def create_app(tests=False):
     app = Flask(__name__)
     app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
     app.config["SECRET_KEY"] = "ANOTHER ONE"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///gooutsafe.db"
+    if tests is False:
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///gooutsafe.db"
+    else:
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tests/gooutsafe.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
     for bp in blueprints:

@@ -58,7 +58,7 @@ def register_restaurant(client, restaurant: RestaurantForm):
             lat=restaurant.lat,
             lon=restaurant.lon,
             n_tables=restaurant.n_tables,
-            covid_m=restaurant.covid_m,
+            covid_measures=restaurant.covid_measures,
             cuisine=restaurant.cuisine,
             open_days=restaurant.open_days,
             open_lunch=restaurant.open_lunch,
@@ -96,6 +96,7 @@ def get_rest_with_name_and_phone(name, phone):
     if q_rest is not None:
         return q_rest
     return None
+
 
 def get_rest_with_name(name):
     """
