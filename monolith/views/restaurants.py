@@ -107,6 +107,10 @@ def create_restaurant():
                         q_user.email, q_user.id, 3, q_user.role_id
                     )
                 )
+            #set the new role in session
+            #if not the role will be anonymous
+            session["ROLE"] = 'OPERATOR'
+            
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
             new_restaurant.covid_measures = form.covid_m.data
