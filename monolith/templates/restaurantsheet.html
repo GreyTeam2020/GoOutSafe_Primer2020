@@ -30,7 +30,7 @@
                         <b>Opening hours:</b><br>
                         <ul>
                         {% for hour in hours: %}
-                            <li>{{ weekDaysLabel[hour.week_day] }} : {{ hour.open_lunch }} - {{ hour.close_lunch }}, {{ hour.open_dinner }} - {{ hour.close_dinner }}</li>
+                            <li>{{ weekDaysLabel[hour.week_day] }} : {{ hour.open_lunch.strftime("%H:%M") }} - {{ hour.close_lunch.strftime("%H:%M") }}, {{ hour.open_dinner.strftime("%H:%M") }} - {{ hour.close_dinner.strftime("%H:%M") }}</li>
                         {% endfor %}
                         </ul>
 
