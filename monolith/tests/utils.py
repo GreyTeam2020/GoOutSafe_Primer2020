@@ -43,7 +43,7 @@ def register_user(client, user: UserForm):
     )
 
 
-def register_restaurant(client, restaurant: RestaurantForm, user_id=None):
+def register_restaurant(client, restaurant: RestaurantForm):
     """
     This method perform the request  to build a new restaurant
     :param client: Is a flask app created inside the fixtures
