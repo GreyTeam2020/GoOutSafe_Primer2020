@@ -175,12 +175,14 @@ def my_reservations():
     toDate = request.args.get("toDate", type=str)
     email = request.args.get("email", type=str)
 
-    queryString = "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv " \
-                  "join user cust on cust.id = reserv.customer_id " \
-                  "join restaurant_table tab on reserv.table_id = tab.id " \
-                  "join restaurant rest on rest.id = tab.restaurant_id " \
-                  "where rest.owner_id = :owner_id " \
-                  "and rest.id = :restaurant_id "
+    queryString = (
+        "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv "
+        "join user cust on cust.id = reserv.customer_id "
+        "join restaurant_table tab on reserv.table_id = tab.id "
+        "join restaurant rest on rest.id = tab.restaurant_id "
+        "where rest.owner_id = :owner_id "
+        "and rest.id = :restaurant_id "
+    )
 
     # add filters...
     if fromDate:
@@ -209,10 +211,10 @@ def my_reservations():
     return render_template(
         "my_reservations.html",
         reservations_as_list=reservations_as_list,
-        my_date_formatter=my_date_formatter
+        my_date_formatter=my_date_formatter,
     )
 
 
 def my_date_formatter(text):
-    date_dt2 = datetime.strptime(text, '%Y-%m-%d %H:%M:%S.%f')
+    date_dt2 = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f")
     return date_dt2.strftime("%d/%m/%Y %H:%M:%S")
