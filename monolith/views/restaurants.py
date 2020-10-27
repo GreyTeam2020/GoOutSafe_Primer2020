@@ -38,7 +38,8 @@ def restaurant_sheet(restaurant_id):
         db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
     )
     q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
-
+    photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
+    print(photos)
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -50,7 +51,8 @@ def restaurant_sheet(restaurant_id):
         covid_measures=record.covid_measures,
         hours=q_hours,
         cuisine=q_cuisine,
-        weekDaysLabel=weekDaysLabel
+        weekDaysLabel=weekDaysLabel,
+        photos=photos
     )
 
 
