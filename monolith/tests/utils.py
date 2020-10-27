@@ -58,7 +58,7 @@ def register_restaurant(client, restaurant: RestaurantForm):
             lat=restaurant.lat,
             lon=restaurant.lon,
             n_tables=restaurant.n_tables,
-            covid_m=restaurant.covid_m,
+            covid_measures=restaurant.covid_measures,
             cuisine=restaurant.cuisine,
             open_days=restaurant.open_days,
             open_lunch=restaurant.open_lunch,
@@ -70,6 +70,26 @@ def register_restaurant(client, restaurant: RestaurantForm):
         ),
         follow_redirects=True,
     )
+
+
+def visit_restaurant(client, restaurant_id):
+    """
+    This perform the request to visit the restaurant view
+    :param client:
+    :param restaurant_id:
+    :return: response from client
+    """
+    return client.get("/restaurants/{}".format(restaurant_id), follow_redirects=True)
+
+
+def visit_photo_gallery(client):
+    """
+    This perform the request to visit the photo_gallery view
+    :param client:
+    :param restaurant_id:
+    :return: response from client
+    """
+    return client.get("/my_restaurant_photogallery", follow_redirects=True)
 
 
 def get_user_with_email(email):
@@ -96,6 +116,7 @@ def get_rest_with_name_and_phone(name, phone):
     if q_rest is not None:
         return q_rest
     return None
+
 
 def get_rest_with_name(name):
     """

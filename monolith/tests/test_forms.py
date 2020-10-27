@@ -14,6 +14,7 @@ from utils import (
 )
 from monolith.database import db, User, Restaurant
 from monolith.forms import UserForm, RestaurantForm
+from monolith.tests.utils import visit_restaurant, visit_photo_gallery
 
 
 @pytest.mark.usefixtures("client")
@@ -126,7 +127,7 @@ def test_register_new_restaurant(client):
     restaurant_form.lat = 12
     restaurant_form.lon = 12
     restaurant_form.n_tables = 50
-    restaurant_form.covid_m = "We can survive"
+    restaurant_form.covid_measures = "We can survive"
     restaurant_form.cuisine = "0"
     restaurant_form.open_days = "0"
     restaurant_form.open_lunch = "12:00"
@@ -182,7 +183,7 @@ def test_register_new_restaurant(client):
     restaurant_form.lat = 12
     restaurant_form.lon = 12
     restaurant_form.n_tables = 50
-    restaurant_form.covid_m = "We can survive"
+    restaurant_form.covid_measures = "We can survive"
     restaurant_form.cuisine = ["Italian food"]
     restaurant_form.open_days = ["0"]
     restaurant_form.open_lunch = "12:00"
@@ -194,7 +195,7 @@ def test_register_new_restaurant(client):
     assert restaurant_form.name in response.data.decode("utf-8")
 
     rest = get_rest_with_name_and_phone(restaurant_form.name, restaurant_form.phone)
-    assert  rest is not None
+    assert rest is not None
     db.session.query(User).filter_by(id=user.id).delete()
     db.session.commit()
 
@@ -255,3 +256,64 @@ def test_send_communication_covid19(client):
     that have the covid19 in the same time of the restaurant visit
     """
     pass
+
+
+@pytest.mark.usefixtures("client")
+def test_open_photo_view(client):
+    """
+    This test perform the use case described below
+    - create a new user
+    - create a new restaurant
+    - open the single restaurant view
+    - Go to photo gallery
+    - check if the page is load correctly
+    """
+    user = UserForm()
+    user.email = "cr7@gmail.com"
+    user.firstname = "Cristiano"
+    user.lastname = "Ronaldo"
+    user.password = "Siii"
+    user.dateofbirth = "12/12/2020"
+    register_user(client, user)
+    response = login(client, user.email, user.password)
+    assert response is not None
+    assert "Hi {}".format(user.firstname) in response.data.decode("utf-8")
+
+    # login(client, email, password)
+    restaurant_form = RestaurantForm()
+    restaurant_form.name = "Gino Sorbillo"
+    restaurant_form.phone = "096321343"
+    restaurant_form.lat = 12
+    restaurant_form.lon = 12
+    restaurant_form.n_tables = 50
+    restaurant_form.covid_measures = "We can survive"
+    restaurant_form.cuisine = ["Italian food"]
+    restaurant_form.open_days = ["0"]
+    restaurant_form.open_lunch = "12:00"
+    restaurant_form.close_lunch = "15:00"
+    restaurant_form.open_dinner = "18:00"
+    restaurant_form.close_dinner = "00:00"
+    response = register_restaurant(client, restaurant_form)
+    assert response.status_code == 200
+    assert restaurant_form.name in response.data.decode("utf-8")
+
+    restaurant = get_rest_with_name(restaurant_form.name)
+    response = visit_restaurant(client, restaurant.id)
+    assert response.status_code == 200
+    assert "Phone" in response.data.decode("utf-8")
+
+    user_stored = get_user_with_email(user.email)
+    ## --------- FIXME(vincenzopalazzo) -------
+    user_stored.rule_id = 2
+    db.session.commit()
+    with client.session_transaction(subdomain='blue') as session:
+        session['ROLE'] = "OPERATOR"
+     ## -------------------------------------------
+    assert restaurant.owner_id == user_stored.id
+    assert user_stored.rule_id == 2
+
+    response = visit_photo_gallery(client)
+    assert response.status_code == 200
+
+    db.session.query(User).filter_by(id=user_stored.id).delete()
+    db.session.commit()

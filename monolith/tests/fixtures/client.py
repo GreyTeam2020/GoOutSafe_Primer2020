@@ -8,10 +8,10 @@ from monolith.app import create_app
 
 @pytest.fixture
 def client():
-    # os.remove("{}/gooutsafe.db".format(os.path.dirname(os.path.realpath(__file__)).rsplit(os.sep, 2)[0]))
-    app = create_app()
+    app = create_app(tests=True)
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
+    app.config['DEBUG'] = True
     ctx = app.app_context()
     ctx.push()
 
