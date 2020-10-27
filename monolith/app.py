@@ -53,6 +53,7 @@ def create_app():
             admin_user.firstname = "Admin"
             admin_user.lastname = "Admin"
             admin_user.email = "admin@gooutsafe.com"
+            admin_user.phone = "3334455678"
             admin_user.dateofbirth = datetime.datetime(2020, 10, 5)
             admin_user.is_admin = True
             admin_user.set_password("admin")
@@ -64,14 +65,15 @@ def create_app():
         q = db.session.query(User).filter(User.email == "ham.burger@email.com")
         user = q.first()
         if user is None:
-            first_customer = User()
-            first_customer.firstname = "Ham"
-            first_customer.lastname = "Burger"
-            first_customer.email = "ham.burger@email.com"
-            first_customer.is_admin = False
-            first_customer.set_password("operator")
-            first_customer.role_id = 2
-            db.session.add(first_customer)
+            first_operator = User()
+            first_operator.firstname = "Ham"
+            first_operator.lastname = "Burger"
+            first_operator.email = "ham.burger@email.com"
+            first_operator.phone = "222333567"
+            first_operator.is_admin = False
+            first_operator.set_password("operator")
+            first_operator.role_id = 2
+            db.session.add(first_operator)
             db.session.commit()
 
         # a customer
@@ -82,6 +84,7 @@ def create_app():
             first_customer.firstname = "John"
             first_customer.lastname = "Doe"
             first_customer.email = "john.doe@email.com"
+            first_customer.phone = "111234765"
             first_customer.is_admin = False
             first_customer.set_password("customer")
             first_customer.role_id = 3
@@ -96,6 +99,7 @@ def create_app():
             health_authority.firstname = "Health"
             health_authority.lastname = "Authority"
             health_authority.email = "health_authority@gov.com"
+            health_authority.phone = "321456783"
             health_authority.is_admin = False
             health_authority.set_password("nocovid")
             health_authority.role_id = 4
