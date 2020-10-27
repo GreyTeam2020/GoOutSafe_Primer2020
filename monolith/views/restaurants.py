@@ -129,19 +129,10 @@ def create_restaurant():
                 new_opening.restaurant_id = new_restaurant.id
                 new_opening.week_day = days[i]
 
-                new_opening.open_lunch = datetime.strptime(
-                    form.open_lunch.data, "%H:%M"
-                ).time()
-                new_opening.close_lunch = datetime.strptime(
-                    form.close_lunch.data, "%H:%M"
-                ).time()
-                new_opening.open_dinner = datetime.strptime(
-                    form.open_dinner.data, "%H:%M"
-                ).time()
-                new_opening.close_dinner = datetime.strptime(
-                    form.close_dinner.data, "%H:%M"
-                ).time()
-
+                new_opening.open_lunch = form.open_lunch.data
+                new_opening.close_lunch = form.close_lunch.data
+                new_opening.open_dinner = form.open_dinner.data
+                new_opening.close_dinner = form.close_dinner.data
                 db.session.add(new_opening)
                 db.session.commit()
 

@@ -51,10 +51,11 @@ class RestaurantForm(FlaskForm):
         ],
         validators=[DataRequired()],
     )
-    open_lunch = f.StringField("open time for lunch", validators=[DataRequired()])
-    close_lunch = f.StringField("close time for lunch", validators=[DataRequired()])
-    open_dinner = f.StringField("open time for dinner", validators=[DataRequired()])
-    close_dinner = f.StringField("close time for dinner", validators=[DataRequired()])
+    #open_lunch = f.StringField("open time for lunch", validators=[DataRequired()])
+    open_lunch = f.TimeField("open time for lunch", validators=[DataRequired()])
+    close_lunch = f.TimeField("close time for lunch", validators=[DataRequired()])
+    open_dinner = f.TimeField("open time for dinner", validators=[DataRequired()])
+    close_dinner = f.TimeField("close time for dinner", validators=[DataRequired()])
     display = [
         "name",
         "phone",
