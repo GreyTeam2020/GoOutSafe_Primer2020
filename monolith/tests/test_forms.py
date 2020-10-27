@@ -14,6 +14,7 @@ from utils import (
 )
 from monolith.database import db, User, Restaurant
 from monolith.forms import UserForm, RestaurantForm
+from monolith.tests.utils import delete_user
 
 
 @pytest.mark.usefixtures("client")
@@ -100,7 +101,18 @@ def test_register_new_user_ok(client):
 
 @pytest.mark.usefixtures("client")
 def test_delete_user(client):
-    pass
+    user_form = UserForm()
+    user_form.email = "Trumps_doctor@usa.gov"
+    user_form.firstname = "Anthony"
+    user_form.lastname = "Fauci"
+    user_form.dateofbirth = "12/12/2020"
+    user_form.password = "nocovid_in_us"
+    response = register_user(client, user_form)
+    assert response.status_code == 200
+    assert "Hi" in response.data.decode("utf-8")
+
+    response = delete_user(client, user_form.email)
+    assert response.status_code == 200
 
 
 @pytest.mark.usefixtures("client")
@@ -194,7 +206,7 @@ def test_register_new_restaurant(client):
     assert restaurant_form.name in response.data.decode("utf-8")
 
     rest = get_rest_with_name_and_phone(restaurant_form.name, restaurant_form.phone)
-    assert  rest is not None
+    assert rest is not None
     db.session.query(User).filter_by(id=user.id).delete()
     db.session.commit()
 

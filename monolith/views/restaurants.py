@@ -96,8 +96,8 @@ def create_restaurant():
                     "create_restaurant.html", form=form, message="User not logged"
                 )
 
-            #set the owner
-            new_restaurant.owner_id=q_user.id
+            # set the owner
+            new_restaurant.owner_id = q_user.id
 
             if q_user.role_id is 3:
                 q_user.role_id = 2
@@ -107,10 +107,10 @@ def create_restaurant():
                         q_user.email, q_user.id, 3, q_user.role_id
                     )
                 )
-            #set the new role in session
-            #if not the role will be anonymous
-            session["ROLE"] = 'OPERATOR'
-            
+            # set the new role in session
+            # if not the role will be anonymous
+            session["ROLE"] = "OPERATOR"
+
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
             new_restaurant.covid_measures = form.covid_m.data
@@ -211,6 +211,7 @@ def my_reservations():
         my_date_formatter=my_date_formatter,
     )
 
+
 @restaurants.route("/my_restaurant_data", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
@@ -224,11 +225,19 @@ def my_data():
             print(q.covid_measures)
             form = RestaurantForm(obj=q)
             form2 = RestaurantTableForm()
-            tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
-            return render_template("my_restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures"],
-                                   tables=tables, form2=form2)
+            tables = RestaurantTable.query.filter_by(
+                restaurant_id=session["RESTAURANT_ID"]
+            )
+            return render_template(
+                "my_restaurant_data.html",
+                form=form,
+                only=["name", "lat", "lon", "covid_measures"],
+                tables=tables,
+                form2=form2,
+            )
         else:
             return redirect("/create_restaurant")
+
 
 @restaurants.route("/mytables", methods=["GET", "POST"])
 @login_required

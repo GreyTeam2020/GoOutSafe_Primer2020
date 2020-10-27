@@ -43,6 +43,25 @@ def register_user(client, user: UserForm):
     )
 
 
+def delete_user(client, email):
+    """
+
+    :param client:
+    :param email:
+    :return:
+    """
+    data = dict(
+        email=email,
+        submit=True,
+        headers={"Content-type": "application/x-www-form-urlencoded"},
+    )
+    return client.post(
+        "/delete_user",
+        data=data,
+        follow_redirects=True,
+    )
+
+
 def register_restaurant(client, restaurant: RestaurantForm):
     """
     This method perform the request  to build a new restaurant
@@ -96,6 +115,7 @@ def get_rest_with_name_and_phone(name, phone):
     if q_rest is not None:
         return q_rest
     return None
+
 
 def get_rest_with_name(name):
     """
