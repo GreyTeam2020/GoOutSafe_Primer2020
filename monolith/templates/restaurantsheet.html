@@ -28,25 +28,21 @@
                     <h5 class="mb-0">Info</h5>
                     <div class="p-4 rounded shadow-sm bg-light">
                         <b>Opening hours:</b><br>
-                        <p>
+                        <ul>
                         {% for hour in hours: %}
-                            
-                            - {{ hour.week_day }} : {{ hour.open_lunch }} - {{ hour.close_lunch }}, {{ hour.open_dinner }} - {{ hour.close_dinner }}<br>
-                            
+                            <li>{{ hour.week_day }} : {{ hour.open_lunch }} - {{ hour.close_lunch }}, {{ hour.open_dinner }} - {{ hour.close_dinner }}</li>
                         {% endfor %}
-                        </p>
+                        </ul>
 
                         <b>Phone:</b><br>
                         <p>{{ phone }}</p>
-                        <b>Cuisine Type:</b><br>
 
-                        <p>
+                        <b>Cuisine Type:</b><br>
+                        <ul>
                         {% for c in cuisine: %}
-                            
-                            - {{ c.cusine }}<br>
-                            
+                            <li>{{ c.cusine }}</li>
                         {% endfor %}
-                        </p>
+                        </ul>
 
                         <b>Anti-COVID Measures:</b><br>
                         <p>{{ covid_measures }}</p>
