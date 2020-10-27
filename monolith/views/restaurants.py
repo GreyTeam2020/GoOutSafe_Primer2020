@@ -48,6 +48,8 @@ def restaurant_sheet(restaurant_id):
     )
     q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
     photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
+    ## FIXME(vincenzopalazzo): This is only a test to try to fix
+    session["RESTAURANT_ID"] = restaurant_id
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -110,7 +112,7 @@ def create_restaurant():
             # set the owner
             new_restaurant.owner_id = q_user.id
 
-            if q_user.role_id is 3:
+            if q_user.role_id is not 2:
                 q_user.role_id = 2
                 db.session.commit()
                 current_app.logger.debug(
@@ -156,7 +158,6 @@ def create_restaurant():
             # inserimento tipi di cucina
             cuisin_type = form.cuisine.data
             for i in range(len(cuisin_type)):
-
                 new_cuisine = Menu()
                 new_cuisine.restaurant_id = new_restaurant.id
                 new_cuisine.cusine = cuisin_type[i]

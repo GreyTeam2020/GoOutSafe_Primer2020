@@ -11,6 +11,7 @@ def client():
     app = create_app(tests=True)
     app.config["TESTING"] = True
     app.config["WTF_CSRF_ENABLED"] = False
+    app.config['DEBUG'] = True
     ctx = app.app_context()
     ctx.push()
 
