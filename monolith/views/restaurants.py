@@ -95,7 +95,10 @@ def create_restaurant():
                 return render_template(
                     "create_restaurant.html", form=form, message="User not logged"
                 )
-            print(q_user)
+
+            #set the owner
+            new_restaurant.owner_id=q_user.id
+
             if q_user.role_id is 3:
                 q_user.role_id = 2
                 db.session.commit()
