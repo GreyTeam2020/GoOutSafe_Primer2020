@@ -39,7 +39,6 @@ def restaurant_sheet(restaurant_id):
     )
     q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
     photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
-    print(photos)
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -282,7 +281,7 @@ def my_photogallery():
 
         return redirect("/my_restaurant_photogallery")
     else:
-        photos = PhotoGallery.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+        photos = PhotoGallery.query.filter_by(restaurant_id=session["RESTAURANT_ID"]).all()
         form = PhotoGalleryForm()
         return render_template("my_photogallery.html", form=form, photos=photos)
 

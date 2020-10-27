@@ -39,7 +39,7 @@
 
                         <b>Cuisine Type:</b><br>
                         <ul>
-                        {% for c in cuisine: %}
+                        {% for c in cuisine %}
                             <li>{{ c.cusine }}</li>
                         {% endfor %}
                         </ul>
@@ -51,22 +51,20 @@
                 <div class="col-md-6">
                     <h5 class="mb-0">Map</h5>
                     <div class="p-4 rounded shadow-sm bg-light">
-                        <iframe height="400" width="100%" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-                         src="https://www.openstreetmap.org/export/embed.html?bbox={{lon - 0.001}}%2C{{lat - 0.001}}%2C{{lon + 0.001}}%2C{{lat + 0.001}}&amp;layer=mapnik&amp;marker={{lat}}%2C{{lon}}" style="border: 1px solid black"></iframe><br/><small><a href="https://www.openstreetmap.org/#map=17/{{lat}}/{{lon}}">See it Larger</a></small>
+                        <div id="map" style="height:400px"></div>
                     </div>
                 </div>
             </div>
 
             <div class="py-4 px-4">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    {% if photos.length == 0 %}
+                    {% if photos|length == 0 %}
                          <h5 class="mb-0">No photo uploaded yet</h5>
                     {% else %}
-                         <h5 class="mb-0">Photos {{ photos.lenght }}!</h5>
+                         <h5 class="mb-0">Photos</h5>
                     {% endif %}
                 </div>
                 <div class="row">
-
                     {% for photo in photos %}
                         <div class="col-lg-4 mb-2 pr-lg-1"><img src="{{ photo.url }}" alt="" class="img-fluid rounded shadow-sm"><p class="text-center">{{ photo.caption }}</p></div>
                     {% endfor %}
@@ -105,6 +103,11 @@
       </div>
     </div>
 
+    <script>
+        var map = L.map('map').setView([{{ lat }}, {{ lon }}], 17);;
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
+        L.marker([{{ lat }}, {{ lon }}]).addTo(map);
+    </script>
 {%  include "footer.html" %}
 
 

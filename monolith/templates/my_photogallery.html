@@ -31,7 +31,7 @@
         <div class="col-lg-12 text-center">
             <h3>Uploaded Photos</h3>
                 <div class="row lead d-flex justify-content-center">
-                  {% if photos.length == 0 %}
+                  {% if photos|length == 0 %}
                       <h2><b>No Photos Found</b></h2>
                   {% endif %}
                   {% for photo in photos %}
