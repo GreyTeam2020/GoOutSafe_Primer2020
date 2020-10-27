@@ -67,7 +67,7 @@ class RestaurantForm(FlaskForm):
         "close_lunch",
         "open_dinner",
         "close_dinner",
-        "covid_m",
+        "covid_measures",
     ]
 
 
