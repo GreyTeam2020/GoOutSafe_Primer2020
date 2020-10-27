@@ -10,6 +10,7 @@ class User(db.Model):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.Unicode(128), nullable=False, unique=True)
+    phone = db.Column(db.Unicode(16), nullable=True, unique=True)
     firstname = db.Column(db.Unicode(128))
     lastname = db.Column(db.Unicode(128))
     password = db.Column(db.Unicode(128))
@@ -139,6 +140,7 @@ class Reservation(db.Model):
     table = relationship("RestaurantTable", foreign_keys="Reservation.table_id")
     #
     people_number = db.Column(db.Integer)  # number of people in this reservation
+
 
 class PhotoGallery(db.Model):
     __tablename__ = "photo_gallery"

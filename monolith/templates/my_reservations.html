@@ -7,21 +7,27 @@
           <table id="myreservations" class="display" style="width:100%">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Customer</th>
-                <th>People</th>
-                <th>Date</th>
+                  <th>#</th>
+                  <th>Table</th>
+                  <th>Date and time</th>
+                  <th># of person</th>
+                  <th>Customer fullname</th>
+                  <th>Phone number</th>
+                  <th>Email</th>
               </tr>
             </thead>
             <tbody>
-                <!-- TODO { % for reservation in reservations %} -->
+                {% for reservation in reservations_as_list %}
                     <tr>
-                        <td>{ { reservation.id }}</td>
-                        <td>{ { reservation.customer.fullname }}</td>
-                        <td>{ { reservation.people }}</td>
-                        <td>{ { reservation.date }}</td>
+                        <td>{{reservation.id}}</td>
+                        <td>{{reservation.id_table}}</td>
+                        <td>{{my_date_formatter(reservation.reservation_date)}}</td>
+                        <td>{{reservation.people_number}}</td>
+                        <td>{{reservation.firstname}} {{reservation.lastname}}</td>
+                        <td>{{reservation.email}}</td>
+                        <td>{{reservation.phone}}</td>
                     </tr>
-                <!-- { % endfor %} -->
+                {% endfor %}
             </tbody>
           </table>
       </div>

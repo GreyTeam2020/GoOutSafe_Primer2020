@@ -4,10 +4,11 @@ env:
   - TOX_ENV=py36
 install:
   - pip install -r requirements.txt
+  - pip install pytest-cov
   - pip install coverage==4.5.4
   - pip install python-coveralls
 script:
-  - python -m pytest
+  - python -m pytest --cov-config .coveragerc --cov monolith
 after_success:
   - coveralls
 notifications:
