@@ -39,5 +39,31 @@
           </form>
       </div>
     </div>
+    <div class="row">
+      <div class="col-lg-12 text-center">
+          <h1 class="mt-5 mb-5">My Restaurant Tables</h1>
+          <button class="btn btn-success">Add Table</button>
+          <table id="mytables" class="display" style="width:100%">
+            <thead>
+              <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th># of Seats</th>
+                  <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for table in tables %}
+                    <tr>
+                        <td>{{ table.id }}</td>
+                        <td>{{ table.name }}</td>
+                        <td>{{ table.max_seats }}</td>
+                        <td><a href="/"><button class="btn btn-danger">Delete</button></a></td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
   </div>
 {% include 'footer.html' %}

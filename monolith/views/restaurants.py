@@ -222,7 +222,8 @@ def my_data():
     if q is not None:
         print(q.covid_measures)
         form = RestaurantForm(obj=q)
-        return render_template("my_restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures" ])
+        tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+        return render_template("my_restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures"], tables=tables)
     else:
         return render_template("my_restaurant_data.html", error="You have not a restaurant yet")
 

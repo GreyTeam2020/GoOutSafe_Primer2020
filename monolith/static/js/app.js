@@ -23,6 +23,9 @@ $(document).ready(function() {
     if ($("#myreservations").length){
         $('#myreservations').DataTable();
     }
+    if ($("#mytables").length){
+        $('#mytables').DataTable();
+    }
 
     var switchView = $("#switchView");
     if (switchView.length){
