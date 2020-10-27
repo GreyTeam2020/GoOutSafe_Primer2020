@@ -46,7 +46,7 @@
                             <p class="card-text text-dark mt-3">
                                 <i class="material-icons text-dark ">thumb_down</i>  <i class="material-icons text-dark">thumb_up</i> {{ restaurant.likes }}
                                 <br/>
-                                <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
+                                <a href="/restaurant/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
                                 {% if session['ROLE'] == 'CUSTOMER' %}
                                   <button class="btn btn-primary showBooking" data-id="{{ restaurant.id }}">Book</button>
                                 {% endif %}
@@ -72,7 +72,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <form method="POST" action="/book" id="bookTableForm">
+            <form method="POST" action="/restaurant/book" id="bookTableForm">
                 <input type="hidden" name="restaurantID" id="restaurantID"/>
                 <label>Date</label>
                 <input type="text" class="form-control" name="date" placeholder="Date">

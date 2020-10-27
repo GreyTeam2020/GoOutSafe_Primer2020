@@ -21,7 +21,7 @@ restaurants = Blueprint("restaurants", __name__)
 _max_seats = 6
 
 
-@restaurants.route("/restaurants")
+@restaurants.route("/restaurant/restaurants")
 def _restaurants(message=""):
     allrestaurants = db.session.query(Restaurant)
     return render_template(
@@ -32,7 +32,7 @@ def _restaurants(message=""):
     )
 
 
-@restaurants.route("/restaurants/<restaurant_id>")
+@restaurants.route("/restaurant/<restaurant_id>")
 def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
     weekDaysLabel = [
@@ -67,7 +67,7 @@ def restaurant_sheet(restaurant_id):
     )
 
 
-@restaurants.route("/restaurants/like/<restaurant_id>")
+@restaurants.route("/restaurant/like/<restaurant_id>")
 @login_required
 def _like(restaurant_id):
     """
@@ -86,7 +86,7 @@ def _like(restaurant_id):
     return _restaurants(message)
 
 
-@restaurants.route("/create_restaurant", methods=["GET", "POST"])
+@restaurants.route("/restaurant/create", methods=["GET", "POST"])
 @login_required
 def create_restaurant():
     """
@@ -138,7 +138,7 @@ def create_restaurant():
     return render_template("create_restaurant.html", form=form)
 
 
-@restaurants.route("/restaurants/reservations")
+@restaurants.route("/restaurant/reservations")
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_reservations():
@@ -191,27 +191,25 @@ def my_reservations():
     )
 
 
-@restaurants.route("/my_restaurant_data", methods=["GET", "POST"])
+@restaurants.route("/restaurant/data", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_data():
     message = None
     if request.method == "POST":
-        # update query
-        q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).update(
-            {
-                "name": request.form.get("name"),
-                "lat": request.form.get("lat"),
-                "lon": request.form.get("lon"),
-                "covid_measures": request.form.get("covid_measures"),
-            }
-        )
-        # if no resturant match the update query (session problem probably)
-        if q == 0:
-            message = "Some Errors occurs"
+        # TODO: add logic to update data
+        return redirect("/restaurant/my_restaurant_data")
+    else:
+        q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
+        if q is not None:
+            print(q.covid_measures)
+            form = RestaurantForm(obj=q)
+            form2 = RestaurantTableForm()
+            tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+            return render_template("my_restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures"],
+                                   tables=tables, form2=form2)
         else:
-            db.session.commit()
-            message = "Restaurant data has been modified."
+            return redirect("/restaurant/create_restaurant")
 
     # get the resturant info and fill the form
     # this part is both for POST and GET requests
@@ -232,8 +230,7 @@ def my_data():
     else:
         return redirect("/create_restaurant")
 
-
-@restaurants.route("/mytables", methods=["GET", "POST"])
+@restaurants.route("/restaurant/tables", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_tables():
@@ -249,10 +246,8 @@ def my_tables():
         return redirect("/my_restaurant_data")
 
     elif request.method == "GET":
-        # delete the table specified by the get request
-        RestaurantTable.query.filter_by(id=request.args.get("id")).delete()
-        db.session.commit()
-        return redirect("/my_restaurant_data")
+        # TODO: Delete logic, you have table id in GET ?id=
+        return redirect("/restaurant/my_restaurant_data")
 
 
 @restaurants.route("/my_restaurant_photogallery", methods=["GET", "POST"])
