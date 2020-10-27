@@ -33,7 +33,7 @@ def _restaurants(message=""):
 @restaurants.route("/restaurants/<restaurant_id>")
 def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
-
+    weekDaysLabel=["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]
     q_hours = (
         db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
     )
@@ -50,6 +50,7 @@ def restaurant_sheet(restaurant_id):
         covid_measures=record.covid_measures,
         hours=q_hours,
         cuisine=q_cuisine,
+        weekDaysLabel=weekDaysLabel
     )
 
 
