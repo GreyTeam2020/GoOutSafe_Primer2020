@@ -36,9 +36,9 @@ def test_login_form_ok(client):
 @pytest.mark.usefixtures("client")
 def test_login_form_ko(client):
     """
-        This test suit test the operation that we can do
-        to login correctly an user
-        """
+    This test suit test the operation that we can do
+    to login correctly an user
+    """
     email = "vincenzopalazzo@email.com"
     password = "operator"
     response = login(client, email, password)
@@ -59,17 +59,21 @@ def test_register_new_user(client):
 def test_delete_user(client):
     pass
 
+
 @pytest.mark.usefixtures("client")
 def test_register_new_restaurant(client):
     pass
+
 
 @pytest.mark.usefixtures("client")
 def test_modify_new_restaurant(client):
     pass
 
+
 @pytest.mark.usefixtures("client")
 def test_research_restaurant_by_name(client):
     pass
+
 
 @pytest.mark.usefixtures("client")
 def test_send_communication_covid19(client):

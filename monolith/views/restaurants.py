@@ -176,7 +176,7 @@ def my_reservations():
     email = request.args.get("email", type=str)
 
     queryString = (
-        "select reserv.reservation_date, reserv.people_number, cust.firstname, cust.lastname, cust.email, tab.name as tabname from reservation reserv "
+        "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv "
         "join user cust on cust.id = reserv.customer_id "
         "join restaurant_table tab on reserv.table_id = tab.id "
         "join restaurant rest on rest.id = tab.restaurant_id "
@@ -209,5 +209,12 @@ def my_reservations():
     reservations_as_list = result.fetchall()
 
     return render_template(
-        "list_reservations.html", reservations_as_list=reservations_as_list
+        "my_reservations.html",
+        reservations_as_list=reservations_as_list,
+        my_date_formatter=my_date_formatter,
     )
+
+
+def my_date_formatter(text):
+    date_dt2 = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f")
+    return date_dt2.strftime("%d/%m/%Y %H:%M:%S")
