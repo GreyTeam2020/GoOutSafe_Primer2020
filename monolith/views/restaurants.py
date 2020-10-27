@@ -39,7 +39,6 @@ def restaurant_sheet(restaurant_id):
     )
     q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
     photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
-    print(photos)
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
