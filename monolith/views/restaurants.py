@@ -220,18 +220,17 @@ def my_reservations():
 def my_data():
     message = None
     if request.method == "POST":
-        # TODO: add logic to update data
-        
-        #print (request.form.get("name"))
+        #update query
         q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).update({"name":request.form.get("name"), "lat":request.form.get("lat"), "lon":request.form.get("lon"), "covid_measures":request.form.get("covid_measures")})
+        #if no resturant match the update query (session problem probably)
         if q == 0:
             message = "Some Errors occurs"
         else:
             db.session.commit()
             message = "Restaurant data has been modified."
 
-        #return render_template("my_restaurant_data.html", message="Success")
-    
+    #get the resturant info and fill the form
+    #this part is both for POST and GET requests
     q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
     if q is not None:
         print(q.covid_measures)
@@ -242,6 +241,7 @@ def my_data():
                                 tables=tables, form2=form2, message=message)
     else:
         return redirect("/create_restaurant")
+
 
 @restaurants.route("/mytables", methods=["GET", "POST"])
 @login_required
