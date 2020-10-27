@@ -205,7 +205,7 @@ def my_reservations():
     reservations_as_list = result.fetchall()
 
     return render_template(
-        "my_reservations.html",
+        "reservations.html",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
     )
@@ -225,7 +225,7 @@ def my_data():
             form = RestaurantForm(obj=q)
             form2 = RestaurantTableForm()
             tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
-            return render_template("my_restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures"],
+            return render_template("restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures"],
                                    tables=tables, form2=form2)
         else:
             return redirect("/restaurant/create_restaurant")
