@@ -127,8 +127,7 @@ def create_restaurant():
             for i in range(len(days)):
                 new_opening = OpeningHours()
                 new_opening.restaurant_id = new_restaurant.id
-                new_opening.week_day = days[i]
-
+                new_opening.week_day = int(days[i])
                 new_opening.open_lunch = form.open_lunch.data
                 new_opening.close_lunch = form.close_lunch.data
                 new_opening.open_dinner = form.open_dinner.data

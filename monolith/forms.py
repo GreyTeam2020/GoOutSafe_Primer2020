@@ -41,17 +41,16 @@ class RestaurantForm(FlaskForm):
     open_days = f.SelectMultipleField(
         "Opening days",
         choices=[
-            ("Monday", "Monday"),
-            ("Tuesday", "Tuesday"),
-            ("Wednesday", "Wednesday"),
-            ("Thursday", "Thursday"),
-            ("Friday", "Friday"),
-            ("Saturday", "Saturday"),
-            ("Sunday", "Sunday"),
+            ("0", "Monday"),
+            ("1", "Tuesday"),
+            ("2", "Wednesday"),
+            ("3", "Thursday"),
+            ("4", "Friday"),
+            ("5", "Saturday"),
+            ("6", "Sunday"),
         ],
         validators=[DataRequired()],
     )
-    #open_lunch = f.StringField("open time for lunch", validators=[DataRequired()])
     open_lunch = f.TimeField("open time for lunch", validators=[DataRequired()])
     close_lunch = f.TimeField("close time for lunch", validators=[DataRequired()])
     open_dinner = f.TimeField("open time for dinner", validators=[DataRequired()])
