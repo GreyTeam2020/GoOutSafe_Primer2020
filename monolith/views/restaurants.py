@@ -214,6 +214,17 @@ def my_reservations():
         my_date_formatter=my_date_formatter,
     )
 
+@restaurants.route("/my_restaurant_data")
+@login_required
+@roles_allowed(roles=["OPERATOR"])
+def my_data():
+    q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
+    if q is not None:
+        print(q.covid_measures)
+        form = RestaurantForm(obj=q)
+        return render_template("my_restaurant_data.html", form=form)
+    else:
+        return render_template("my_restaurant_data.html", error="You have not a restaurant yet")
 
 def my_date_formatter(text):
     date_dt2 = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f")
