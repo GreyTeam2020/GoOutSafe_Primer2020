@@ -12,7 +12,7 @@ from monolith.database import (
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
 from monolith.forms import RestaurantForm, RestaurantTableForm
-from datetime import datetime, time
+from monolith.utils.formatter import my_date_formatter
 
 restaurants = Blueprint("restaurants", __name__)
 
@@ -96,8 +96,8 @@ def create_restaurant():
                     "create_restaurant.html", form=form, message="User not logged"
                 )
 
-            #set the owner
-            new_restaurant.owner_id=q_user.id
+            # set the owner
+            new_restaurant.owner_id = q_user.id
 
             if q_user.role_id is 3:
                 q_user.role_id = 2
@@ -107,10 +107,10 @@ def create_restaurant():
                         q_user.email, q_user.id, 3, q_user.role_id
                     )
                 )
-            #set the new role in session
-            #if not the role will be anonymous
+            # set the new role in session
+            # if not the role will be anonymous
             session["ROLE"] = 'OPERATOR'
-            
+
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
             new_restaurant.covid_measures = form.covid_m.data
@@ -145,7 +145,6 @@ def create_restaurant():
             # inserimento tipi di cucina
             cuisin_type = form.cuisine.data
             for i in range(len(cuisin_type)):
-
                 new_cuisine = Menu()
                 new_cuisine.restaurant_id = new_restaurant.id
                 new_cuisine.cusine = cuisin_type[i]
@@ -157,7 +156,7 @@ def create_restaurant():
     return render_template("create_restaurant.html", form=form)
 
 
-@restaurants.route("/my_reservations")
+@restaurants.route("/restaurants/reservations")
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_reservations():
@@ -211,6 +210,7 @@ def my_reservations():
         my_date_formatter=my_date_formatter,
     )
 
+
 @restaurants.route("/my_restaurant_data", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
@@ -230,6 +230,7 @@ def my_data():
         else:
             return redirect("/create_restaurant")
 
+
 @restaurants.route("/mytables", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
@@ -240,8 +241,3 @@ def my_tables():
     elif request.method == "GET":
         # TODO: Delete logic, you have table id in GET ?id=
         return redirect("/my_restaurant_data")
-
-
-def my_date_formatter(text):
-    date_dt2 = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f")
-    return date_dt2.strftime("%d/%m/%Y %H:%M:%S")
