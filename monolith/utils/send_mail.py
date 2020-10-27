@@ -23,7 +23,7 @@ Compose positive COVID-19 contact notification email template and sends to custo
 """
 
 
-def sendPossibilePositiveContact(toEmail, toName, datePossibleContact, restaurantName):
+def send_possibile_positive_contact(toEmail, toName, datePossibleContact, restaurantName):
     subject = "Possible COVID-19 contact"
     body = (
         "Hi {toName},<br>"
@@ -41,7 +41,7 @@ Compose reservation confirm email template and sends to customer
 """
 
 
-def sendReservationConfirm(
+def send_reservation_confirm(
     toEmail, toName, dateReservation, restaurantName, numberSeat
 ):
     subject = "Reservation confirmed"
@@ -63,7 +63,7 @@ Compose reservation notification email template and sends to operator
 """
 
 
-def sendReservationNotification(
+def send_reservation_notification(
     toEmail,
     toName,
     restaurantName,
@@ -98,7 +98,7 @@ Compose registration confirm email template and sends to user
 """
 
 
-def sendRegistrationConfirm(toEmail, toName, token):
+def send_registration_confirm(toEmail, toName, token):
     subject = "Confirm email"
     body = (
         "Hi {toName},<br>"
