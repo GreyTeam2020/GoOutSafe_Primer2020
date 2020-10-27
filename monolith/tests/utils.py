@@ -38,7 +38,7 @@ def register_user(client, user: UserForm):
     )
     return client.post(
         "/create_user",
-        data=json.dumps(data),
+        data=data,
         follow_redirects=True,
     )
 
@@ -84,6 +84,18 @@ def get_user_with_email(email):
         return q_user
     return None
 
+
+def get_rest_with_name_and_phone(name, phone):
+    """
+    This method factorize the code to get an restaurant with a name
+    :param name: the email that we want use to query the user
+    :return: return the user if exist otherwise None
+    """
+    q = db.session.query(Restaurant).filter_by(name=name, phone=phone)
+    q_rest = q.first()
+    if q_rest is not None:
+        return q_rest
+    return None
 
 def get_rest_with_name(name):
     """

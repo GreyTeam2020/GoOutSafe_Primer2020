@@ -10,8 +10,9 @@ from utils import (
     get_user_with_email,
     register_restaurant,
     get_rest_with_name,
+    get_rest_with_name_and_phone,
 )
-from monolith.database import db, User
+from monolith.database import db, User, Restaurant
 from monolith.forms import UserForm, RestaurantForm
 
 
@@ -71,23 +72,30 @@ def test_register_new_user_ok(client):
     :param client: The flask app created inside the fixtures
     """
     user_form = UserForm()
-    user_form.email = "Trumps_octor@usa.gov"
+    user_form.email = "Trumps_doctor@usa.gov"
     user_form.firstname = "Anthony"
     user_form.lastname = "Fauci"
     user_form.dateofbirth = "12/12/2020"
     user_form.password = "nocovid_in_us"
     response = register_user(client, user_form)
     assert response.status_code == 200
+    assert "Hi" in response.data.decode("utf-8")
 
     ## Search inside the DB if this user exist
-    query = db.session.query(User).filter_by(email=user_form.email)
-    user_query = query.first()
+    user_query = get_user_with_email(user_form.email)
     assert user_query is not None
     assert user_query.authenticate(user_form.password) is True
 
     response = login(client, user_form.email, user_form.password)
     assert response.status_code == 200
     assert "Hi {}".format(user_form.firstname) in response.data.decode("utf-8")
+
+    response = logout(client)
+    assert response.status_code == 200
+    assert "Hi" not in response.data.decode("utf-8")
+
+    db.session.query(User).filter_by(id=user_query.id).delete()
+    db.session.commit()
 
 
 @pytest.mark.usefixtures("client")
@@ -126,7 +134,7 @@ def test_register_new_restaurant(client):
     restaurant_form.open_dinner = "18:00"
     restaurant_form.close_dinner = "00:00"
     response = register_restaurant(client, restaurant_form)
-    assert response.status_code == 200  ##Regirect to /
+    assert response.status_code == 200  ## Regirect to /
     # assert restaurant_form.name in response.data.decode("utf-8")
     # assert "Hi" in response.data.decode("utf-8")
     rest = get_rest_with_name(restaurant_form.name)
@@ -138,10 +146,9 @@ def test_register_new_restaurant(client):
 
 
 @pytest.mark.usefixtures("client")
-def test_register_new_restaurant_UNAUTHORIZED(client):
+def test_register_new_restaurant(client):
     """
-     This test test the use case to create a new restaurant but the user
-    is not UNAUTHORIZED
+    This test test the use case to create a new restaurant but the user
     and this test have the follow described below
 
     - Login like a operator (user the standard account)
@@ -183,7 +190,13 @@ def test_register_new_restaurant_UNAUTHORIZED(client):
     restaurant_form.open_dinner = "18:00"
     restaurant_form.close_dinner = "00:00"
     response = register_restaurant(client, restaurant_form)
-    assert response.status_code == 401
+    assert response.status_code == 200
+    assert restaurant_form.name in response.data.decode("utf-8")
+
+    rest = get_rest_with_name_and_phone(restaurant_form.name, restaurant_form.phone)
+    assert  rest is not None
+    db.session.query(User).filter_by(id=user.id).delete()
+    db.session.commit()
 
 
 @pytest.mark.usefixtures("client")
