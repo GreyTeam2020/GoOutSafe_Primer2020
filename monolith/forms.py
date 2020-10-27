@@ -24,7 +24,7 @@ class RestaurantForm(FlaskForm):
     phone = f.StringField("phone", validators=[DataRequired(), Length(min=8, max=15)])
     lat = f.StringField("latitude", validators=[DataRequired()])
     lon = f.StringField("longitude", validators=[DataRequired()])
-    n_tables = f.StringField("number of tables", validators=[DataRequired()])
+    n_tables = f.StringField("Number of tables for 6 People", validators=[DataRequired()])
     covid_measures = f.StringField("Anti-Covid measures", validators=[DataRequired()])
     # photo = f.FileField("Photo of restaurant")
     cuisine = f.SelectMultipleField(
@@ -69,3 +69,9 @@ class RestaurantForm(FlaskForm):
         "close_dinner",
         "covid_measures",
     ]
+
+
+class RestaurantTableForm(FlaskForm):
+    name = f.StringField("name", validators=[DataRequired()])
+    capacity = f.IntegerField("capacity", validators=[DataRequired()])
+    display = ["name", "capacity"]
