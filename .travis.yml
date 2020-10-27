@@ -1,7 +1,12 @@
 language: python
 python: 3.6
+branches:
+  only:
+    - main
 env:
   - TOX_ENV=py36
+cache:
+  - pip
 install:
   - pip install -r requirements.txt
   - pip install pytest-cov
@@ -10,6 +15,6 @@ install:
 script:
   - python -m pytest --cov-config .coveragerc --cov monolith
 after_success:
-  - coveralls
+  - coveralls --ignore-errors
 notifications:
   email: false

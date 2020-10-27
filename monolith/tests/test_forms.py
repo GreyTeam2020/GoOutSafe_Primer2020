@@ -3,8 +3,17 @@ This test case covered all simple action that we can do from the UI
 """
 
 import pytest
-from utils import login, logout
-from monolith.database import db, User
+from utils import (
+    login,
+    logout,
+    register_user,
+    get_user_with_email,
+    register_restaurant,
+    get_rest_with_name,
+    get_rest_with_name_and_phone,
+)
+from monolith.database import db, User, Restaurant
+from monolith.forms import UserForm, RestaurantForm
 
 
 @pytest.mark.usefixtures("client")
@@ -51,8 +60,42 @@ def test_login_form_ko(client):
 
 
 @pytest.mark.usefixtures("client")
-def test_register_new_user(client):
-    pass
+def test_register_new_user_ok(client):
+    """
+    This use case try to login a new user with a correct execution
+
+    The flow of this test is
+    - Create user
+    - Verify user on db
+    - login user
+    - verify the html returned from flask
+    :param client: The flask app created inside the fixtures
+    """
+    user_form = UserForm()
+    user_form.email = "Trumps_doctor@usa.gov"
+    user_form.firstname = "Anthony"
+    user_form.lastname = "Fauci"
+    user_form.dateofbirth = "12/12/2020"
+    user_form.password = "nocovid_in_us"
+    response = register_user(client, user_form)
+    assert response.status_code == 200
+    assert "Hi" in response.data.decode("utf-8")
+
+    ## Search inside the DB if this user exist
+    user_query = get_user_with_email(user_form.email)
+    assert user_query is not None
+    assert user_query.authenticate(user_form.password) is True
+
+    response = login(client, user_form.email, user_form.password)
+    assert response.status_code == 200
+    assert "Hi {}".format(user_form.firstname) in response.data.decode("utf-8")
+
+    response = logout(client)
+    assert response.status_code == 200
+    assert "Hi" not in response.data.decode("utf-8")
+
+    db.session.query(User).filter_by(id=user_query.id).delete()
+    db.session.commit()
 
 
 @pytest.mark.usefixtures("client")
@@ -62,6 +105,136 @@ def test_delete_user(client):
 
 @pytest.mark.usefixtures("client")
 def test_register_new_restaurant(client):
+    """
+    This test test the use case to create a new restaurant
+    and this test have the follow described below
+
+    - Login like a operator (user the standard account)
+    - Register a new restaurant
+    - Look inside the db  to see if the restaurant exist
+    - Log out user
+    - See if the restaurant is present on home screen.
+
+    :param client:
+    """
+    email = "ham.burger@email.com"
+    password = "operator"
+    login(client, email, password)
+    restaurant_form = RestaurantForm()
+    restaurant_form.name = "Gino Sorbillo"
+    restaurant_form.phone = "096321343"
+    restaurant_form.lat = 12
+    restaurant_form.lon = 12
+    restaurant_form.n_tables = 50
+    restaurant_form.covid_m = "We can survive"
+    restaurant_form.cuisine = "0"
+    restaurant_form.open_days = "0"
+    restaurant_form.open_lunch = "12:00"
+    restaurant_form.close_lunch = "15:00"
+    restaurant_form.open_dinner = "18:00"
+    restaurant_form.close_dinner = "00:00"
+    response = register_restaurant(client, restaurant_form)
+    assert response.status_code == 200  ## Regirect to /
+    # assert restaurant_form.name in response.data.decode("utf-8")
+    # assert "Hi" in response.data.decode("utf-8")
+    rest = get_rest_with_name(restaurant_form.name)
+    assert rest is not None
+    response = logout(client)
+    assert response.status_code == 200
+    response = client.get("/")  ## get index
+    assert restaurant_form.name in response.data.decode("utf-8")
+
+
+@pytest.mark.usefixtures("client")
+def test_register_new_restaurant(client):
+    """
+    This test test the use case to create a new restaurant but the user
+    and this test have the follow described below
+
+    - Login like a operator (user the standard account)
+    - Register a new restaurant
+    - Look inside the db  to see if the restaurant exist
+    - Log out user
+    - See if the restaurant is present on home screen.
+
+    :param client:
+    """
+    email = "alibaba@gmail.com"
+    password = "alibaba"
+    user_form = UserForm()
+    user_form.email = email
+    user_form.firstname = "alibaba"
+    user_form.lastname = "alibaba"
+    user_form.dateofbirth = "12/12/2020"
+    user_form.password = password
+    response = register_user(client, user_form)
+    assert response.status_code == 200
+    # assert "Hi" in response.data.decode("utf-8")
+
+    user = get_user_with_email(user_form.email)
+    assert user is not None
+    assert user.role_id == 3  ## Customer
+
+    # login(client, email, password)
+    restaurant_form = RestaurantForm()
+    restaurant_form.name = "Gino Sorbillo"
+    restaurant_form.phone = "096321343"
+    restaurant_form.lat = 12
+    restaurant_form.lon = 12
+    restaurant_form.n_tables = 50
+    restaurant_form.covid_m = "We can survive"
+    restaurant_form.cuisine = ["Italian food"]
+    restaurant_form.open_days = ["0"]
+    restaurant_form.open_lunch = "12:00"
+    restaurant_form.close_lunch = "15:00"
+    restaurant_form.open_dinner = "18:00"
+    restaurant_form.close_dinner = "00:00"
+    response = register_restaurant(client, restaurant_form)
+    assert response.status_code == 200
+    assert restaurant_form.name in response.data.decode("utf-8")
+
+    rest = get_rest_with_name_and_phone(restaurant_form.name, restaurant_form.phone)
+    assert  rest is not None
+    db.session.query(User).filter_by(id=user.id).delete()
+    db.session.commit()
+
+
+@pytest.mark.usefixtures("client")
+def test_change_role_user(client):
+    """
+    This test covered the change user role where we create a new restaurant
+    this mean the flow describe below
+
+    - Use a customer rule to login inside the app
+    - Create a new restaurant (this should be trigger the change role from customer to operator)
+    - verify the change on UI
+    - verify the new restaurant on UI
+    - verify on db the user role changes
+    - logout user
+    - login the same user and see if the change role is persistent.
+    - final logout
+    :param client:
+    """
+    pass
+
+
+@pytest.mark.usefixtures("client")
+def test_change_role_user_new_user(client):
+    """
+    This test covered the change user role where we create a new restaurant
+    this mean the flow describe below
+
+    - Create a new user (so it is a customer)
+    - verify if it is logged
+    - Create a new restaurant (this should be trigger the change role from customer to operator)
+    - verify the change on UI
+    - verify the new restaurant on UI
+    - verify on db the user role changes
+    - logout user
+    - login the same user and see if the change role is persistent.
+    - final logout
+    :param client:
+    """
     pass
 
 
