@@ -95,7 +95,10 @@ def create_restaurant():
                 return render_template(
                     "create_restaurant.html", form=form, message="User not logged"
                 )
-            print(q_user)
+
+            #set the owner
+            new_restaurant.owner_id=q_user.id
+
             if q_user.role_id is 3:
                 q_user.role_id = 2
                 db.session.commit()
@@ -104,6 +107,10 @@ def create_restaurant():
                         q_user.email, q_user.id, 3, q_user.role_id
                     )
                 )
+            #set the new role in session
+            #if not the role will be anonymous
+            session["ROLE"] = 'OPERATOR'
+            
             form.populate_obj(new_restaurant)
             new_restaurant.likes = 0
             new_restaurant.covid_measures = form.covid_m.data
@@ -127,21 +134,11 @@ def create_restaurant():
             for i in range(len(days)):
                 new_opening = OpeningHours()
                 new_opening.restaurant_id = new_restaurant.id
-                new_opening.week_day = days[i]
-
-                new_opening.open_lunch = datetime.strptime(
-                    form.open_lunch.data, "%H:%M"
-                ).time()
-                new_opening.close_lunch = datetime.strptime(
-                    form.close_lunch.data, "%H:%M"
-                ).time()
-                new_opening.open_dinner = datetime.strptime(
-                    form.open_dinner.data, "%H:%M"
-                ).time()
-                new_opening.close_dinner = datetime.strptime(
-                    form.close_dinner.data, "%H:%M"
-                ).time()
-
+                new_opening.week_day = int(days[i])
+                new_opening.open_lunch = form.open_lunch.data
+                new_opening.close_lunch = form.close_lunch.data
+                new_opening.open_dinner = form.open_dinner.data
+                new_opening.close_dinner = form.close_dinner.data
                 db.session.add(new_opening)
                 db.session.commit()
 
