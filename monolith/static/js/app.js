@@ -25,6 +25,7 @@ $(document).ready(function() {
     }
     if ($("#mytables").length){
         $('#mytables').DataTable();
+        $("#submitTable").click(() => {$("#addTableForm").submit();});
     }
 
     var switchView = $("#switchView");

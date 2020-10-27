@@ -248,10 +248,20 @@ def my_data():
 @roles_allowed(roles=["OPERATOR"])
 def my_tables():
     if request.method == "POST":
-        # TODO: Add logic
+        #insert the table with data provided by the form
+        table = RestaurantTable()
+        table.restaurant_id = session["RESTAURANT_ID"]
+        table.max_seats = request.form.get("capacity")
+        table.name = request.form.get("name")
+        db.session.add(table)
+        db.session.commit()
+        ##
         return redirect("/my_restaurant_data")
+
     elif request.method == "GET":
-        # TODO: Delete logic, you have table id in GET ?id=
+        #delete the table specified by the get request
+        RestaurantTable.query.filter_by(id=request.args.get('id')).delete()
+        db.session.commit()
         return redirect("/my_restaurant_data")
 
 
