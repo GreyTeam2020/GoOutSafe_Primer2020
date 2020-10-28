@@ -42,7 +42,10 @@ def create_user():
             user = q.first()
             if user is not None and user.authenticate(password):
                 login_user(user)
-            DispatcherMessage.send_message(type_message=REGISTRATION_EMAIL, params=[new_user.email, new_user.lastname, "112344"])
+            DispatcherMessage.send_message(
+                type_message=REGISTRATION_EMAIL,
+                params=[new_user.email, new_user.lastname, "112344"],
+            )
             return redirect("/")
     return render_template("create_user.html", form=form)
 

@@ -1,7 +1,7 @@
 from monolith.background import send_email_to_confirm_registration
 from monolith.app_constant import *
 
-_CELERY=False
+_CELERY = False
 
 
 class DispatcherMessage:
@@ -17,7 +17,7 @@ class DispatcherMessage:
     """
 
     @staticmethod
-    def send_message(type_message: str, params: []):
+    def send_message(type_message: str, params):
         """
         This static method take and string that usually is defined inside the
         file app_constant.py and check if there is condition to dispatc the test
@@ -25,8 +25,4 @@ class DispatcherMessage:
         """
         if type_message is REGISTRATION_EMAIL:
             if _CELERY is True:
-                send_email_to_confirm_registration()
-                send_email_to_confirm_registration.apply_async(
-                    args=params
-                )
-
+                send_email_to_confirm_registration.apply_async(args=params)
