@@ -9,12 +9,12 @@ from monolith.database import (
     Menu,
     PhotoGallery,
 )
+from monolith.forms import PhotoGalleryForm
+from monolith.services import RestaurantServices
 from monolith.auth import roles_allowed
 from flask_login import current_user, login_required
-from monolith.forms import RestaurantForm, RestaurantTableForm, PhotoGalleryForm
-from datetime import datetime
-
-from monolith.services import RestaurantServices
+from monolith.forms import RestaurantForm, RestaurantTableForm
+from monolith.utils.formatter import my_date_formatter
 
 restaurants = Blueprint("restaurants", __name__)
 
@@ -162,12 +162,14 @@ def my_reservations():
     toDate = request.args.get("toDate", type=str)
     email = request.args.get("email", type=str)
 
-    queryString = "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv " \
-                  "join user cust on cust.id = reserv.customer_id " \
-                  "join restaurant_table tab on reserv.table_id = tab.id " \
-                  "join restaurant rest on rest.id = tab.restaurant_id " \
-                  "where rest.owner_id = :owner_id " \
-                  "and rest.id = :restaurant_id "
+    queryString = (
+        "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv "
+        "join user cust on cust.id = reserv.customer_id "
+        "join restaurant_table tab on reserv.table_id = tab.id "
+        "join restaurant rest on rest.id = tab.restaurant_id "
+        "where rest.owner_id = :owner_id "
+        "and rest.id = :restaurant_id "
+    )
 
     # add filters...
     if fromDate:
@@ -196,7 +198,7 @@ def my_reservations():
     return render_template(
         "reservations.html",
         reservations_as_list=reservations_as_list,
-        my_date_formatter=my_date_formatter
+        my_date_formatter=my_date_formatter,
     )
 
 
@@ -214,9 +216,16 @@ def my_data():
             print(q.covid_measures)
             form = RestaurantForm(obj=q)
             form2 = RestaurantTableForm()
-            tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
-            return render_template("restaurant_data.html", form=form, only=["name", "lat", "lon", "covid_measures"],
-                                   tables=tables, form2=form2)
+            tables = RestaurantTable.query.filter_by(
+                restaurant_id=session["RESTAURANT_ID"]
+            )
+            return render_template(
+                "restaurant_data.html",
+                form=form,
+                only=["name", "lat", "lon", "covid_measures"],
+                tables=tables,
+                form2=form2,
+            )
         else:
             return redirect("/restaurant/create_restaurant")
 
@@ -237,7 +246,7 @@ def my_data():
             message=message,
         )
     else:
-        return redirect("/restaurant//create_restaurant")
+        return redirect("/restaurant/create_restaurant")
 
 
 @restaurants.route("/restaurant/tables", methods=["GET", "POST"])

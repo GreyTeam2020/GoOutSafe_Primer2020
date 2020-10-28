@@ -89,11 +89,12 @@ def myreservation():
         my_date_formatter=my_date_formatter,
     )
 
+
 @users.route("/testsendemail")
 def _testsendemail():
     # ------------------------
     testEmail = "PUTYOUREMAIL"  # PUT YOUR EMAIL FOR TEST and click to /login
-    send_mail.send_possibile_positive_contact(
+    send_mail.send_possible_positive_contact(
         testEmail, "John Doe", "01/01/2020 21:30", "Il Paninaro"
     )
     send_mail.send_reservation_confirm(
