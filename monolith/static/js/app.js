@@ -49,16 +49,23 @@ $(document).ready(function() {
     }
 
 
-    $('.deleteBooking').on('click', function(e) {
-        e.preventDefault();
-        $('#confirm').modal({
-            backdrop: 'static',
-            keyboard: false
-        }).on('click', '#deleteReservation', function(e) {
-
-        });
-    });
-
-
+    $(".deleteBooking").click(deleteDialog);
+    // $("#restaurantID").val($(this).data("id"));
+    function deleteDialog() {
+        Swal.fire({
+          title: 'Do you want to save the changes?',
+          showDenyButton: true,
+          showCancelButton: true,
+          confirmButtonText: `Save`,
+          denyButtonText: `Don't save`,
+        }).then((result) => {
+          /* Read more about isConfirmed, isDenied below */
+          if (result.isConfirmed) {
+            Swal.fire('Saved!', '', 'success')
+          } else if (result.isDenied) {
+            Swal.fire('Changes are not saved', '', 'info')
+          }
+        })
+    }
 
 });
