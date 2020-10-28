@@ -140,7 +140,7 @@ class Reservation(db.Model):
     table = relationship("RestaurantTable", foreign_keys="Reservation.table_id")
     #
     people_number = db.Column(db.Integer)  # number of people in this reservation
-
+    checkin = db.Column(db.Boolean, default=False)
 
 class PhotoGallery(db.Model):
     __tablename__ = "photo_gallery"
