@@ -12,15 +12,15 @@ from monolith.database import (
 )
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
-from monolith.forms import RestaurantForm, RestaurantTableForm, PhotoGalleryForm
-from datetime import datetime, time
+from monolith.forms import RestaurantForm, RestaurantTableForm
+from monolith.utils.formatter import my_date_formatter
 
 restaurants = Blueprint("restaurants", __name__)
 
 _maxSeats = 6
 
 
-@restaurants.route("/restaurants")
+@restaurants.route("/restaurant/restaurants")
 def _restaurants(message=""):
     allrestaurants = db.session.query(Restaurant)
     return render_template(
@@ -31,7 +31,7 @@ def _restaurants(message=""):
     )
 
 
-@restaurants.route("/restaurants/<restaurant_id>")
+@restaurants.route("/restaurant/<restaurant_id>")
 def restaurant_sheet(restaurant_id):
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
     weekDaysLabel = [
@@ -66,7 +66,7 @@ def restaurant_sheet(restaurant_id):
     )
 
 
-@restaurants.route("/restaurants/like/<restaurant_id>")
+@restaurants.route("/restaurant/like/<restaurant_id>")
 @login_required
 def _like(restaurant_id):
     q = Like.query.filter_by(liker_id=current_user.id, restaurant_id=restaurant_id)
@@ -82,7 +82,7 @@ def _like(restaurant_id):
     return _restaurants(message)
 
 
-@restaurants.route("/create_restaurant", methods=["GET", "POST"])
+@restaurants.route("/restaurant/create", methods=["GET", "POST"])
 @login_required
 def create_restaurant():
     form = RestaurantForm()
@@ -169,7 +169,7 @@ def create_restaurant():
     return render_template("create_restaurant.html", form=form)
 
 
-@restaurants.route("/my_reservations")
+@restaurants.route("/restaurant/reservations")
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_reservations():
@@ -218,13 +218,13 @@ def my_reservations():
     reservations_as_list = result.fetchall()
 
     return render_template(
-        "my_reservations.html",
+        "reservations.html",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
     )
 
 
-@restaurants.route("/my_restaurant_data", methods=["GET", "POST"])
+@restaurants.route("/restaurant/data", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_data():

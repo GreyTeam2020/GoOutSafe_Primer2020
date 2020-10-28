@@ -23,7 +23,7 @@ Compose positive COVID-19 contact notification email template and sends to custo
 """
 
 
-def sendPossibilePositiveContact(toEmail, toName, datePossibleContact, restaurantName):
+def send_possibile_positive_contact(toEmail, toName, datePossibleContact, restaurantName):
     subject = "Possible COVID-19 contact"
     body = (
         "Hi {toName},<br>"
@@ -33,7 +33,7 @@ def sendPossibilePositiveContact(toEmail, toName, datePossibleContact, restauran
     body = body.replace("{toName}", toName)
     body = body.replace("{restaurantName}", restaurantName)
     body = body.replace("{datePossibleContact}", datePossibleContact)
-    sendmailTest(subject, body, toEmail)
+    sendmail(subject, body, toEmail)
 
 
 """
@@ -41,7 +41,7 @@ Compose reservation confirm email template and sends to customer
 """
 
 
-def sendReservationConfirm(
+def send_reservation_confirm(
     toEmail, toName, dateReservation, restaurantName, numberSeat
 ):
     subject = "Reservation confirmed"
@@ -55,7 +55,7 @@ def sendReservationConfirm(
     body = body.replace("{restaurantName}", restaurantName)
     body = body.replace("{dateReservation}", dateReservation)
     body = body.replace("{numberSeat}", str(numberSeat))
-    sendmailTest(subject, body, toEmail)
+    sendmail(subject, body, toEmail)
 
 
 """
@@ -63,7 +63,7 @@ Compose reservation notification email template and sends to operator
 """
 
 
-def sendReservationNotification(
+def send_reservation_notification(
     toEmail,
     toName,
     restaurantName,
@@ -93,10 +93,12 @@ def sendReservationNotification(
     sendmailTest(subject, body, toEmail)
 
 
-def send_registration_confirm(to_email, to_name, with_token):
-    """
-    Compose registration confirm email template and sends to user
-    """
+"""
+Compose registration confirm email template and sends to user
+"""
+
+
+def send_registration_confirm(toEmail, toName, token):
     subject = "Confirm email"
     body = (
         "Hi {toName},<br>"
@@ -104,9 +106,9 @@ def send_registration_confirm(to_email, to_name, with_token):
         'by click on <a href="http://localhost:5000/confirme_mail?token={token}">this URL<a>.<br>'
         "<br>See you soon! "
     )
-    body = body.replace("{toName}", to_name)
-    body = body.replace("{token}", with_token)
-    sendmailTest(subject, body, to_email)
+    body = body.replace("{toName}", toName)
+    body = body.replace("{token}", token)
+    sendmail(subject, body, toEmail)
 
 
 """
@@ -114,14 +116,13 @@ Internal method for send email
 """
 
 
-def sendmailTest(subject, body, recipient):
+def sendmail(subject, body, recipient):
     subject = "[GoOutSafe] " + subject
-    with app.app_context():
-        msg = Message(
-            recipients=[recipient],
-            sender="greyteam2020@gmail.com",
-            html=body,
-            subject=subject,
-        )
-        mail.send(msg)
+    msg = Message(
+        recipients=[recipient],
+        sender="greyteam2020@gmail.com",
+        html=body,
+        subject=subject,
+    )
+    mail.send(msg)
     return 0
