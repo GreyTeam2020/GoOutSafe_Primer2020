@@ -1,9 +1,8 @@
 from flask import Blueprint, redirect, render_template, request
 
 from monolith.auth import roles_allowed
-from monolith.database import db, Restaurant, User, Positive
+from monolith.database import db, Restaurant, User
 from monolith.forms import SearchUserForm
-from datetime import datetime
 
 from monolith.services import HealthyServices
 
