@@ -18,7 +18,8 @@ from monolith.forms import UserForm, RestaurantForm
 from monolith.tests.utils import visit_restaurant, visit_photo_gallery
 
 
-class GoOutSafeFormTests:
+@pytest.mark.usefixtures("client")
+class Test_GoOutSafeForm:
     @classmethod
     def setup_class(cls):
         try:
@@ -31,7 +32,6 @@ class GoOutSafeFormTests:
     def teardown_class(cls):
         os.remove("{}/gooutsafe.db".format(os.path.dirname(os.path.realpath(__file__))))
 
-    @pytest.mark.usefixtures("client")
     def test_login_form_ok(self, client):
         """
         This test suit test the operation that we can do
@@ -56,7 +56,6 @@ class GoOutSafeFormTests:
         q_user = q.first()
         assert q_user is not None
 
-    @pytest.mark.usefixtures("client")
     def test_login_form_ko(self, client):
         """
         This test suit test the operation that we can do
@@ -72,7 +71,6 @@ class GoOutSafeFormTests:
         q_user = q.first()
         assert q_user is None
 
-    @pytest.mark.usefixtures("client")
     def test_register_new_user_ok(self, client):
         """
         This use case try to login a new user with a correct execution
@@ -110,11 +108,9 @@ class GoOutSafeFormTests:
         db.session.query(User).filter_by(id=user_query.id).delete()
         db.session.commit()
 
-    @pytest.mark.usefixtures("client")
     def test_delete_user(self, client):
         pass
 
-    @pytest.mark.usefixtures("client")
     def test_register_new_restaurant(self, client):
         """
         This test test the use case to create a new restaurant
@@ -155,7 +151,6 @@ class GoOutSafeFormTests:
         response = client.get("/")  ## get index
         assert restaurant_form.name in response.data.decode("utf-8")
 
-    @pytest.mark.usefixtures("client")
     def test_register_new_restaurant(self, client):
         """
         This test test the use case to create a new restaurant but the user
@@ -208,7 +203,6 @@ class GoOutSafeFormTests:
         db.session.query(User).filter_by(id=user.id).delete()
         db.session.commit()
 
-    @pytest.mark.usefixtures("client")
     def test_change_role_user(self, client):
         """
         This test covered the change user role where we create a new restaurant
@@ -270,7 +264,6 @@ class GoOutSafeFormTests:
         db.session.query(Restaurant).filter_by(id=restaurant.id).delete()
         db.session.commit()
 
-    @pytest.mark.usefixtures("client")
     def test_change_role_user_new_user(self, client):
         """
         This test covered the change user role where we create a new restaurant
@@ -289,15 +282,12 @@ class GoOutSafeFormTests:
         """
         pass
 
-    @pytest.mark.usefixtures("client")
     def test_modify_new_restaurant(self, client):
         pass
 
-    @pytest.mark.usefixtures("client")
     def test_research_restaurant_by_name(self, client):
         pass
 
-    @pytest.mark.usefixtures("client")
     def test_send_communication_covid19(self, client):
         """
         This test case test the number of people that enter in contact with an people
@@ -305,7 +295,6 @@ class GoOutSafeFormTests:
         """
         pass
 
-    @pytest.mark.usefixtures("client")
     def test_open_photo_view(self, client):
         """
         This test perform the use case described below
