@@ -6,9 +6,7 @@ from monolith.services.user_service import UserService
 
 @pytest.mark.usefixtures("client")
 class Test_UserServices:
-    """
-
-    """
+    """"""
 
     def test_create_user(self):
         """
