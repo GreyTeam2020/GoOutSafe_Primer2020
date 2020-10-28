@@ -1,8 +1,10 @@
 from celery import Celery
 from monolith.utils import send_registration_confirm
 
-BACKEND = BROKER = "redis://localhost:6379"
-celery = Celery("gooutsafe_mb", backend=BACKEND, broker=BROKER)
+## redis inside the http is the name of network that is called like the containser
+## a good reference is https://stackoverflow.com/a/55410571/7290562
+BACKEND = BROKER = "redis://redis:6379/0"
+celery = Celery(__name__, backend=BACKEND, broker=BROKER)
 
 _APP = None
 

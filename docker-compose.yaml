@@ -1,15 +1,18 @@
-version: '3'
+version: '3.2'
 
 services:
     gooutsafe:
-        build: .
+        depends_on:
+            - redis
         restart: always
+        build: .
         ports:
             - "5000:5000"
         network_mode: "host"
     celery:
         depends_on:
-            -   redis
+            - redis
+            - gooutsafe
         build: .
         restart: always
         command: celery -A monolith.celery worker --loglevel=info
@@ -17,5 +20,4 @@ services:
             - redis
     redis:
         image: "redis:alpine"
-        ports:
-            - "6379:6379"
+        hostname: redis

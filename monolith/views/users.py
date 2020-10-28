@@ -41,7 +41,9 @@ def create_user():
             user = q.first()
             if user is not None and user.authenticate(password):
                 login_user(user)
-            send_email_to_confirm_registration.apply_async(args=[new_user.email, new_user.lastname, "112344"])
+            send_email_to_confirm_registration.apply_async(
+                args=[new_user.email, new_user.lastname, "112344"]
+            )
             return redirect("/")
     return render_template("create_user.html", form=form)
 
