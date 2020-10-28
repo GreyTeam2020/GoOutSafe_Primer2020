@@ -357,7 +357,7 @@ class Test_GoOutSafeForm:
         db.session.query(Restaurant).filter_by(id=restaurant.id).delete()
         db.session.commit()
 
-    def test_mark_positive_lp(self, client):
+    def test_mark_positive_ko(self, client):
         """
         This test cases test the use case to mark a person as covid19
         positive, the work flow is the following:
@@ -388,3 +388,41 @@ class Test_GoOutSafeForm:
         q_user = get_user_with_email(user.email)
         q_already_positive = db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
         assert q_already_positive is None
+
+        db.session.query(User).filter_by(id=user.id).delete()
+        db.session.commit()
+
+    def test_mark_positive_ok(self, client):
+        """
+        This test cases test the use case to mark a person as covid19
+        positive, the work flow is the following:
+        - Login as normal user (this is wrong, the test should be failed)
+        - Create a new customer
+        - mark this customer as positive
+        - delete the customer
+        :param client:
+        """
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        user = UserForm()
+        user.email = "cr7@gmail.com"
+        user.firstname = "Cristiano"
+        user.lastname = "Ronaldo"
+        user.password = "Siii"
+        user.phone = "1234555"
+        user.dateofbirth = "12/12/1975"
+        register_user(client, user)
+
+        mark = SearchUserForm()
+        mark.email = user.email
+        mark.phone = user.phone
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        assert q_already_positive is not None
+
+        db.session.query(User).filter_by(id=q_user.id).delete()
+        db.session.commit()
