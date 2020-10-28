@@ -209,97 +209,12 @@ class Test_GoOutSafeForm:
         db.session.query(User).filter_by(id=user.id).delete()
         db.session.commit()
 
-    def test_change_role_user(self, client):
-        """
-        This test covered the change user role where we create a new restaurant
-        this mean the flow describe below
-
-        - Use a customer rule to login inside the app
-        - Create a new restaurant (this should be trigger the change role from customer to operator)
-        - verify the change on UI
-        - verify the new restaurant on UI
-        - verify on db the user role changes
-        - logout user
-        - login the same user and see if the change role is persistent.
-        - final logout
-        :param client:
-        """
-        user = UserForm()
-        user.email = "bernard@gmail.com"
-        user.firstname = "bernard"
-        user.lastname = "alias"
-        user.password = "bernard"
-        user.dateofbirth = "12/12/1996"
-        register_user(client, user)
-        response = login(client, user.email, user.password)
-        assert response is not None
-        assert "Hi {}".format(user.firstname) in response.data.decode("utf-8")
-
-        # login(client, email, password)
-        restaurant_form = RestaurantForm()
-        restaurant_form.name = "Da Leo"
-        restaurant_form.phone = "123243245"
-        restaurant_form.lat = 123
-        restaurant_form.lon = 123
-        restaurant_form.n_tables = 250
-        restaurant_form.covid_measures = "Mask UP"
-        restaurant_form.cuisine = ["Italian food"]
-        restaurant_form.open_days = ["2"]
-        restaurant_form.open_lunch = "12:00"
-        restaurant_form.close_lunch = "15:00"
-        restaurant_form.open_dinner = "18:00"
-        restaurant_form.close_dinner = "00:00"
-        response = register_restaurant(client, restaurant_form)
-        assert response.status_code == 200
-        assert restaurant_form.name in response.data.decode("utf-8")
-
-        user_stored = get_user_with_email(user.email)
-        """
-        ## --------- FIXME(vincenzopalazzo) -------
-        user_stored.rule_id = 2
-        db.session.commit()
-        with client.session_transaction(subdomain='blue') as session:
-            session['ROLE'] = "OPERATOR"
-        ## -------------------------------------------
-        """
-        restaurant = get_rest_with_name(restaurant_form.name)
-        assert restaurant.owner_id == user_stored.id
-        assert user_stored.role_id == 2
-
-        db.session.query(User).filter_by(id=user_stored.id).delete()
-        db.session.query(Restaurant).filter_by(id=restaurant.id).delete()
-        db.session.commit()
-
-    def test_change_role_user_new_user(self, client):
-        """
-        This test covered the change user role where we create a new restaurant
-        this mean the flow describe below
-
-        - Create a new user (so it is a customer)
-        - verify if it is logged
-        - Create a new restaurant (this should be trigger the change role from customer to operator)
-        - verify the change on UI
-        - verify the new restaurant on UI
-        - verify on db the user role changes
-        - logout user
-        - login the same user and see if the change role is persistent.
-        - final logout
-        :param client:
-        """
-        pass
-
     def test_modify_new_restaurant(self, client):
         pass
 
     def test_research_restaurant_by_name(self, client):
         pass
 
-    def test_send_communication_covid19(self, client):
-        """
-        This test case test the number of people that enter in contact with an people
-        that have the covid19 in the same time of the restaurant visit
-        """
-        pass
 
     def test_open_photo_view(self, client):
         """
@@ -346,13 +261,10 @@ class Test_GoOutSafeForm:
 
         user_stored = get_user_with_email(user.email)
         ## --------- FIXME(vincenzopalazzo) -------
-        user_stored.rule_id = 2
-        db.session.commit()
         with client.session_transaction(subdomain="blue") as session:
             session["ROLE"] = "OPERATOR"
         ## -------------------------------------------
         assert restaurant.owner_id == user_stored.id
-        assert user_stored.rule_id == 2
 
         response = visit_photo_gallery(client)
         assert response.status_code == 200
@@ -375,11 +287,11 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
 
         user = UserForm()
-        user.email = "cr7@gmail.com"
-        user.firstname = "Cristiano"
+        user.email = "messi@gmail.com"
+        user.firstname = "Messi"
         user.lastname = "Ronaldo"
-        user.password = "Siii"
-        user.phone = "1234555"
+        user.password = "messi"
+        user.phone = "32455"
         user.dateofbirth = "12/12/1975"
         register_user(client, user)
 
@@ -387,7 +299,7 @@ class Test_GoOutSafeForm:
         mark.email = user.email
         mark.phone = user.phone
         response = mark_people_for_covid19(client, mark)
-        assert response.status_code == 200
+        assert response.status_code == 401
 
         q_user = get_user_with_email(user.email)
         q_already_positive = (
@@ -395,7 +307,7 @@ class Test_GoOutSafeForm:
         )
         assert q_already_positive is None
 
-        db.session.query(User).filter_by(id=user.id).delete()
+        db.session.query(User).filter_by(id=q_user.id).delete()
         db.session.commit()
 
     def test_mark_positive_ok(self, client):
