@@ -1,4 +1,4 @@
-from flask import Blueprint, redirect, render_template, request, session
+from flask import Blueprint, redirect, render_template, request
 from monolith.database import db, Restaurant, User, Positive
 from monolith.forms import SearchUser
 from datetime import datetime
@@ -20,7 +20,6 @@ def report_positive():
 
 @health.route("/mark_positive", methods=["POST", "GET"])
 def mark_positive():
-
     form = SearchUser()
     if request.method == "POST":
         if form.validate_on_submit():
