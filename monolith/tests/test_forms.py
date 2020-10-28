@@ -15,7 +15,11 @@ from utils import (
 )
 from monolith.database import db, User, Restaurant, Positive
 from monolith.forms import UserForm, RestaurantForm, SearchUserForm
-from monolith.tests.utils import visit_restaurant, visit_photo_gallery, mark_people_for_covid19
+from monolith.tests.utils import (
+    visit_restaurant,
+    visit_photo_gallery,
+    mark_people_for_covid19,
+)
 
 
 @pytest.mark.usefixtures("client")
@@ -386,7 +390,9 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
 
         q_user = get_user_with_email(user.email)
-        q_already_positive = db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
         assert q_already_positive is None
 
         db.session.query(User).filter_by(id=user.id).delete()
@@ -421,7 +427,9 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
 
         q_user = get_user_with_email(user.email)
-        q_already_positive = db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
         assert q_already_positive is not None
 
         db.session.query(User).filter_by(id=q_user.id).delete()
