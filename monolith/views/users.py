@@ -5,6 +5,7 @@ from monolith.utils import send_mail
 from flask_login import login_user
 from monolith.utils.dispaccer_events import DispatcherMessage
 from monolith.app_constant import REGISTRATION_EMAIL
+from monolith.services.user_service import UserService
 
 users = Blueprint("users", __name__)
 
@@ -27,24 +28,14 @@ def create_user():
                     form=form,
                     message="Email {} already registered".format(form.email.data),
                 )
-            new_user = User()
-            ## By default I assume CUSTOMER
-            new_user.role_id = 3
-            form.populate_obj(new_user)
-            new_user.set_password(
-                form.password.data
-            )  # pw should be hashed with some salt
-            db.session.add(new_user)
-            db.session.commit()
-
-            email, password = form.data["email"], form.data["password"]
-            q = db.session.query(User).filter(User.email == email)
-            user = q.first()
-            if user is not None and user.authenticate(password):
+            user = User()
+            form.populate_obj(user)
+            user = UserService.create_user(user, form.password.data)
+            if user is not None and user.authenticate(form.password.data):
                 login_user(user)
             DispatcherMessage.send_message(
                 type_message=REGISTRATION_EMAIL,
-                params=[new_user.email, new_user.lastname, "112344"],
+                params=[user.email, user.lastname, "112344"],
             )
             return redirect("/")
     return render_template("create_user.html", form=form)

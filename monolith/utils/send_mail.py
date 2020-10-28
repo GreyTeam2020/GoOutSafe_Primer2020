@@ -116,11 +116,12 @@ Internal method for send email
 
 def sendmailTest(subject, body, recipient):
     subject = "[GoOutSafe] " + subject
-    msg = Message(
-        recipients=[recipient],
-        sender="greyteam2020@gmail.com",
-        html=body,
-        subject=subject,
-    )
-    mail.send(msg)
+    with app.app_context():
+        msg = Message(
+            recipients=[recipient],
+            sender="greyteam2020@gmail.com",
+            html=body,
+            subject=subject,
+        )
+        mail.send(msg)
     return 0
