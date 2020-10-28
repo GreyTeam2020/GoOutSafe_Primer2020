@@ -255,7 +255,7 @@ def my_data():
         form2 = RestaurantTableForm()
         tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
         return render_template(
-            "my_restaurant_data.html",
+            "restaurant_data.html",
             form=form,
             only=["name", "lat", "lon", "covid_measures"],
             tables=tables,
@@ -263,10 +263,10 @@ def my_data():
             message=message,
         )
     else:
-        return redirect("/create_restaurant")
+        return redirect("/restaurant//create_restaurant")
 
 
-@restaurants.route("/mytables", methods=["GET", "POST"])
+@restaurants.route("/restaurant/tables", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_tables():
@@ -279,16 +279,16 @@ def my_tables():
         db.session.add(table)
         db.session.commit()
         ##
-        return redirect("/my_restaurant_data")
+        return redirect("/restaurant/data")
 
     elif request.method == "GET":
         # delete the table specified by the get request
         RestaurantTable.query.filter_by(id=request.args.get("id")).delete()
         db.session.commit()
-        return redirect("/my_restaurant_data")
+        return redirect("/restaurant/data")
 
 
-@restaurants.route("/my_restaurant_photogallery", methods=["GET", "POST"])
+@restaurants.route("/restaurant/photogallery", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_photogallery():
@@ -303,15 +303,10 @@ def my_photogallery():
             db.session.add(photo_gallery)
             db.session.commit()
 
-        return redirect("/my_restaurant_photogallery")
+        return redirect("/restaurant/photogallery")
     else:
         photos = PhotoGallery.query.filter_by(
             restaurant_id=session["RESTAURANT_ID"]
         ).all()
         form = PhotoGalleryForm()
-        return render_template("my_photogallery.html", form=form, photos=photos)
-
-
-def my_date_formatter(text):
-    date_dt2 = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f")
-    return date_dt2.strftime("%d/%m/%Y %H:%M")
+        return render_template("photogallery.html", form=form, photos=photos)
