@@ -1,13 +1,3 @@
-$("#newBook").click(function(){
-    $("#bookTableForm").submit();
-});
-$(".showBooking").click(showBookRestaurant);
-
-function showBookRestaurant(){
-    $("#restaurantID").val($(this).data("id"));
-    $("#bookTable").modal("show");
-}
-
 //document ready routine
 $(document).ready(function() {
     if ($("#myreservation").length){
@@ -26,6 +16,20 @@ $(document).ready(function() {
     if ($("#mytables").length){
         $('#mytables').DataTable();
         $("#submitTable").click(() => {$("#addTableForm").submit();});
+    }
+
+    if($("#reservation_date").length){
+        $('#reservation_date').datetimepicker({
+            inline:true,
+            format:'d/m/Y H:m'
+	    });
+        $("#newBook").click(function(){
+            $("#bookTableForm").submit();
+        });
+        $(".showBooking").click(function(){
+            $("#restaurant_id").val($(this).data("id"));
+            $("#bookTable").modal("show");
+        });
     }
 
     var switchView = $("#switchView");

@@ -89,3 +89,10 @@ class PhotoGalleryForm(FlaskForm):
     url = f.StringField("URL", validators=[DataRequired()])
     caption = f.StringField("caption")
     display = ["url", "caption"]
+
+
+class ReservationForm(FlaskForm):
+    reservation_date = f.DateTimeField("Date", validators=[DataRequired()])
+    people_number = f.IntegerField("N. of People", validators=[DataRequired()])
+    restaurant_id = f.HiddenField("")
+    display = ["reservation_date", "people_number", "restaurant_id"]
