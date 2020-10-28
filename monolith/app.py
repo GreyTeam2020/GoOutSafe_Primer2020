@@ -14,7 +14,6 @@ import datetime
 
 
 def create_app(tests=False):
-    print(__name__)
     app = Flask(__name__)
     app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
     app.config["SECRET_KEY"] = "ANOTHER ONE"
