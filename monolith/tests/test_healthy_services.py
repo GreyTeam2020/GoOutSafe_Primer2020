@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import pytest
 
 from monolith.database import db
@@ -28,14 +30,18 @@ class Test_healthyServices:
         message = HealthyServices.mark_positive(user.email, user.phone)
         assert message != ""
         message = HealthyServices.mark_positive(user.email, user.phone)
-        assert message == "User with email {} already Covid-19 positive".format(user.email)
+        assert message == "User with email {} already Covid-19 positive".format(
+            user.email
+        )
 
     def test_mark_positive_user_not_exist(self):
         """
 
         :return:
         """
-        message = HealthyServices.mark_positive(user_email="alibaba@alibaba.com", user_phone="1234555")
+        message = HealthyServices.mark_positive(
+            user_email="alibaba@alibaba.com", user_phone="1234555"
+        )
         assert message == "The user is not registered"
 
     def test_mark_positive_nan_proprieties(self):
