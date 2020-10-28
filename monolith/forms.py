@@ -79,6 +79,12 @@ class RestaurantTableForm(FlaskForm):
     display = ["name", "capacity"]
 
 
+class SearchUser(FlaskForm):
+    email = f.StringField("email")
+    phone = f.StringField("phone")
+    display = ["email", "phone"]
+
+
 class PhotoGalleryForm(FlaskForm):
     url = f.StringField("URL", validators=[DataRequired()])
     caption = f.StringField("caption")
