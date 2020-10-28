@@ -3,7 +3,8 @@ from monolith.database import db, User, Like
 from monolith.forms import UserForm
 from monolith.utils import send_mail
 from flask_login import login_user
-from monolith.background import send_email_to_confirm_registration
+from monolith.utils.dispaccer_events import DispatcherMessage
+from monolith.app_constant import REGISTRATION_EMAIL
 
 users = Blueprint("users", __name__)
 
@@ -41,9 +42,7 @@ def create_user():
             user = q.first()
             if user is not None and user.authenticate(password):
                 login_user(user)
-            send_email_to_confirm_registration.apply_async(
-                args=[new_user.email, new_user.lastname, "112344"]
-            )
+            DispatcherMessage.send_message(type_message=REGISTRATION_EMAIL, params=[new_user.email, new_user.lastname, "112344"])
             return redirect("/")
     return render_template("create_user.html", form=form)
 
