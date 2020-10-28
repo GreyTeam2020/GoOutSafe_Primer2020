@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
 from flask_sqlalchemy import SQLAlchemy
@@ -121,7 +123,7 @@ class Positive(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     from_date = db.Column(db.Date)
-    marked = db.Column(db.Boolean, default=False) 
+    marked = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = relationship("User", foreign_keys="Positive.user_id")
 
@@ -161,10 +163,10 @@ class OpeningHours(db.Model):
     )
     restaurant = relationship("Restaurant", foreign_keys="OpeningHours.restaurant_id")
     week_day = db.Column(db.Integer, primary_key=True)
-    open_lunch = db.Column(db.Time)
-    close_lunch = db.Column(db.Time)
-    open_dinner = db.Column(db.Time)
-    close_dinner = db.Column(db.Time)
+    open_lunch = db.Column(db.Time, default=datetime.utcnow)
+    close_lunch = db.Column(db.Time, default=datetime.utcnow)
+    open_dinner = db.Column(db.Time, default=datetime.utcnow)
+    close_dinner = db.Column(db.Time, default=datetime.utcnow)
 
 
 class Menu(db.Model):

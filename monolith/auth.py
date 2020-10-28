@@ -35,6 +35,7 @@ def roles_allowed(func=None, roles=None):
         if not any(role in s for s in roles):
             return login_manager.unauthorized()
         return func(*args, **kwargs)
+
     return f
 
 
