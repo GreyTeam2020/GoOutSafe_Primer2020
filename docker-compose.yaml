@@ -16,8 +16,10 @@ services:
         build: .
         restart: always
         command: celery -A monolith.celery worker --loglevel=info
-        links:
-            - redis
+        network_mode: "host"
     redis:
         image: "redis:alpine"
-        hostname: redis
+        container_name: rd01
+        ports:
+            - "6379:6379"
+        network_mode: "host"
