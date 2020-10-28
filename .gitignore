@@ -3,3 +3,5 @@
 **/__pycache__
 **/gooutsafe.db
 .coverage
+
+gooutsafe.egg-info/
