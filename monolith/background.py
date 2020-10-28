@@ -16,4 +16,4 @@ def send_email_to_confirm_registration(to_email: str, to_name: str, with_toke: s
     :param to_name: The user name to send the message
     :param with_toke: The token of user on system
     """
-    send_email_to_confirm_registration(to_email, to_name, with_toke)
+    send_registration_confirm(to_email, to_name, with_toke)

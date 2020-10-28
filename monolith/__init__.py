@@ -1,2 +1,2 @@
 from .app import create_app
-from .background import celery
+from .background import *

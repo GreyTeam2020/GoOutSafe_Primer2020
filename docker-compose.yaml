@@ -8,9 +8,11 @@ services:
             - "5000:5000"
         network_mode: "host"
     celery:
+        depends_on:
+            -   redis
         build: .
         restart: always
-        command: celery -A celery worker --loglevel=info
+        command: celery -A monolith.celery worker --loglevel=info
         links:
             - redis
     redis:
