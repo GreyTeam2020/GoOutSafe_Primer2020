@@ -2,12 +2,18 @@ version: '3'
 
 services:
     gooutsafe:
-        depends_on: [ 'redis' ]
         build: .
+        restart: always
         ports:
             - "5000:5000"
         network_mode: "host"
-        volumes:
-        -   ./:/code
+    celery:
+        build: .
+        restart: always
+        command: celery -A celery worker --loglevel=info
+        links:
+            - redis
     redis:
         image: "redis:alpine"
+        ports:
+            - "6379:6379"
