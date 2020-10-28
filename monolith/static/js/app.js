@@ -70,4 +70,18 @@ $(document).ready(function() {
             }
         });
     }
+
+
+    $('.deleteBooking').on('click', function(e) {
+        e.preventDefault();
+        $('#confirm').modal({
+            backdrop: 'static',
+            keyboard: false
+        }).on('click', '#deleteReservation', function(e) {
+
+        });
+    });
+
+
+
 });
