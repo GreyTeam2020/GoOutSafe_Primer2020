@@ -6,6 +6,7 @@ $(".showBooking").click(showBookRestaurant);
 function showBookRestaurant(){
     $("#restaurantID").val($(this).data("id"));
     $("#bookTable").modal("show");
+    return false;
 }
 
 //document ready routine
@@ -47,4 +48,18 @@ $(document).ready(function() {
             }
         });
     }
+
+
+    $('.deleteBooking').on('click', function(e) {
+        e.preventDefault();
+        $('#confirm').modal({
+            backdrop: 'static',
+            keyboard: false
+        }).on('click', '#deleteReservation', function(e) {
+
+        });
+    });
+
+
+
 });

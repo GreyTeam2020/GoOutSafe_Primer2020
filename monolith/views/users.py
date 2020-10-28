@@ -56,7 +56,6 @@ def myreservation():
     # filter params
     fromDate = request.args.get("fromDate", type=str)
     toDate = request.args.get("toDate", type=str)
-    email = request.args.get("email", type=str)
 
     queryString = (
         "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, rest.name, rest.id as rest_id "
@@ -75,8 +74,6 @@ def myreservation():
         params["fromDate"] = fromDate + " 00:00:00.000"
     if toDate:
         params["toDate"] = toDate + " 23:59:59.999"
-    if email:
-        params["email"] = email
 
     # execute and retrive results...
     result = db.engine.execute(stmt, params)
