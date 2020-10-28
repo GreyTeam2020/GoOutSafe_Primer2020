@@ -1,8 +1,10 @@
 from flask import Blueprint, redirect, render_template, request, current_app
 from monolith.database import db, User, Like
 from monolith.forms import UserForm
-from monolith.utils import SendMail
+from monolith.utils import send_mail
 from flask_login import login_user
+from monolith.utils.dispaccer_events import DispatcherMessage
+from monolith.app_constant import REGISTRATION_EMAIL
 
 users = Blueprint("users", __name__)
 
@@ -40,6 +42,10 @@ def create_user():
             user = q.first()
             if user is not None and user.authenticate(password):
                 login_user(user)
+            DispatcherMessage.send_message(
+                type_message=REGISTRATION_EMAIL,
+                params=[new_user.email, new_user.lastname, "112344"],
+            )
             return redirect("/")
     return render_template("create_user.html", form=form)
 
@@ -53,16 +59,16 @@ def myreservation():
 def _testsendemail():
     # ------------------------
     testEmail = "PUTYOUREMAIL"  # PUT YOUR EMAIL FOR TEST and click to /login
-    SendMail.sendPossibilePositiveContact(
+    send_mail.sendPossibilePositiveContact(
         testEmail, "John Doe", "01/01/2020 21:30", "Il Paninaro"
     )
-    SendMail.sendReservationConfirm(
+    send_mail.sendReservationConfirm(
         testEmail, "John Doe", "01/01/2020 21:30", "Il Paninaro", 10
     )
-    SendMail.sendRegistrationConfirm(
+    send_mail.send_registration_confirm(
         testEmail, "John Doe", "qwertyuiopasdfghjklzxcvbnm"
     )
-    SendMail.sendReservationNotification(
+    send_mail.sendReservationNotification(
         testEmail, "John Doe", "Il Paninaro", "Richard Smith", "01/01/2020 21:30", 12, 8
     )
     # ------------------------
