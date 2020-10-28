@@ -72,14 +72,23 @@
             </button>
           </div>
           <div class="modal-body">
-            <form method="POST" action="/book" id="bookTableForm">
-                <input type="hidden" name="restaurantID" id="restaurantID"/>
-                <label>Date</label>
-                <input type="text" class="form-control" name="date" placeholder="Date">
-                <label>Time</label>
-                <input type="text" class="form-control" name="time" placeholder="Time">
-                <label>Number of People</label>
-                <input type="text" class="form-control" name="people" placeholder="N. of people">
+            <form id ="bookTableForm" action="/book" method="POST">
+              <dl class="center-datepicker">
+               {% for field in form.display %}
+                   <dt>{{ form[field].label }}</dt>
+                   <dd class="text-center">{{ form[field](class_="form-control", placeholder=form[field].label.text) }}</dd>
+                     {% if form[field].errors %}
+                        {% for e in form[field].errors %}
+                         <p class="help-block">{{ e }}</p>
+                        {% endfor %}
+                     {% endif %}
+               {% endfor %}
+               {% if error %}
+                  <div class="alert alert-danger" role="alert">
+                      {{ error }}
+                  </div>
+              {% endif  %}
+              </dl>
             </form>
           </div>
           <div class="modal-footer">
