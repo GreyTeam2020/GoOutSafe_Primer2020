@@ -93,12 +93,10 @@ def sendReservationNotification(
     sendmailTest(subject, body, toEmail)
 
 
-"""
-Compose registration confirm email template and sends to user
-"""
-
-
-def sendRegistrationConfirm(toEmail, toName, token):
+def send_registration_confirm(to_email, to_name, with_token):
+    """
+    Compose registration confirm email template and sends to user
+    """
     subject = "Confirm email"
     body = (
         "Hi {toName},<br>"
@@ -106,9 +104,9 @@ def sendRegistrationConfirm(toEmail, toName, token):
         'by click on <a href="http://localhost:5000/confirme_mail?token={token}">this URL<a>.<br>'
         "<br>See you soon! "
     )
-    body = body.replace("{toName}", toName)
-    body = body.replace("{token}", token)
-    sendmailTest(subject, body, toEmail)
+    body = body.replace("{toName}", to_name)
+    body = body.replace("{token}", with_token)
+    sendmailTest(subject, body, to_email)
 
 
 """

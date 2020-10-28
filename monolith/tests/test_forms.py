@@ -23,7 +23,9 @@ class Test_GoOutSafeForm:
     @classmethod
     def setup_class(cls):
         try:
-            os.remove("{}/gooutsafe.db".format(os.path.dirname(os.path.realpath(__file__))))
+            os.remove(
+                "{}/gooutsafe.db".format(os.path.dirname(os.path.realpath(__file__)))
+            )
         # do awesome stuff
         except OSError:
             pass
