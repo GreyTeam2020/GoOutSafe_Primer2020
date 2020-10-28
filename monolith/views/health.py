@@ -24,38 +24,34 @@ def mark_positive():
     if request.method == "POST":
         if form.validate_on_submit():
 
-            if form.email.data=="" and form.phone.data=="":
+            if form.email.data == "" and form.phone.data == "":
                 return render_template(
                     "mark_positive.html",
                     form=form,
-                    message="Insert an email or a phone number".format(
-                        form.email.data
-                    ),
+                    message="Insert an email or a phone number".format(form.email.data),
                 )
 
-            #filtering by email
-            if form.email.data!="":
-                q_user = db.session.query(User).filter_by(
-                    email=form.email.data,
-                )
+            # filtering by email
+            if form.email.data != "":
+                q_user = db.session.query(User).filter_by(email=form.email.data)
             else:
-                q_user = db.session.query(User).filter_by(
-                    phone=form.phone.data,
-                )
+                q_user = db.session.query(User).filter_by(phone=form.phone.data)
 
             if q_user.first() is None:
                 return render_template(
                     "mark_positive.html",
                     form=form,
-                    message="The user is not registered".format(
-                        form.email.data
-                    ),
+                    message="The user is not registered".format(form.email.data),
                 )
-            
-            #settare l'utente q_user come positivo
-            q_already_positive = db.session.query(Positive).filter_by(user_id=q_user.first().id, marked=True).first()
+
+            # settare l'utente q_user come positivo
+            q_already_positive = (
+                db.session.query(Positive)
+                .filter_by(user_id=q_user.first().id, marked=True)
+                .first()
+            )
             if q_already_positive is None:
-                #non è già stato marcato come positivo, inserisco una nuova riga nella tabella
+                # non è già stato marcato come positivo, inserisco una nuova riga nella tabella
 
                 new_positive = Positive()
                 new_positive.from_date = datetime.today()
@@ -73,6 +69,6 @@ def mark_positive():
                         form.email.data
                     ),
                 )
-            
+
             return redirect("/")
     return render_template("mark_positive.html", form=form)

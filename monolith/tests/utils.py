@@ -36,11 +36,7 @@ def register_user(client, user: UserForm):
         submit=True,
         headers={"Content-type": "application/x-www-form-urlencoded"},
     )
-    return client.post(
-        "/create_user",
-        data=data,
-        follow_redirects=True,
-    )
+    return client.post("/create_user", data=data, follow_redirects=True)
 
 
 def register_restaurant(client, restaurant: RestaurantForm):
