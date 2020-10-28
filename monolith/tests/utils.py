@@ -37,7 +37,7 @@ def register_user(client, user: UserForm):
         headers={"Content-type": "application/x-www-form-urlencoded"},
     )
     return client.post(
-        "/create_user",
+        "/user/create_user",
         data=data,
         follow_redirects=True,
     )
@@ -51,7 +51,7 @@ def register_restaurant(client, restaurant: RestaurantForm):
     :return: response from URL "/create_restaurant"
     """
     return client.post(
-        "/create_restaurant",
+        "/restaurant/create",
         data=dict(
             name=restaurant.name,
             phone=restaurant.phone,
@@ -96,7 +96,7 @@ def visit_restaurant(client, restaurant_id):
     :param restaurant_id:
     :return: response from client
     """
-    return client.get("/restaurants/{}".format(restaurant_id), follow_redirects=True)
+    return client.get("/restaurant/{}".format(restaurant_id), follow_redirects=True)
 
 
 def visit_photo_gallery(client):
@@ -106,7 +106,7 @@ def visit_photo_gallery(client):
     :param restaurant_id:
     :return: response from client
     """
-    return client.get("/my_restaurant_photogallery", follow_redirects=True)
+    return client.get("/restaurant/photogallery", follow_redirects=True)
 
 
 def get_user_with_email(email):
