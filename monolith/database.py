@@ -121,7 +121,7 @@ class Positive(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     from_date = db.Column(db.Date)
-    marked = db.Column(db.Boolean, default=False) 
+    marked = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     user = relationship("User", foreign_keys="Positive.user_id")
 

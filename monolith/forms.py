@@ -79,7 +79,7 @@ class RestaurantTableForm(FlaskForm):
     display = ["name", "capacity"]
 
 
-class SearchUser(FlaskForm):
+class SearchUserForm(FlaskForm):
     email = f.StringField("email")
     phone = f.StringField("phone")
     display = ["email", "phone"]

@@ -13,9 +13,9 @@ from utils import (
     get_rest_with_name,
     get_rest_with_name_and_phone,
 )
-from monolith.database import db, User, Restaurant
-from monolith.forms import UserForm, RestaurantForm
-from monolith.tests.utils import visit_restaurant, visit_photo_gallery
+from monolith.database import db, User, Restaurant, Positive
+from monolith.forms import UserForm, RestaurantForm, SearchUserForm
+from monolith.tests.utils import visit_restaurant, visit_photo_gallery, mark_people_for_covid19
 
 
 @pytest.mark.usefixtures("client")
@@ -356,3 +356,35 @@ class Test_GoOutSafeForm:
         db.session.query(User).filter_by(id=user_stored.id).delete()
         db.session.query(Restaurant).filter_by(id=restaurant.id).delete()
         db.session.commit()
+
+    def test_mark_positive_lp(self, client):
+        """
+        This test cases test the use case to mark a person as covid19
+        positive, the work flow is the following:
+        - Login as normal user (this is wrong, the test should be failed)
+        - Create a new customer
+        - mark this customer as positive
+        - delete the customer
+        :param client:
+        """
+        response = login(client, "john.doe@email.com", "customer")
+        assert response.status_code == 200
+
+        user = UserForm()
+        user.email = "cr7@gmail.com"
+        user.firstname = "Cristiano"
+        user.lastname = "Ronaldo"
+        user.password = "Siii"
+        user.phone = "1234555"
+        user.dateofbirth = "12/12/1975"
+        register_user(client, user)
+
+        mark = SearchUserForm()
+        mark.email = user.email
+        mark.phone = user.phone
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        assert q_already_positive is None
