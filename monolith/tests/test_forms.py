@@ -215,7 +215,6 @@ class Test_GoOutSafeForm:
     def test_research_restaurant_by_name(self, client):
         pass
 
-
     def test_open_photo_view(self, client):
         """
         This test perform the use case described below
