@@ -45,12 +45,12 @@
                                 class="card-img-top" alt="logo restaurant"/>
                             <p class="card-text text-dark mt-3">
                                 <i class="material-icons text-dark ">thumb_down</i>  <i class="material-icons text-dark">thumb_up</i> {{ restaurant.likes }}
-                                <br/>
-                                <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
-                                {% if session['ROLE'] == 'CUSTOMER' %}
-                                  <button class="btn btn-primary showBooking" data-id="{{ restaurant.id }}">Book</button>
-                                {% endif %}
                             </p>
+                            <div class="ratingStats" data-rating="4.5"></div>
+                            <a href="/restaurants/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
+                            {% if session['ROLE'] == 'CUSTOMER' %}
+                              <button class="btn btn-primary showBooking" data-id="{{ restaurant.id }}">Book</button>
+                            {% endif %}
                           </div>
                         </div>
                     {% endfor %}
@@ -72,14 +72,23 @@
             </button>
           </div>
           <div class="modal-body">
-            <form method="POST" action="/book" id="bookTableForm">
-                <input type="hidden" name="restaurantID" id="restaurantID"/>
-                <label>Date</label>
-                <input type="text" class="form-control" name="date" placeholder="Date">
-                <label>Time</label>
-                <input type="text" class="form-control" name="time" placeholder="Time">
-                <label>Number of People</label>
-                <input type="text" class="form-control" name="people" placeholder="N. of people">
+            <form id ="bookTableForm" action="/book" method="POST">
+              <dl class="center-datepicker">
+               {% for field in form.display %}
+                   <dt>{{ form[field].label }}</dt>
+                   <dd class="text-center">{{ form[field](class_="form-control", placeholder=form[field].label.text) }}</dd>
+                     {% if form[field].errors %}
+                        {% for e in form[field].errors %}
+                         <p class="help-block">{{ e }}</p>
+                        {% endfor %}
+                     {% endif %}
+               {% endfor %}
+               {% if error %}
+                  <div class="alert alert-danger" role="alert">
+                      {{ error }}
+                  </div>
+              {% endif  %}
+              </dl>
             </form>
           </div>
           <div class="modal-footer">

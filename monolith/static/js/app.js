@@ -1,13 +1,3 @@
-$("#newBook").click(function(){
-    $("#bookTableForm").submit();
-});
-$(".showBooking").click(showBookRestaurant);
-
-function showBookRestaurant(){
-    $("#restaurantID").val($(this).data("id"));
-    $("#bookTable").modal("show");
-}
-
 //document ready routine
 $(document).ready(function() {
     if ($("#myreservation").length){
@@ -26,6 +16,39 @@ $(document).ready(function() {
     if ($("#mytables").length){
         $('#mytables').DataTable();
         $("#submitTable").click(() => {$("#addTableForm").submit();});
+    }
+
+    if($("#reservation_date").length) {
+        $('#reservation_date').datetimepicker({
+            inline: true,
+            format: 'd/m/Y H:m'
+        });
+        $("#newBook").click(function () {
+            $("#bookTableForm").submit();
+        });
+        $(".showBooking").click(function () {
+            $("#restaurant_id").val($(this).data("id"));
+            $("#bookTable").modal("show");
+        });
+    }
+
+    let ratingItems = $(".ratingStats");
+    if (ratingItems.length){
+        ratingItems.each(function(index, e){
+            let rating = parseFloat($(e).data("rating"));
+			$(e).html("")
+            for (let i=1; i<6; i++){
+                if (rating >= 1){
+                    $(e).append("<span class=\"material-icons\"> star </span>");
+                } else if (rating > 0.5){
+                    console.log(rating);
+                    $(e).append("<span class=\"material-icons\"> star_half </span>");
+                } else {
+                    $(e).append("<span class=\"material-icons\"> star_border </span>");
+                }
+                rating--;
+            }
+        })
     }
 
     var switchView = $("#switchView");

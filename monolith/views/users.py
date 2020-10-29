@@ -1,8 +1,8 @@
-from flask import Blueprint, redirect, render_template, request, current_app
-from monolith.database import db, User, Like
+from flask import Blueprint, redirect, render_template, request, current_app, session
+from monolith.database import db, User, Like, Role
 from monolith.forms import UserForm
 from monolith.utils import send_mail
-from flask_login import login_user
+from flask_login import login_user, current_user
 from monolith.utils.dispaccer_events import DispatcherMessage
 from monolith.app_constant import REGISTRATION_EMAIL
 from monolith.services.user_service import UserService
@@ -37,6 +37,10 @@ def create_user():
                 type_message=REGISTRATION_EMAIL,
                 params=[user.email, user.lastname, "112344"],
             )
+            new_role = db.session.query(Role).filter_by(id=current_user.role_id).first()
+            if new_role is not None:
+                session["ROLE"] = new_role.value
+
             return redirect("/")
     return render_template("create_user.html", form=form)
 
