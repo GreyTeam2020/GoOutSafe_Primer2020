@@ -1,6 +1,6 @@
 import json
 from monolith.database import db, User, Restaurant
-from monolith.forms import UserForm, RestaurantForm
+from monolith.forms import UserForm, RestaurantForm, SearchUserForm
 
 
 def login(client, username, password):
@@ -61,6 +61,23 @@ def register_restaurant(client, restaurant: RestaurantForm):
             close_lunch=restaurant.close_lunch,
             open_dinner=restaurant.open_dinner,
             close_dinner=restaurant.close_dinner,
+            submit=True,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )
+
+
+def mark_people_for_covid19(client, form: SearchUserForm):
+    """
+    This method perform the request to mark a people as positive
+    :return: response from request
+    """
+    return client.post(
+        "/mark_positive",
+        data=dict(
+            email=form.email,
+            phone=form.phone,
             submit=True,
             headers={"Content-type": "application/x-www-form-urlencoded"},
         ),
