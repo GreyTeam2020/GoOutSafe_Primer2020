@@ -4,7 +4,7 @@ branches:
   only:
     - main
 env:
-  - TOX_ENV=py36
+  - TOX_ENV=py35,py36,p37,p38
 install:
   - pip install -r requirements.txt
   - pip install pytest-cov
