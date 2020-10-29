@@ -113,14 +113,14 @@ class RestaurantServices:
         return result.fetchall()
 
     @staticmethod
-    def reviewRestaurant(restaurant_id, reviewer_id ,stars, review):
-        '''
+    def reviewRestaurant(restaurant_id, reviewer_id, stars, review):
+        """
         This method insert a review to the specified restaurant
-        '''
-        print ("check")
+        """
+        print("check")
         if stars < 0 or stars > 5:
             return None
-        
+
         new_review = Review()
         new_review.restaurant_id = restaurant_id
         new_review.reviewer_id = reviewer_id

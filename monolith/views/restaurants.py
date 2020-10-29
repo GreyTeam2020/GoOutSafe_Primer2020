@@ -64,7 +64,7 @@ def restaurant_sheet(restaurant_id):
     session["RESTAURANT_ID"] = restaurant_id
 
     review_form = ReviewForm()
-    
+
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -79,7 +79,6 @@ def restaurant_sheet(restaurant_id):
         weekDaysLabel=weekDaysLabel,
         photos=photos,
         review_form=review_form,
-        
         _test="visit_rest_test",
     )
 
@@ -275,17 +274,20 @@ def my_photogallery():
         form = PhotoGalleryForm()
         return render_template("photogallery.html", form=form, photos=photos)
 
+
 @restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR", "CUSTOMER"])
 def restaurantReview(restaurant_id):
     if request.method == "POST":
         form = ReviewForm()
-        if (RestaurantServices.reviewRestaurant(restaurant_id, current_user.id,
-        form.data["stars"], form.data["review"]) is not None):
+        if (
+            RestaurantServices.reviewRestaurant(
+                restaurant_id, current_user.id, form.data["stars"], form.data["review"]
+            )
+            is not None
+        ):
             print("Review inserted!")
             return redirect("/")
-    
-    return redirect("/")
 
-            
+    return redirect("/")

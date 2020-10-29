@@ -1,7 +1,14 @@
 from flask import Blueprint, render_template, request
 
 from monolith.auth import current_user
-from monolith.database import db, RestaurantTable, Reservation, Restaurant, OpeningHours, Positive
+from monolith.database import (
+    db,
+    RestaurantTable,
+    Reservation,
+    Restaurant,
+    OpeningHours,
+    Positive,
+)
 import datetime
 from flask_login import login_required
 
@@ -17,19 +24,26 @@ def index():
         # the date and time come as string, so I have to parse them and transform them in python datetime
 
         #
-        py_datetime = datetime.datetime.strptime(request.form.get("reservation_date"), '%d/%m/%Y %H:%M')
+        py_datetime = datetime.datetime.strptime(
+            request.form.get("reservation_date"), "%d/%m/%Y %H:%M"
+        )
         #
-        restaurant_id = int (request.form.get("restaurant_id"))
+        restaurant_id = int(request.form.get("restaurant_id"))
         #
-        people_number = int (request.form.get("people_number"))
+        people_number = int(request.form.get("people_number"))
         #
         # if user wants to book in the past..
         if py_datetime < datetime.datetime.now():
             return render_template(
                 "booking.html", success=False, error="You can not book in the past!"
             )
-        #check if the user is positive
-        is_positive = db.session.query(Positive).filter_by(user_id = current_user.id).filter_by(marked = True).first()
+        # check if the user is positive
+        is_positive = (
+            db.session.query(Positive)
+            .filter_by(user_id=current_user.id)
+            .filter_by(marked=True)
+            .first()
+        )
         if is_positive:
             return render_template(
                 "booking.html", success=False, error="You are marked as positive!"
@@ -123,9 +137,7 @@ def index():
             reservations = (
                 db.session.query(RestaurantTable.id)
                 .join(Reservation, RestaurantTable.id == Reservation.table_id)
-                .filter(
-                    RestaurantTable.restaurant_id == restaurant_id
-                )
+                .filter(RestaurantTable.restaurant_id == restaurant_id)
                 .filter(Reservation.reservation_date <= test_hour)
                 .filter(RestaurantTable.max_seats >= people_number)
             )
@@ -134,9 +146,7 @@ def index():
             reservations = (
                 db.session.query(RestaurantTable.id)
                 .join(Reservation, RestaurantTable.id == Reservation.table_id)
-                .filter(
-                    RestaurantTable.restaurant_id == restaurant_id
-                )
+                .filter(RestaurantTable.restaurant_id == restaurant_id)
                 .filter(Reservation.reservation_date >= test_hour)
                 .filter(RestaurantTable.max_seats >= people_number)
             )
@@ -165,9 +175,7 @@ def index():
 
             # get restaurant and table name
             restaurant_name = (
-                db.session.query(Restaurant.name)
-                .filter_by(id=restaurant_id)
-                .first()[0]
+                db.session.query(Restaurant.name).filter_by(id=restaurant_id).first()[0]
             )
             table_name = (
                 db.session.query(RestaurantTable.name)

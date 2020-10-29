@@ -7,7 +7,7 @@ from monolith.database import (
     RestaurantTable,
     Reservation,
     OpeningHours,
-    Review
+    Review,
 )
 import decimal
 from monolith.views import blueprints
@@ -275,8 +275,8 @@ def create_app(tests=False):
             db.session.commit()
 
         # insert some opening hours
-        
-        '''
+
+        """
         review = Review()
         q = db.session.query(Restaurant).filter(
                 Restaurant.name == "Trial Restaurant"
@@ -292,7 +292,7 @@ def create_app(tests=False):
         
         db.session.add(review)
         db.session.commit()
-        '''
+        """
 
     return app
 
