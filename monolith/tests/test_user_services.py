@@ -32,3 +32,28 @@ class Test_UserServices:
 
         db.session.query(User).filter_by(id=user.id).delete()
         db.session.commit()
+
+    def test_create_customer(self):
+        """
+        test create user
+        :return:
+        """
+        form = UserForm()
+        form.data["email"] = "alibaba@alibaba.com"
+        form.data["password"] = "Alibaba"
+        form.firstname = "Vincenzo"
+        form.lastname = "Palazzo"
+        form.password = "Alibaba"
+        form.phone = "12345"
+        form.dateofbirth = "12/12/2020"
+        form.email.data = "alibaba@alibaba.com"
+        user = User()
+        form.populate_obj(user)
+        user = UserService.create_user(user, form.password, 2)
+        assert user is not None
+        assert user.role_id is not 3
+        assert user.role_id is 2
+
+        db.session.query(User).filter_by(id=user.id).delete()
+        db.session.commit()
+
