@@ -31,7 +31,6 @@
 
                 {% if current_user.email != "health_authority@gov.com" %}
                 <p class="lead"> Hi {{ current_user.firstname }}! <a href="/logout">Logout</a> </p>
-                <p class="mt-3 lead"> Do you have a restaurant? <a href="/restaurant/create">Register it</a></p>
                 {% endif %}
 
               {% endif %}
