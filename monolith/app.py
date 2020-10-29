@@ -274,25 +274,25 @@ def create_app(tests=False):
             db.session.add(third_opening_hours)
             db.session.commit()
 
-        # insert some opening hours
-        
-        '''
-        review = Review()
-        q = db.session.query(Restaurant).filter(
-                Restaurant.name == "Trial Restaurant"
-            )
-        restaurant = q.first()
+        #insert a review
+        q = db.session.query(Review).filter_by(id=1).first()
+        if q is None:
+            review = Review()
+            q = db.session.query(Restaurant).filter(
+                    Restaurant.name == "Trial Restaurant"
+                )
+            restaurant = q.first()
 
-        q = db.session.query(User).filter(User.email == "john.doe@email.com")
-        user = q.first()
-        review.restaurant_id = restaurant.id
-        review.reviewer_id = user.id
-        review.review = "ciao"
-        review.stars = decimal.Decimal(4.5)
-        
-        db.session.add(review)
-        db.session.commit()
-        '''
+            q = db.session.query(User).filter(User.email == "john.doe@email.com")
+            user = q.first()
+            review.restaurant_id = restaurant.id
+            review.reviewer_id = user.id
+            review.review = "ciao"
+            review.stars = decimal.Decimal(4.5)
+            
+            db.session.add(review)
+            db.session.commit()
+            
 
     return app
 
