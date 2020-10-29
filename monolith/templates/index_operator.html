@@ -19,7 +19,6 @@
                         </p>
                         <div class="ratingStats" data-rating="4.5"></div>
                         <a href="/restaurant/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
-                        <a href="/login"><button class="btn btn-primary">Book</button></a>
                       </div>
                     </div>
                 {% endfor %}
@@ -29,7 +28,6 @@
       </div>
     </div>
   </div>
-
     <script>
         var map = L.map('map-view').setView([51.505, -0.09], 13);
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);

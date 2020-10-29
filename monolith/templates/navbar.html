@@ -4,6 +4,9 @@
         <a class="navbar-brand mx-auto" href="/">
             <img src="{{ url_for('static',filename='images/logo.png') }}" height="25px"/>&nbsp;GoOutSafe
         </a>
+        {% if current_user.is_authenticated %}
+            <span class="text-white ml-3">Hi {{ current_user.firstname }}</span>
+        {% endif %}
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".dual-collapse2">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -42,7 +45,7 @@
                     <a class="nav-link" href="/login"><button class="btn btn-primary text-light">Sign In</button></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/create_user"><button class="btn btn-outline-light">Sign Up</button></a>
+                    <a class="nav-link" href="/user/create_user"><button class="btn btn-outline-light">Sign Up</button></a>
                 </li>
             {% endif %}
         </ul>
