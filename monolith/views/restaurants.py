@@ -12,7 +12,7 @@ from monolith.database import (
 )
 from monolith.auth import admin_required, current_user, roles_allowed
 from flask_login import current_user, login_user, logout_user, login_required
-from monolith.forms import RestaurantForm, RestaurantTableForm, PhotoGalleryForm
+from monolith.forms import RestaurantForm, RestaurantTableForm, PhotoGalleryForm, ReviewForm
 from datetime import datetime, time
 
 restaurants = Blueprint("restaurants", __name__)
@@ -50,6 +50,9 @@ def restaurant_sheet(restaurant_id):
     photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
     ## FIXME(vincenzopalazzo): This is only a test to try to fix
     session["RESTAURANT_ID"] = restaurant_id
+
+    review_form = ReviewForm()
+    
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -63,6 +66,8 @@ def restaurant_sheet(restaurant_id):
         cuisine=q_cuisine,
         weekDaysLabel=weekDaysLabel,
         photos=photos,
+        review_form=review_form,
+        
     )
 
 

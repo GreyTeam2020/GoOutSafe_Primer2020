@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 import wtforms as f
-from wtforms.validators import DataRequired, Length
+from wtforms.validators import DataRequired, Length, NumberRange
 
 
 class LoginForm(FlaskForm):
@@ -83,3 +83,8 @@ class PhotoGalleryForm(FlaskForm):
     url = f.StringField("URL", validators=[DataRequired()])
     caption = f.StringField("caption")
     display = ["url", "caption"]
+
+class ReviewForm(FlaskForm):
+    vote = f.StringField("URL", validators=[NumberRange(min=0, max=5)])
+    review = f.StringField("caption")
+    display = ["vote", "review"]

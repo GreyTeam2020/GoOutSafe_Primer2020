@@ -103,6 +103,45 @@
       </div>
     </div>
 
+
+
+    <div class="modal" tabindex="-1" role="dialog" id="reviewRestaurant">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">Review</h5>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <form id ="reviewForm" action="/restaurant/review/{{ restaurant_id }}" method="POST">
+                <dl>
+                 {% for field in review_form.display %}
+                     <dt>{{ review_form[field].label(class_="sr-only") }}</dt>
+                     <dd>{{ review_form[field](class_="form-control", placeholder=review_form[field].label.text) }}</dd>
+                       {% if review_form[field].errors %}
+                          {% for e in review_form[field].errors %}
+                           <p class="help-block">{{ e }}</p>
+                          {% endfor %}
+                       {% endif %}
+                 {% endfor %}
+                 {% if error %}
+                    <div class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </div>
+                {% endif  %}
+                </dl>
+            </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" id="submitReview">Review!</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     <script>
         var map = L.map('map').setView([{{ lat }}, {{ lon }}], 17);;
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
