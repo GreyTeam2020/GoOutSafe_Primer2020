@@ -10,7 +10,7 @@ from sqlalchemy import or_, cast
 book = Blueprint("book", __name__)
 
 
-@book.route("/book", methods=["GET", "POST"])
+@book.route("/restaurant/book", methods=["GET", "POST"])
 @login_required
 def index():
     if current_user is not None and hasattr(current_user, "id"):

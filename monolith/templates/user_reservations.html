@@ -7,25 +7,29 @@
           <table id="myreservation" class="display" style="width:100%">
             <thead>
               <tr>
-                <th>#</th>
-                <th>Restaurant</th>
-                <th>Date</th>
-                <th>Actions</th>
+                  <th>#</th>
+                  <th>Date</th>
+                  <th>Restaurant</th>
+                  <th>People</th>
+                  <th># Table</th>
+                  <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-                <!-- TODO { % for reservation in reservations % } -->
-                <!-- TODO remove space between parenthesis when implemented -->
+                {% for reservation in reservations_as_list %}
                     <tr>
-                        <td>{ { reservation.id }}</td>
-                        <td>{ { reservation.restaurant.name }}</td>
-                        <td>{ { reservation.date }}</td>
-                        <td><a href="/restaurants/{ { reservation.restaurant.id }}"><button class="btn btn-primary">View Restaurant</button></a></td>
+                        <td><a class="showBooking" href="#" data-id="{{ reservation.id }}">{{ reservation.id }}</a></td>
+                        <td>{{ my_date_formatter(reservation.reservation_date) }}</td>
+                        <td><a href="/restaurant/{{ reservation.rest_id }}">{{ reservation.name }}</a></td>
+                        <td>{{ reservation.people_number }}</td>
+                        <td>{{ reservation.id_table }}</td>
+                        <td><button class="btn btn-primary deleteBooking">Delete</button></td>
                     </tr>
-                <!-- { % endfor % } -->
+                {% endfor %}
             </tbody>
           </table>
       </div>
     </div>
   </div>
+
 {% include 'footer.html' %}
