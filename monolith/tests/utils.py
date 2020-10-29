@@ -26,7 +26,7 @@ def register_user(client, user: UserForm):
     This method perform the request to register a new user
     :param client: Is a flask app created inside the fixtures
     :param user: Is the User form populate with the mock data
-    :return: response from URL "/create_user"
+    :return: response from URL "/user/create_user"
     """
     data = dict(
         email=user.email,
