@@ -79,7 +79,7 @@ def restaurant_sheet(restaurant_id):
         weekDaysLabel=weekDaysLabel,
         photos=photos,
         review_form=review_form,
-        reviews=RestaurantServices.getThreeReviews(restaurant_id)        
+        reviews=RestaurantServices.get_three_reviews(restaurant_id),
         _test="visit_rest_test",
     )
 
