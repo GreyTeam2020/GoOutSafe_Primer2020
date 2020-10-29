@@ -1,7 +1,7 @@
 from flask import Blueprint, redirect, render_template, request
 
 from monolith.auth import roles_allowed
-from monolith.database import db, Restaurant, User, Positive
+from monolith.database import db, User
 from monolith.forms import SearchUserForm
 
 from monolith.services import HealthyServices
@@ -11,7 +11,7 @@ health = Blueprint("health", __name__)
 
 @health.route("/health/allrestaurants")
 def allrestaurants():
-    restaurants = db.session.query(Restaurant)
+    restaurants = RestaurantServices.get_all_restaurants()
     return render_template("all_restaurants.html", restaurants=restaurants)
 
 
