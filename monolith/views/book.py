@@ -1,7 +1,7 @@
 from flask import Blueprint, render_template, request
 
 from monolith.auth import current_user
-from monolith.database import db, RestaurantTable, Reservation, Restaurant, OpeningHours
+from monolith.database import db, RestaurantTable, Reservation, Restaurant, OpeningHours, Positive
 import datetime
 from flask_login import login_required
 
@@ -23,12 +23,16 @@ def index():
         #
         people_number = int (request.form.get("people_number"))
         #
-
-        
         # if user wants to book in the past..
         if py_datetime < datetime.datetime.now():
             return render_template(
                 "booking.html", success=False, error="You can not book in the past!"
+            )
+        #check if the user is positive
+        is_positive = db.session.query(Positive).filter_by(user_id = current_user.id).filter_by(marked = True).first()
+        if is_positive:
+            return render_template(
+                "booking.html", success=False, error="You are marked as positive!"
             )
 
         week_day = py_datetime.weekday()
