@@ -22,14 +22,17 @@ _max_seats = 6
 
 
 @restaurants.route("/restaurant/restaurants")
-def _restaurants(message=""):
+def _restaurants(message="", _test=""):
     """
     Return the list of restaurants stored inside the db
     """
     allrestaurants = RestaurantServices.get_all_restaurants()
+    if len(_test) == 0:
+        _test = "all_rest_test"
     return render_template(
         "restaurants.html",
         message=message,
+        _test=_test,
         restaurants=allrestaurants,
         base_url="http://127.0.0.1:5000/restaurants",
     )
@@ -72,6 +75,7 @@ def restaurant_sheet(restaurant_id):
         cuisine=q_cuisine,
         weekDaysLabel=weekDaysLabel,
         photos=photos,
+        _test="visit_rest_test",
     )
 
 
@@ -162,41 +166,13 @@ def my_reservations():
     toDate = request.args.get("toDate", type=str)
     email = request.args.get("email", type=str)
 
-    queryString = (
-        "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv "
-        "join user cust on cust.id = reserv.customer_id "
-        "join restaurant_table tab on reserv.table_id = tab.id "
-        "join restaurant rest on rest.id = tab.restaurant_id "
-        "where rest.owner_id = :owner_id "
-        "and rest.id = :restaurant_id "
+    reservations_as_list = RestaurantServices.get_reservation_rest(
+        owner_id, restaurant_id, fromDate, toDate, email
     )
-
-    # add filters...
-    if fromDate:
-        queryString = queryString + " and  reserv.reservation_date > :fromDate"
-    if toDate:
-        queryString = queryString + " and  reserv.reservation_date < :toDate"
-    if email:
-        queryString = queryString + " and  cust.email = :email"
-    queryString = queryString + " order by reserv.reservation_date desc"
-
-    stmt = db.text(queryString)
-
-    # bind filter params...
-    params = {"owner_id": owner_id, "restaurant_id": restaurant_id}
-    if fromDate:
-        params["fromDate"] = fromDate + " 00:00:00.000"
-    if toDate:
-        params["toDate"] = toDate + " 23:59:59.999"
-    if email:
-        params["email"] = email
-
-    # execute and retrive results...
-    result = db.engine.execute(stmt, params)
-    reservations_as_list = result.fetchall()
 
     return render_template(
         "reservations.html",
+        _test="restaurant_reservations_test",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
     )

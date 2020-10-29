@@ -3,7 +3,6 @@ This test case covered all simple action that we can do from the UI
 """
 
 import pytest
-import os
 from utils import (
     login,
     logout,
@@ -34,7 +33,7 @@ class Test_GoOutSafeForm:
         password = "operator"
         response = login(client, email, password)
         assert response.status_code == 200
-        assert "Hi Ham" in response.data.decode("utf-8")
+        assert "logged_test" in response.data.decode("utf-8")
 
         q = db.session.query(User).filter_by(email=email)
         q_user = q.first()
@@ -43,7 +42,7 @@ class Test_GoOutSafeForm:
 
         response = logout(client)
         assert response.status_code == 200
-        assert "Hi" not in response.data.decode("utf-8")
+        assert "not_logged_test" not in response.data.decode("utf-8")
 
         q = db.session.query(User).filter_by(email=email)
         q_user = q.first()
@@ -58,7 +57,7 @@ class Test_GoOutSafeForm:
         password = "operator"
         response = login(client, email, password)
         assert response.status_code == 200
-        assert "Hi" not in response.data.decode("utf-8")
+        assert "error_login" in response.data.decode("utf-8")
 
         q = db.session.query(User).filter_by(email=email)
         q_user = q.first()
@@ -83,7 +82,7 @@ class Test_GoOutSafeForm:
         user_form.password = "nocovid_in_us"
         response = register_user(client, user_form)
         assert response.status_code == 200
-        assert "Hi" in response.data.decode("utf-8")
+        assert "logged_test" in response.data.decode("utf-8")
 
         ## Search inside the DB if this user exist
         user_query = get_user_with_email(user_form.email)
@@ -92,16 +91,19 @@ class Test_GoOutSafeForm:
 
         response = login(client, user_form.email, user_form.password)
         assert response.status_code == 200
-        assert "Hi {}".format(user_form.firstname) in response.data.decode("utf-8")
+        assert "logged_test" in response.data.decode("utf-8")
 
         response = logout(client)
         assert response.status_code == 200
-        assert "Hi" not in response.data.decode("utf-8")
+        assert "anonymous_test" not in response.data.decode("utf-8")
 
         db.session.query(User).filter_by(id=user_query.id).delete()
         db.session.commit()
 
     def test_delete_user(self, client):
+        pass
+
+    def test_modify_user(self, client):
         pass
 
     def test_register_new_restaurant_ko(self, client):
@@ -136,7 +138,7 @@ class Test_GoOutSafeForm:
         response = register_restaurant(client, restaurant_form)
         assert response.status_code == 200  ## Regirect to /
         assert restaurant_form.name in response.data.decode("utf-8")
-        # assert "Hi" in response.data.decode("utf-8")
+        assert "logged_test" in response.data.decode("utf-8")
         rest = get_rest_with_name(restaurant_form.name)
         assert rest is not None
         response = logout(client)
@@ -170,7 +172,7 @@ class Test_GoOutSafeForm:
         response = register_user(client, user_form)
         assert response.status_code == 200
         response = login(client, user_form.email, user_form.password)
-        assert "Hi" in response.data.decode("utf-8")
+        assert "logged_test" in response.data.decode("utf-8")
 
         user = get_user_with_email(user_form.email)
         assert user is not None
@@ -222,12 +224,12 @@ class Test_GoOutSafeForm:
         register_user(client, user)
         response = login(client, user.email, user.password)
         assert response is not None
-        assert "Hi {}".format(user.firstname) in response.data.decode("utf-8")
+        assert "logged_test" in response.data.decode("utf-8")
 
         restaurant = db.session.query(Restaurant).all()[0]
         response = visit_restaurant(client, restaurant.id)
         assert response.status_code == 200
-        assert "Phone" in response.data.decode("utf-8")
+        assert "visit_rest_test" in response.data.decode("utf-8")
 
         user_stored = get_user_with_email(user.email)
         response = visit_photo_gallery(client)
@@ -320,9 +322,26 @@ class Test_GoOutSafeForm:
         pazz = "nocovid"
         response = login(client, email, pazz)
         assert response.status_code == 200
-        assert "Hi" in response.data.decode("utf-8")
+        assert "logged_test" in response.data.decode("utf-8")
 
         response = visit_reservation(
             client, from_date="2013-10-07", to_date="2014-10-07", email=email
         )
         assert response.status_code == 401
+
+    def test_see_reservation_ok(self, client):
+        """
+        This test test the use case to perform the request to access from reservation
+        as customer
+        """
+        email = "ham.burger@email.com"
+        pazz = "operator"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        response = visit_reservation(
+            client, from_date="2013-10-07", to_date="2014-10-07", email=email
+        )
+        assert response.status_code == 200
+        assert "restaurant_reservations_test" in response.data.decode("utf-8")

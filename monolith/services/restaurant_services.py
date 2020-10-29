@@ -71,3 +71,43 @@ class RestaurantServices:
         """
         all_restaurants = db.session.query(Restaurant).all()
         return all_restaurants
+
+    @staticmethod
+    def get_reservation_rest(owner_id, restaurant_id, from_date, to_date, email):
+        """
+        This method contains the logic to find all reservation in the restaurant
+        with the filter on the date
+        """
+
+        queryString = (
+            "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv "
+            "join user cust on cust.id = reserv.customer_id "
+            "join restaurant_table tab on reserv.table_id = tab.id "
+            "join restaurant rest on rest.id = tab.restaurant_id "
+            "where rest.owner_id = :owner_id "
+            "and rest.id = :restaurant_id "
+        )
+
+        # add filters...
+        if from_date:
+            queryString = queryString + " and  reserv.reservation_date > :fromDate"
+        if to_date:
+            queryString = queryString + " and  reserv.reservation_date < :toDate"
+        if email:
+            queryString = queryString + " and  cust.email = :email"
+        queryString = queryString + " order by reserv.reservation_date desc"
+
+        stmt = db.text(queryString)
+
+        # bind filter params...
+        params = {"owner_id": owner_id, "restaurant_id": restaurant_id}
+        if from_date:
+            params["fromDate"] = from_date + " 00:00:00.000"
+        if to_date:
+            params["toDate"] = to_date + " 23:59:59.999"
+        if email:
+            params["email"] = email
+
+        # execute and retrive results...
+        result = db.engine.execute(stmt, params)
+        return result.fetchall()

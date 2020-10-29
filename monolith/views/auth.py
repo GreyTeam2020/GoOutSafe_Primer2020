@@ -31,8 +31,10 @@ def login():
                         session["RESTAURANT_NAME"] = restaurant.name
             return redirect("/")
         else:
-            return render_template("login.html", form=form, message="User not exist")
-    return render_template("login.html", form=form)
+            return render_template(
+                "login.html", form=form, _test="error_login", message="User not exist"
+            )
+    return render_template("login.html", _test="first_visit_login", form=form)
 
 
 @auth.route("/logout")
