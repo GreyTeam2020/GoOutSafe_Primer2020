@@ -19,25 +19,12 @@ from monolith.tests.utils import (
     visit_restaurant,
     visit_photo_gallery,
     mark_people_for_covid19,
+    visit_reservation,
 )
 
 
 @pytest.mark.usefixtures("client")
 class Test_GoOutSafeForm:
-    @classmethod
-    def setup_class(cls):
-        try:
-            os.remove(
-                "{}/gooutsafe.db".format(os.path.dirname(os.path.realpath(__file__)))
-            )
-        # do awesome stuff
-        except OSError:
-            pass
-
-    @classmethod
-    def teardown_class(cls):
-        os.remove("{}/gooutsafe.db".format(os.path.dirname(os.path.realpath(__file__))))
-
     def test_login_form_ok(self, client):
         """
         This test suit test the operation that we can do
@@ -117,7 +104,7 @@ class Test_GoOutSafeForm:
     def test_delete_user(self, client):
         pass
 
-    def test_register_new_restaurant(self, client):
+    def test_register_new_restaurant_ko(self, client):
         """
         This test test the use case to create a new restaurant
         and this test have the follow described below
@@ -148,7 +135,7 @@ class Test_GoOutSafeForm:
         restaurant_form.close_dinner = "00:00"
         response = register_restaurant(client, restaurant_form)
         assert response.status_code == 200  ## Regirect to /
-        # assert restaurant_form.name in response.data.decode("utf-8")
+        assert restaurant_form.name in response.data.decode("utf-8")
         # assert "Hi" in response.data.decode("utf-8")
         rest = get_rest_with_name(restaurant_form.name)
         assert rest is not None
@@ -157,16 +144,18 @@ class Test_GoOutSafeForm:
         response = client.get("/")  ## get index
         assert restaurant_form.name in response.data.decode("utf-8")
 
-    def test_register_new_restaurant(self, client):
+        db.session.query(rest.id).delete()
+        db.session.commit()
+
+    def test_register_new_restaurant_ko(self, client):
         """
         This test test the use case to create a new restaurant but the user
         and this test have the follow described below
 
-        - Login like a operator (user the standard account)
+        - Register a new user
         - Register a new restaurant
-        - Look inside the db  to see if the restaurant exist
-        - Log out user
-        - See if the restaurant is present on home screen.
+        - receive the 401 error because the user is not a customer
+        - Delete the user
 
         :param client:
         """
@@ -180,7 +169,8 @@ class Test_GoOutSafeForm:
         user_form.password = password
         response = register_user(client, user_form)
         assert response.status_code == 200
-        # assert "Hi" in response.data.decode("utf-8")
+        response = login(client, user_form.email, user_form.password)
+        assert "Hi" in response.data.decode("utf-8")
 
         user = get_user_with_email(user_form.email)
         assert user is not None
@@ -201,11 +191,10 @@ class Test_GoOutSafeForm:
         restaurant_form.open_dinner = "18:00"
         restaurant_form.close_dinner = "00:00"
         response = register_restaurant(client, restaurant_form)
-        assert response.status_code == 200
-        assert restaurant_form.name in response.data.decode("utf-8")
+        assert response.status_code == 401
+        rest = get_rest_with_name(restaurant_form.name)
+        assert rest is None
 
-        rest = get_rest_with_name_and_phone(restaurant_form.name, restaurant_form.phone)
-        assert rest is not None
         db.session.query(User).filter_by(id=user.id).delete()
         db.session.commit()
 
@@ -215,7 +204,7 @@ class Test_GoOutSafeForm:
     def test_research_restaurant_by_name(self, client):
         pass
 
-    def test_open_photo_view(self, client):
+    def test_open_photo_view_ok(self, client):
         """
         This test perform the use case described below
         - create a new user
@@ -235,41 +224,17 @@ class Test_GoOutSafeForm:
         assert response is not None
         assert "Hi {}".format(user.firstname) in response.data.decode("utf-8")
 
-        # login(client, email, password)
-        restaurant_form = RestaurantForm()
-        restaurant_form.name = "Gino Sorbillo"
-        restaurant_form.phone = "096321343"
-        restaurant_form.lat = 12
-        restaurant_form.lon = 12
-        restaurant_form.n_tables = 50
-        restaurant_form.covid_measures = "We can survive"
-        restaurant_form.cuisine = ["Italian food"]
-        restaurant_form.open_days = ["0"]
-        restaurant_form.open_lunch = "12:00"
-        restaurant_form.close_lunch = "15:00"
-        restaurant_form.open_dinner = "18:00"
-        restaurant_form.close_dinner = "00:00"
-        response = register_restaurant(client, restaurant_form)
-        assert response.status_code == 200
-        assert restaurant_form.name in response.data.decode("utf-8")
-
-        restaurant = get_rest_with_name(restaurant_form.name)
+        restaurant = db.session.query(Restaurant).all()[0]
         response = visit_restaurant(client, restaurant.id)
         assert response.status_code == 200
         assert "Phone" in response.data.decode("utf-8")
 
         user_stored = get_user_with_email(user.email)
-        ## --------- FIXME(vincenzopalazzo) -------
-        with client.session_transaction(subdomain="blue") as session:
-            session["ROLE"] = "OPERATOR"
-        ## -------------------------------------------
-        assert restaurant.owner_id == user_stored.id
-
         response = visit_photo_gallery(client)
-        assert response.status_code == 200
+        ## the user is a customer and not a operator
+        assert response.status_code == 401
 
         db.session.query(User).filter_by(id=user_stored.id).delete()
-        db.session.query(Restaurant).filter_by(id=restaurant.id).delete()
         db.session.commit()
 
     def test_mark_positive_ko(self, client):
@@ -301,9 +266,8 @@ class Test_GoOutSafeForm:
         assert response.status_code == 401
 
         q_user = get_user_with_email(user.email)
-        q_already_positive = (
-            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
-        )
+        q_already_positive = db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+
         assert q_already_positive is None
 
         db.session.query(User).filter_by(id=q_user.id).delete()
@@ -345,3 +309,18 @@ class Test_GoOutSafeForm:
 
         db.session.query(User).filter_by(id=q_user.id).delete()
         db.session.commit()
+
+    def test_see_reservation_ko(self, client):
+        """
+        This test test the
+        """
+        email = "health_authority@gov.com"
+        pazz = "nocovid"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "Hi" in response.data.decode("utf-8")
+
+        response = visit_reservation(
+            client, from_date="2013-10-07", to_date="2014-10-07", email=email
+        )
+        assert response.status_code == 401

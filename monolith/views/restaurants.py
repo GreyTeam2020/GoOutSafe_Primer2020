@@ -23,7 +23,10 @@ _max_seats = 6
 
 @restaurants.route("/restaurants")
 def _restaurants(message=""):
-    allrestaurants = db.session.query(Restaurant)
+    """
+    Return the list of restaurants stored inside the db
+    """
+    allrestaurants = RestaurantServices.get_all_restaurants()
     return render_template(
         "restaurants.html",
         message=message,
@@ -34,6 +37,11 @@ def _restaurants(message=""):
 
 @restaurants.route("/restaurants/<restaurant_id>")
 def restaurant_sheet(restaurant_id):
+    """
+    Missing refactoring to services
+    :param restaurant_id:
+    :return:
+    """
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
     weekDaysLabel = [
         "Monday",
@@ -88,6 +96,7 @@ def _like(restaurant_id):
 
 @restaurants.route("/create_restaurant", methods=["GET", "POST"])
 @login_required
+@roles_allowed(roles=["OPERATOR"])
 def create_restaurant():
     """
     TODO user restaurant services
@@ -142,7 +151,7 @@ def create_restaurant():
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_reservations():
-    # http://localhost:5000/list_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
+    # http://localhost:5000/my_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
 
     # for security reason, that are retrive on server side, not passed by params
     owner_id = current_user.id

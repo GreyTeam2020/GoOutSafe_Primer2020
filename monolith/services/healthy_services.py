@@ -32,11 +32,9 @@ class HealthyServices:
         if q_user.first() is None:
             return "The user is not registered"
 
-        q_already_positive = (
-            db.session.query(Positive)
-            .filter_by(user_id=q_user.first().id, marked=True)
+        q_already_positive = db.session.query(Positive)\
+            .filter_by(user_id=q_user.first().id, marked=True)\
             .first()
-        )
 
         if q_already_positive is None:
             new_positive = Positive()

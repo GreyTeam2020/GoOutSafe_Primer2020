@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from monolith.database import db, User
 from monolith.forms import UserForm
