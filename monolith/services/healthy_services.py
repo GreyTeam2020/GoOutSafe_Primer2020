@@ -152,7 +152,7 @@ class HealthyServices:
                     sendPossibilePositiveContact(user.email, user.firstname, 
                         contact[0].reservation_date.cast(Date), contact[1].name)
                     """
-
+            return ""
         else:
             return "User with email {} already Covid-19 positive".format(user_email)
 
@@ -278,5 +278,6 @@ class HealthyServices:
         if q_already_positive is not None:
             q_already_positive.marked = False
             db.session.commit()
+            return ""
         else:
             return "User with email {} is not Covid-19 positive".format(user_email)
