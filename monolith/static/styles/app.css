@@ -11,3 +11,10 @@
 .ratingStats {
     color: #ffc518 !important;
 }
+
+.material-icons {
+  vertical-align: middle;
+  line-height: 0 !important;
+  position: relative;
+  top: -1px;
+}
