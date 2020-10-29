@@ -113,7 +113,7 @@ def visit_reservation(client, from_date, to_date, email):
     http://localhost:5000/list_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
     """
     return client.get(
-        "/my_reservations?fromDate={}&toDate={}&email={}".format(
+        "/restaurant/reservations?fromDate={}&toDate={}&email={}".format(
             from_date, to_date, email
         ),
         follow_redirects=True,
