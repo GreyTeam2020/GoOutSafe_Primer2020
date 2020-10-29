@@ -83,8 +83,11 @@ def create_user():
 def user_data():
     message = None
     if request.method == "POST":
-        # TODO: add logic to update data
-        return redirect("/user/data")
+        form = UserForm()
+        if form.validate_on_submit():
+            UserService.modify_user(form)
+            return render_template("user_data.html", form=form)
+        return render_template("user_data.html", form=form, error="Validazione Fallita")
     else:
         q = User.query.filter_by(id=current_user.id).first()
         if q is not None:
@@ -95,7 +98,14 @@ def user_data():
             )
 
 
-@users.route("/customer/reservations")
+@users.route("/user/delete")
+@login_required
+def user_delete():
+    UserService.delete_user(current_user.id)
+    return redirect("/logout")
+
+
+@users.route("/customer/reservations", methods=["GET"])
 @login_required
 @roles_allowed(roles=["CUSTOMER"])
 def myreservation():
