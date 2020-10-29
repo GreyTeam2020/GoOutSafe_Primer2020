@@ -1,6 +1,6 @@
 import json
 from monolith.database import db, User, Restaurant
-from monolith.forms import UserForm, RestaurantForm, SearchUserForm
+from monolith.forms import UserForm, RestaurantForm, SearchUserForm, ReviewForm
 from monolith.services import UserService
 
 
@@ -115,6 +115,21 @@ def visit_reservation(client, from_date, to_date, email):
     return client.get(
         "/restaurant/reservations?fromDate={}&toDate={}&email={}".format(
             from_date, to_date, email
+        ),
+        follow_redirects=True,
+    )
+
+def make_revew(client, restaurant_id: int, form: ReviewForm):
+    """
+    perform the flask request to make a new url
+    """
+    return client.post(
+        "/restaurant/review/{}".format(restaurant_id),
+        data=dict(
+            stars=form.stars,
+            review=form.review,
+            submit=True,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
         ),
         follow_redirects=True,
     )

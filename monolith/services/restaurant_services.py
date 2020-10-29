@@ -115,9 +115,9 @@ class RestaurantServices:
 
     @staticmethod
     def review_restaurant(restaurant_id, reviewer_id, stars, review):
-        '''
+        """
         This method insert a review to the specified restaurant
-        '''
+        """
         if stars < 0 or stars > 5:
             return None
         
