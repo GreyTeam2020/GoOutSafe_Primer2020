@@ -76,6 +76,44 @@ def create_user():
     return render_template("create_user.html", form=form)
 
 
+@users.route("/user/data", methods=["GET", "POST"])
+@login_required
+def user_data():
+    message = None
+    if request.method == "POST":
+        # TODO: add logic to update data
+        return redirect("/user/data")
+    else:
+        q = User.query.filter_by(id=current_user.id).first()
+        if q is not None:
+            form = UserForm(obj=q)
+            return render_template(
+                "user_data.html",
+                form=form
+            )
+        else:
+            return redirect("/restaurant/create_restaurant")
+
+    # get the resturant info and fill the form
+    # this part is both for POST and GET requests
+    q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
+    if q is not None:
+        print(q.covid_measures)
+        form = RestaurantForm(obj=q)
+        form2 = RestaurantTableForm()
+        tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+        return render_template(
+            "restaurant_data.html",
+            form=form,
+            only=["name", "lat", "lon", "covid_measures"],
+            tables=tables,
+            form2=form2,
+            message=message,
+        )
+    else:
+        return redirect("/restaurant/create_restaurant")
+
+
 @users.route("/customer/reservations")
 @login_required
 @roles_allowed(roles=["CUSTOMER"])
