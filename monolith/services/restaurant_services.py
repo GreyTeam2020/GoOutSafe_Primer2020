@@ -90,7 +90,7 @@ class RestaurantServices:
         db.session.add(new_review)
         db.session.commit()
 
-        return True
+        return new_review
     
     @staticmethod
     def getThreeReviews(restaurant_id):
@@ -113,6 +113,6 @@ class RestaurantServices:
         name = (db.session.query(Restaurant.name)
         .filter_by(id = restaurant_id)
         .first()
-        )
+        )[0]
 
         return name
