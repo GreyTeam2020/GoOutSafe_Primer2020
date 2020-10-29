@@ -7,3 +7,7 @@
     background-size: cover;
     background-repeat: no-repeat
 }
+
+.ratingStats {
+    color: #ffc518 !important;
+}
