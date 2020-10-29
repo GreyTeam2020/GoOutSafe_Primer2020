@@ -110,14 +110,14 @@ class Test_RestaurantServices:
         '''
         restaurant = db.session.query(Restaurant).filter(Restaurant.name == "Trial Restaurant").first()
 
-        name = RestaurantServices.get_restaurant_name(restaurant_id)
+        name = RestaurantServices.get_restaurant_name(restaurant.id)
 
         assert restaurant.name != name
     
     def test_three_reviews(self):
-        '''
+        """
         check the three reviews fetcher
-        '''
+        """
 
         restaurant = db.session.query(Restaurant.id).filter(Restaurant.name == "Trial Restaurant").first()
         reviewer = db.session.query(User.id).filter(User.email == "john.doe@email.com").first()
