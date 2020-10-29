@@ -283,9 +283,6 @@ class Test_GoOutSafeForm:
         - delete the customer
         :param client:
         """
-        response = login(client, "health_authority@gov.com", "nocovid")
-        assert response.status_code == 200
-
         user = UserForm()
         user.email = "cr7@gmail.com"
         user.firstname = "Cristiano"
@@ -294,6 +291,9 @@ class Test_GoOutSafeForm:
         user.phone = "1234555"
         user.dateofbirth = "12/12/1975"
         register_user(client, user)
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
 
         mark = SearchUserForm()
         mark.email = user.email
