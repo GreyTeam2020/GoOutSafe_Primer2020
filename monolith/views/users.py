@@ -91,27 +91,6 @@ def user_data():
                 "user_data.html",
                 form=form
             )
-        else:
-            return redirect("/restaurant/create_restaurant")
-
-    # get the resturant info and fill the form
-    # this part is both for POST and GET requests
-    q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
-    if q is not None:
-        print(q.covid_measures)
-        form = RestaurantForm(obj=q)
-        form2 = RestaurantTableForm()
-        tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
-        return render_template(
-            "restaurant_data.html",
-            form=form,
-            only=["name", "lat", "lon", "covid_measures"],
-            tables=tables,
-            form2=form2,
-            message=message,
-        )
-    else:
-        return redirect("/restaurant/create_restaurant")
 
 
 @users.route("/customer/reservations")
