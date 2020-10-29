@@ -117,7 +117,6 @@ class RestaurantServices:
         '''
         This method insert a review to the specified restaurant
         '''
-        print ("check")
         if stars < 0 or stars > 5:
             return None
         

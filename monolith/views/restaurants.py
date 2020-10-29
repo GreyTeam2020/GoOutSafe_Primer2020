@@ -284,6 +284,7 @@ def restaurantReview(restaurant_id):
         if (RestaurantServices.reviewRestaurant(restaurant_id, current_user.id,
         form.data["stars"], form.data["review"]) is not None):
             print("Review inserted!")
+            ##FIXME @giacomofrigo
             return redirect("/")
     
     return redirect("/")

@@ -203,3 +203,4 @@ class Review(db.Model):
 
     stars = db.Column(db.Numeric())
     review = db.Column(db.Text())
+    data = db.Column(db.DateTime(), default=datetime.now())
