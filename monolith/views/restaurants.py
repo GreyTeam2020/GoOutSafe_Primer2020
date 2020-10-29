@@ -281,11 +281,16 @@ def my_photogallery():
 def restaurantReview(restaurant_id):
     if request.method == "POST":
         form = ReviewForm()
-        if (RestaurantServices.reviewRestaurant(restaurant_id, current_user.id,
-        form.data["stars"], form.data["review"]) is not None):
+        review = RestaurantServices.reviewRestaurant(restaurant_id, current_user.id,
+        form.data["stars"], form.data["review"])
+        if (review is not None):
             print("Review inserted!")
             ##FIXME @giacomofrigo
-            return redirect("/")
+            return render_template("review.html",
+            restaurant_name = RestaurantServices.getRestaurantName(restaurant_id),
+            review = review
+            )
+            
     
     return redirect("/")
 
