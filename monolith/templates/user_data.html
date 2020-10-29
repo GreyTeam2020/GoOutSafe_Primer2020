@@ -19,6 +19,7 @@
               {{ form.hidden_tag() }}
               <dl>
                {% for field in form.display %}
+                  {% if form[field].name != "password" %}
                    <dt>{{ form[field].label(class_="") }}</dt>
                    <dd>{{ form[field](class_="form-control", placeholder=form[field].label.text) }}</dd>
                      {% if form[field].errors %}
@@ -26,6 +27,7 @@
                          <p class="help-block">{{ e }}</p>
                         {% endfor %}
                      {% endif %}
+                   {% endif %}
                {% endfor %}
                {% if error %}
                   <div class="alert alert-danger" role="alert">
