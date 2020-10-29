@@ -1,4 +1,7 @@
+from flask_login import current_user
+
 from monolith.database import db, User
+from monolith.forms import UserForm
 
 
 class UserService:
@@ -25,22 +28,20 @@ class UserService:
         return user
 
     @staticmethod
-    def modify_user(user: User, role_id: int = None):
+    def modify_user(form: UserForm, role_id: int = None):
         """
         This method take an user that is populate from te called (e.g: the flat form)
         and make the operation to store it as persistent (e.g database).
         We can assume that by default is not possible change the password
-        :param user: the user felt from the form
+        :param form: the user form with new data
         :param role_id: by default is none but it is possible setup to change also the role id
         :return: the user with the change if is changed
         """
-        if role_id is not None:
-            user.role_id = role_id
-        db.session.add(user)
+        if role_id is None:
+            role_id = current_user.role_id
+        user = db.session.query(User).filter(User.email == current_user.email).update({"email":form.email.data, "firstname":form.firstname.data, "lastname":form.lastname.data, "dateofbirth":form.dateofbirth.data, "role_id":role_id})
         db.session.commit()
 
-        q = db.session.query(User).filter(User.email == user.email)
-        user = q.first()
         return user
 
     @staticmethod
