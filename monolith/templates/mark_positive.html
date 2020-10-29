@@ -11,15 +11,14 @@
     <link href="{{ url_for('static',filename='styles/login.css') }}" rel="stylesheet">
   </head>
 
-  <body>
+  <body class="text-center">
   <!-- Navigation -->
       <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
           <a class="navbar-brand" href="/">GoOutSafe</a>
       </nav>
-  <div class="container text-center">
     <form class="form-signin"  action="" method="POST">
       <img class="mb-4" src="{{ url_for('static',filename='images/logo.png') }}" alt=""  height="72">
-      <h1 class="h3 mb-3 font-weight-normal">GoOutSafe</h1>
+      
       {{ form.hidden_tag() }}
       <dl>
        {% for field in form.display %}
@@ -31,15 +30,14 @@
             {% endfor %}
          {% endif %}
        {% endfor %}
-      {% if message %}
+       {% if message %}
           <div class="alert alert-danger" role="alert">
               {{ message }}
           </div>
       {% endif  %}
       </dl>
-      <button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
-      <p class="mt-5 mb-3 text-muted"><a href="/user/create_user">Join GoOutSafe!</a></p>
-    </form>
-  </div>
-  </body>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">mark as positive</button>
+  </form>
+ </body>
 </html>
+

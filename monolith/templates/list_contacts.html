@@ -3,21 +3,24 @@
   <div class="container">
     <div class="row">
       <div class="col-lg-12 text-center">
-          <h1 class="mt-5 mb-5">All Restaurants</h1>
+          <h1 class="mt-5 mb-5">Non positive contacts</h1>
           <table id="allrestaurants" class="display" style="width:100%">
             <thead>
               <tr>
                 <th>#</th>
-                <th>Restaurant</th>
-                <th>Actions</th>
+                <th>Name</th>
+                <th>Bithday</th>
+                <th>Email</th>
+                <th>Phone number</th>
               </tr>
             </thead>
             <tbody>
-                {% for restaurant in restaurants %}
+                {% for contact in contacts %}
                     <tr>
-                        <td>{{ restaurant.id }}</td>
-                        <td>{{ restaurant.name }}</td>
-                        <td><a href="/restaurant/{{ restaurant.id }}"><button class="btn btn-primary">View Restaurant</button></a></td>
+                      {% for data in contact %}
+                        <td>{{ data }}</td>
+                      {% endfor %}
+                        
                     </tr>
                 {% endfor %}
             </tbody>

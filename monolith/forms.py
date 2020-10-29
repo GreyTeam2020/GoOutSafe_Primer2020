@@ -79,6 +79,12 @@ class RestaurantTableForm(FlaskForm):
     display = ["name", "capacity"]
 
 
+class SearchUserForm(FlaskForm):
+    email = f.StringField("email")
+    phone = f.StringField("phone")
+    display = ["email", "phone"]
+
+
 class PhotoGalleryForm(FlaskForm):
     url = f.StringField("URL", validators=[DataRequired()])
     caption = f.StringField("caption")
@@ -88,3 +94,10 @@ class ReviewForm(FlaskForm):
     vote = f.StringField("URL", validators=[NumberRange(min=0, max=5)])
     review = f.StringField("caption")
     display = ["vote", "review"]
+
+
+class ReservationForm(FlaskForm):
+    reservation_date = f.DateTimeField("Date", validators=[DataRequired()])
+    people_number = f.IntegerField("N. of People", validators=[DataRequired()])
+    restaurant_id = f.HiddenField("")
+    display = ["reservation_date", "people_number", "restaurant_id"]

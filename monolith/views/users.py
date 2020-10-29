@@ -1,8 +1,15 @@
-from flask import Blueprint, redirect, render_template, request, current_app
-from monolith.database import db, User, Like
+from flask import Blueprint, redirect, render_template, request, current_app, session
+from monolith.database import db, User, Like, Role
 from monolith.forms import UserForm
-from monolith.utils import SendMail
-from flask_login import login_user
+from monolith.utils import send_mail
+from flask_login import login_user, current_user
+from monolith.utils.dispaccer_events import DispatcherMessage
+from monolith.app_constant import REGISTRATION_EMAIL
+from monolith.services.user_service import UserService
+from monolith.utils import send_mail
+from monolith.auth import roles_allowed
+from monolith.utils.formatter import my_date_formatter
+from flask_login import current_user, login_user, login_required
 
 users = Blueprint("users", __name__)
 
@@ -13,7 +20,7 @@ def _users():
     return render_template("users.html", users=users)
 
 
-@users.route("/create_user", methods=["GET", "POST"])
+@users.route("/user/create_user", methods=["GET", "POST"])
 def create_user():
     form = UserForm()
     if request.method == "POST":
@@ -25,50 +32,79 @@ def create_user():
                     form=form,
                     message="Email {} already registered".format(form.email.data),
                 )
-            new_user = User()
-            ## By default I assume CUSTOMER
-            new_user.role_id = 3
-            form.populate_obj(new_user)
-            new_user.set_password(
-                form.password.data
-            )  # pw should be hashed with some salt
-            db.session.add(new_user)
-            db.session.commit()
-
-            email, password = form.data["email"], form.data["password"]
-            q = db.session.query(User).filter(User.email == email)
-            user = q.first()
-            if user is not None and user.authenticate(password):
+            user = User()
+            form.populate_obj(user)
+            user = UserService.create_user(user, form.password.data)
+            if user is not None and user.authenticate(form.password.data):
                 login_user(user)
+            DispatcherMessage.send_message(
+                type_message=REGISTRATION_EMAIL,
+                params=[user.email, user.lastname, "112344"],
+            )
+            new_role = db.session.query(Role).filter_by(id=current_user.role_id).first()
+            if new_role is not None:
+                session["ROLE"] = new_role.value
+
             return redirect("/")
     return render_template("create_user.html", form=form)
 
 
-@users.route("/myreservations")
+@users.route("/customer/reservations")
+@login_required
+@roles_allowed(roles=["CUSTOMER"])
 def myreservation():
-    return render_template("user_reservations.html")
+
+    # for security reason, that are retrive on server side, not passed by params
+    customer_id = current_user.id
+
+    # filter params
+    fromDate = request.args.get("fromDate", type=str)
+    toDate = request.args.get("toDate", type=str)
+
+    queryString = (
+        "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, rest.name, rest.id as rest_id "
+        "from reservation reserv "
+        "join user cust on cust.id = reserv.customer_id "
+        "join restaurant_table tab on reserv.table_id = tab.id "
+        "join restaurant rest on rest.id = tab.restaurant_id "
+        "where cust.id = :customer_id"
+    )
+
+    stmt = db.text(queryString)
+
+    # bind filter params...
+    params = {"customer_id": customer_id}
+    if fromDate:
+        params["fromDate"] = fromDate + " 00:00:00.000"
+    if toDate:
+        params["toDate"] = toDate + " 23:59:59.999"
+
+    # execute and retrive results...
+    result = db.engine.execute(stmt, params)
+    reservations_as_list = result.fetchall()
+
+    return render_template(
+        "user_reservations.html",
+        reservations_as_list=reservations_as_list,
+        my_date_formatter=my_date_formatter,
+    )
 
 
 @users.route("/testsendemail")
 def _testsendemail():
     # ------------------------
     testEmail = "PUTYOUREMAIL"  # PUT YOUR EMAIL FOR TEST and click to /login
-    SendMail.sendPossibilePositiveContact(
+    send_mail.send_possible_positive_contact(
         testEmail, "John Doe", "01/01/2020 21:30", "Il Paninaro"
     )
-    SendMail.sendReservationConfirm(
+    send_mail.send_reservation_confirm(
         testEmail, "John Doe", "01/01/2020 21:30", "Il Paninaro", 10
     )
-    SendMail.sendRegistrationConfirm(
+    send_mail.send_registration_confirm(
         testEmail, "John Doe", "qwertyuiopasdfghjklzxcvbnm"
     )
-    SendMail.sendReservationNotification(
+    send_mail.send_reservation_notification(
         testEmail, "John Doe", "Il Paninaro", "Richard Smith", "01/01/2020 21:30", 12, 8
     )
     # ------------------------
     return render_template("sendemailok.html", testEmail=testEmail)
-
-
-@users.route("/testtpl")
-def _testtpl():
-    return render_template("testtpl.html")

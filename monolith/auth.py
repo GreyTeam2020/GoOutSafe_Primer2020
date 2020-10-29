@@ -17,13 +17,15 @@ def admin_required(func):
     return _admin_required
 
 
-# Check if the user has at least one required role
-#
-# Parameters:
-#
-# -func: the function to decorate
-# -roles: an array of allowed roles
 def roles_allowed(func=None, roles=None):
+    """
+    Check if the user has at least one required role
+    Parameters:
+        - func: the function to decorate
+        - roles: an array of allowed roles
+    :param func:
+    :param roles:
+    """
     if not func:
         return functools.partial(roles_allowed, roles=roles)
 

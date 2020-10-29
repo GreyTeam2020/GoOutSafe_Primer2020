@@ -1,6 +1,7 @@
 import json
 from monolith.database import db, User, Restaurant
-from monolith.forms import UserForm, RestaurantForm
+from monolith.forms import UserForm, RestaurantForm, SearchUserForm
+from monolith.services import UserService
 
 
 def login(client, username, password):
@@ -36,11 +37,7 @@ def register_user(client, user: UserForm):
         submit=True,
         headers={"Content-type": "application/x-www-form-urlencoded"},
     )
-    return client.post(
-        "/create_user",
-        data=data,
-        follow_redirects=True,
-    )
+    return client.post("/user/create_user", data=data, follow_redirects=True)
 
 
 def register_restaurant(client, restaurant: RestaurantForm):
@@ -51,7 +48,7 @@ def register_restaurant(client, restaurant: RestaurantForm):
     :return: response from URL "/create_restaurant"
     """
     return client.post(
-        "/create_restaurant",
+        "/restaurant/create",
         data=dict(
             name=restaurant.name,
             phone=restaurant.phone,
@@ -72,6 +69,23 @@ def register_restaurant(client, restaurant: RestaurantForm):
     )
 
 
+def mark_people_for_covid19(client, form: SearchUserForm):
+    """
+    This method perform the request to mark a people as positive
+    :return: response from request
+    """
+    return client.post(
+        "/mark_positive",
+        data=dict(
+            email=form.email,
+            phone=form.phone,
+            submit=True,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )
+
+
 def visit_restaurant(client, restaurant_id):
     """
     This perform the request to visit the restaurant view
@@ -79,7 +93,7 @@ def visit_restaurant(client, restaurant_id):
     :param restaurant_id:
     :return: response from client
     """
-    return client.get("/restaurants/{}".format(restaurant_id), follow_redirects=True)
+    return client.get("/restaurant/{}".format(restaurant_id), follow_redirects=True)
 
 
 def visit_photo_gallery(client):
@@ -89,7 +103,21 @@ def visit_photo_gallery(client):
     :param restaurant_id:
     :return: response from client
     """
-    return client.get("/my_restaurant_photogallery", follow_redirects=True)
+    return client.get("/restaurant/photogallery", follow_redirects=True)
+
+
+def visit_reservation(client, from_date, to_date, email):
+    """
+    This perform the URL to visit the reservatioin of a restaurants
+    ----- This is an example of URL --
+    http://localhost:5000/list_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
+    """
+    return client.get(
+        "/restaurant/reservations?fromDate={}&toDate={}&email={}".format(
+            from_date, to_date, email
+        ),
+        follow_redirects=True,
+    )
 
 
 def get_user_with_email(email):
@@ -129,3 +157,23 @@ def get_rest_with_name(name):
     if q_rest is not None:
         return q_rest
     return None
+
+
+def create_user_on_db():
+    form = UserForm()
+    form.data["email"] = "alibaba@alibaba.com"
+    form.data["password"] = "Alibaba"
+    form.firstname = "Vincenzo"
+    form.lastname = "Palazzo"
+    form.password = "Alibaba"
+    form.phone = "12345"
+    form.dateofbirth = "12/12/2020"
+    form.email.data = "alibaba@alibaba.com"
+    user = User()
+    form.populate_obj(user)
+    return UserService.create_user(user, form.password)
+
+
+def del_user_on_db(id):
+    db.session.query(User).filter_by(id=id).delete()
+    db.session.commit()

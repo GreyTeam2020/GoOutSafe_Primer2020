@@ -3,26 +3,30 @@ from monolith.database import (
     db,
     Restaurant,
     Like,
-    Reservation,
     User,
     RestaurantTable,
     OpeningHours,
     Menu,
     PhotoGallery,
 )
-from monolith.auth import admin_required, current_user, roles_allowed
-from flask_login import current_user, login_user, logout_user, login_required
-from monolith.forms import RestaurantForm, RestaurantTableForm, PhotoGalleryForm, ReviewForm
-from datetime import datetime, time
+from monolith.forms import PhotoGalleryForm
+from monolith.services import RestaurantServices
+from monolith.auth import roles_allowed
+from flask_login import current_user, login_required
+from monolith.forms import RestaurantForm, RestaurantTableForm
+from monolith.utils.formatter import my_date_formatter
 
 restaurants = Blueprint("restaurants", __name__)
 
-_maxSeats = 6
+_max_seats = 6
 
 
-@restaurants.route("/restaurants")
+@restaurants.route("/restaurant/restaurants")
 def _restaurants(message=""):
-    allrestaurants = db.session.query(Restaurant)
+    """
+    Return the list of restaurants stored inside the db
+    """
+    allrestaurants = RestaurantServices.get_all_restaurants()
     return render_template(
         "restaurants.html",
         message=message,
@@ -31,8 +35,13 @@ def _restaurants(message=""):
     )
 
 
-@restaurants.route("/restaurants/<restaurant_id>")
+@restaurants.route("/restaurant/<restaurant_id>")
 def restaurant_sheet(restaurant_id):
+    """
+    Missing refactoring to services
+    :param restaurant_id:
+    :return:
+    """
     record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
     weekDaysLabel = [
         "Monday",
@@ -71,9 +80,12 @@ def restaurant_sheet(restaurant_id):
     )
 
 
-@restaurants.route("/restaurants/like/<restaurant_id>")
+@restaurants.route("/restaurant/like/<restaurant_id>")
 @login_required
 def _like(restaurant_id):
+    """
+    TODO user restaurant services
+    """
     q = Like.query.filter_by(liker_id=current_user.id, restaurant_id=restaurant_id)
     if q.first() is not None:
         new_like = Like()
@@ -87,9 +99,13 @@ def _like(restaurant_id):
     return _restaurants(message)
 
 
-@restaurants.route("/create_restaurant", methods=["GET", "POST"])
+@restaurants.route("/restaurant/create", methods=["GET", "POST"])
 @login_required
+@roles_allowed(roles=["OPERATOR"])
 def create_restaurant():
+    """
+    TODO user restaurant services
+    """
     form = RestaurantForm()
     if request.method == "POST":
         if form.validate_on_submit():
@@ -107,7 +123,6 @@ def create_restaurant():
                         form.name.data, form.lat.data, form.lon.data
                     ),
                 )
-            new_restaurant = Restaurant()
             q_user = db.session.query(User).filter_by(id=current_user.id).first()
             if q_user is None:
                 return render_template(
@@ -115,8 +130,11 @@ def create_restaurant():
                 )
 
             # set the owner
-            new_restaurant.owner_id = q_user.id
+            RestaurantServices.create_new_restaurant(form, q_user.id, _max_seats)
+            ##new_restaurant = Restaurant()
 
+            ##TODO remove this code here
+            """
             if q_user.role_id is not 2:
                 q_user.role_id = 2
                 db.session.commit()
@@ -125,60 +143,20 @@ def create_restaurant():
                         q_user.email, q_user.id, 3, q_user.role_id
                     )
                 )
+            """
             # set the new role in session
             # if not the role will be anonymous
             session["ROLE"] = "OPERATOR"
-
-            form.populate_obj(new_restaurant)
-            new_restaurant.likes = 0
-            new_restaurant.covid_measures = form.covid_measures.data
-
-            db.session.add(new_restaurant)
-            db.session.commit()
-
-            # inserimento dei tavoli nel database
-            for i in range(int(form.n_tables.data)):
-                new_table = RestaurantTable()
-                new_table.restaurant_id = new_restaurant.id
-                new_table.max_seats = _maxSeats
-                new_table.available = True
-                new_table.name = ""
-
-                db.session.add(new_table)
-                db.session.commit()
-
-            # inserimento orari di apertura
-            days = form.open_days.data
-            for i in range(len(days)):
-                new_opening = OpeningHours()
-                new_opening.restaurant_id = new_restaurant.id
-                new_opening.week_day = int(days[i])
-                new_opening.open_lunch = form.open_lunch.data
-                new_opening.close_lunch = form.close_lunch.data
-                new_opening.open_dinner = form.open_dinner.data
-                new_opening.close_dinner = form.close_dinner.data
-                db.session.add(new_opening)
-                db.session.commit()
-
-            # inserimento tipi di cucina
-            cuisin_type = form.cuisine.data
-            for i in range(len(cuisin_type)):
-                new_cuisine = Menu()
-                new_cuisine.restaurant_id = new_restaurant.id
-                new_cuisine.cusine = cuisin_type[i]
-                new_cuisine.description = ""
-                db.session.add(new_cuisine)
-                db.session.commit()
 
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
 
 
-@restaurants.route("/my_reservations")
+@restaurants.route("/restaurant/reservations")
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_reservations():
-    # http://localhost:5000/list_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
+    # http://localhost:5000/my_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
 
     # for security reason, that are retrive on server side, not passed by params
     owner_id = current_user.id
@@ -223,33 +201,38 @@ def my_reservations():
     reservations_as_list = result.fetchall()
 
     return render_template(
-        "my_reservations.html",
+        "reservations.html",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
     )
 
 
-@restaurants.route("/my_restaurant_data", methods=["GET", "POST"])
+@restaurants.route("/restaurant/data", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_data():
     message = None
     if request.method == "POST":
-        # update query
-        q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).update(
-            {
-                "name": request.form.get("name"),
-                "lat": request.form.get("lat"),
-                "lon": request.form.get("lon"),
-                "covid_measures": request.form.get("covid_measures"),
-            }
-        )
-        # if no resturant match the update query (session problem probably)
-        if q == 0:
-            message = "Some Errors occurs"
+        # TODO: add logic to update data
+        return redirect("/restaurant/my_restaurant_data")
+    else:
+        q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
+        if q is not None:
+            print(q.covid_measures)
+            form = RestaurantForm(obj=q)
+            form2 = RestaurantTableForm()
+            tables = RestaurantTable.query.filter_by(
+                restaurant_id=session["RESTAURANT_ID"]
+            )
+            return render_template(
+                "restaurant_data.html",
+                form=form,
+                only=["name", "lat", "lon", "covid_measures"],
+                tables=tables,
+                form2=form2,
+            )
         else:
-            db.session.commit()
-            message = "Restaurant data has been modified."
+            return redirect("/restaurant/create_restaurant")
 
     # get the resturant info and fill the form
     # this part is both for POST and GET requests
@@ -260,7 +243,7 @@ def my_data():
         form2 = RestaurantTableForm()
         tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
         return render_template(
-            "my_restaurant_data.html",
+            "restaurant_data.html",
             form=form,
             only=["name", "lat", "lon", "covid_measures"],
             tables=tables,
@@ -268,10 +251,10 @@ def my_data():
             message=message,
         )
     else:
-        return redirect("/create_restaurant")
+        return redirect("/restaurant/create_restaurant")
 
 
-@restaurants.route("/mytables", methods=["GET", "POST"])
+@restaurants.route("/restaurant/tables", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_tables():
@@ -284,16 +267,16 @@ def my_tables():
         db.session.add(table)
         db.session.commit()
         ##
-        return redirect("/my_restaurant_data")
+        return redirect("/restaurant/data")
 
     elif request.method == "GET":
         # delete the table specified by the get request
         RestaurantTable.query.filter_by(id=request.args.get("id")).delete()
         db.session.commit()
-        return redirect("/my_restaurant_data")
+        return redirect("/restaurant/data")
 
 
-@restaurants.route("/my_restaurant_photogallery", methods=["GET", "POST"])
+@restaurants.route("/restaurant/photogallery", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_photogallery():
@@ -308,15 +291,10 @@ def my_photogallery():
             db.session.add(photo_gallery)
             db.session.commit()
 
-        return redirect("/my_restaurant_photogallery")
+        return redirect("/restaurant/photogallery")
     else:
         photos = PhotoGallery.query.filter_by(
             restaurant_id=session["RESTAURANT_ID"]
         ).all()
         form = PhotoGalleryForm()
-        return render_template("my_photogallery.html", form=form, photos=photos)
-
-
-def my_date_formatter(text):
-    date_dt2 = datetime.strptime(text, "%Y-%m-%d %H:%M:%S.%f")
-    return date_dt2.strftime("%d/%m/%Y %H:%M")
+        return render_template("photogallery.html", form=form, photos=photos)
