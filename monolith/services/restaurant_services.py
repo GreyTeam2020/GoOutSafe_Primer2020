@@ -94,6 +94,9 @@ class RestaurantServices:
     
     @staticmethod
     def getThreeReviews(restaurant_id):
+        '''
+        Given the restaurant_di return three random reviews
+        '''
         reviews = (db.session.query(Review)
         .filter_by(restaurant_id = restaurant_id)
         .order_by(func.random())
@@ -101,3 +104,15 @@ class RestaurantServices:
         .all())
 
         return reviews
+    
+    @staticmethod
+    def getRestaurantName(restaurant_id):
+        '''
+        Given the id return the name of the resturant
+        '''
+        name = (db.session.query(Restaurant.name)
+        .filter_by(id = restaurant_id)
+        .first()
+        )
+
+        return name
