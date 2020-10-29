@@ -133,7 +133,7 @@ class RestaurantServices:
         return new_review
     
     @staticmethod
-    def getThreeReviews(restaurant_id):
+    def get_three_reviews(restaurant_id):
         '''
         Given the restaurant_di return three random reviews
         '''
@@ -146,7 +146,7 @@ class RestaurantServices:
         return reviews
     
     @staticmethod
-    def getRestaurantName(restaurant_id):
+    def get_restaurant_name(restaurant_id):
         '''
         Given the id return the name of the resturant
         '''
