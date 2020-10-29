@@ -341,3 +341,4 @@ class Test_GoOutSafeForm:
             client, from_date="2013-10-07", to_date="2014-10-07", email=email
         )
         assert response.status_code == 200
+        assert "restaurant_reservations_test" in response.data.decode("utf-8")

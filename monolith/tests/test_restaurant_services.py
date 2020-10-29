@@ -1,10 +1,12 @@
 import os
 
 import pytest
-from monolith.database import db, User, Restaurant
+from monolith.database import db, User, Restaurant, Reservation
 from monolith.forms import RestaurantForm
 from monolith.services.restaurant_services import RestaurantServices
 from datetime import datetime
+
+from monolith.tests.utils import get_user_with_email
 
 
 @pytest.mark.usefixtures("client")
@@ -47,3 +49,41 @@ class Test_RestaurantServices:
         """
         all_restauirants = RestaurantServices.get_all_restaurants()
         assert len(all_restauirants) == 1
+
+    def test_reservation_local_ko_by_email(self):
+        """
+        This test cases, tru to test the logic inside the services to avoid
+        stupid result
+
+        http://localhost:5000/my_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
+        :return:
+        """
+        email = "ham.burger@email.com"
+        user = get_user_with_email(email)
+        from_date = "2013-10-07"
+        to_date = "2014-10-07"
+        assert user is not None
+
+        def_rest = db.session.query(Restaurant).all()[0]
+        assert def_rest is not None
+        all_reservation = RestaurantServices.get_reservation_rest(def_rest.owner_id, def_rest.id, from_date, to_date, email)
+        assert len(all_reservation) == 0
+
+    def test_reservation_local_ok_by_email(self):
+        """
+        This test cases, tru to test the logic inside the services to avoid
+        stupid result
+
+        http://localhost:5000/my_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
+        :return:
+        """
+        email = "john.doe@email.com"
+        user = get_user_with_email(email)
+        assert user is not None
+        from_date = datetime(2020, 9, 28, hour=12).isoformat()
+        to_date = datetime(2020, 11, 28, hour=12).isoformat()
+
+        def_rest = db.session.query(Restaurant).all()[0]
+        assert def_rest is not None
+        all_reservation = RestaurantServices.get_reservation_rest(def_rest.owner_id, def_rest.id, from_date, to_date, email)
+        assert len(all_reservation) == 1
