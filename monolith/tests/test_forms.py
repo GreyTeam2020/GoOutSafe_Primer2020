@@ -266,7 +266,9 @@ class Test_GoOutSafeForm:
         assert response.status_code == 401
 
         q_user = get_user_with_email(user.email)
-        q_already_positive = db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
 
         assert q_already_positive is None
 

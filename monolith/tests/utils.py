@@ -119,6 +119,7 @@ def visit_reservation(client, from_date, to_date, email):
         follow_redirects=True,
     )
 
+
 def get_user_with_email(email):
     """
     This method factorize the code to get an user with a email
@@ -171,6 +172,7 @@ def create_user_on_db():
     user = User()
     form.populate_obj(user)
     return UserService.create_user(user, form.password)
+
 
 def del_user_on_db(id):
     db.session.query(User).filter_by(id=id).delete()

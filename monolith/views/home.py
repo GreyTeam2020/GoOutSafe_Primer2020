@@ -19,5 +19,9 @@ def index():
     )
 
     return render_template(
-        "index.html", restaurants=restaurants, form=form,  n_positive=n_positive, n_healed=n_healed
+        "index.html",
+        restaurants=restaurants,
+        form=form,
+        n_positive=n_positive,
+        n_healed=n_healed,
     )
