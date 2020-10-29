@@ -78,36 +78,45 @@ def create_user():
     return render_template("create_user.html", form=form)
 
 
-@users.route("/user/modify_user", methods=["GET", "POST"])
-def modify_user():
-    form = UserForm()
+@users.route("/user/data", methods=["GET", "POST"])
+@login_required
+def user_data():
+    message = None
     if request.method == "POST":
-        if form.validate_on_submit():
-            q = db.session.query(User).filter_by(email=form.email.data)
-            if q.first() is not None:
-                return render_template(
-                    "create_user.html",
-                    form=form,
-                    message="Email {} already registered".format(form.email.data),
-                )
-            user = User()
-            form.populate_obj(user)
-            user = UserService.create_user(user, form.password.data)
-            if user is not None and user.authenticate(form.password.data):
-                login_user(user)
-            DispatcherMessage.send_message(
-                type_message=REGISTRATION_EMAIL,
-                params=[user.email, user.lastname, "112344"],
+        # TODO: add logic to update data
+        return redirect("/user/data")
+    else:
+        q = User.query.filter_by(id=current_user.id).first()
+        if q is not None:
+            form = UserForm(obj=q)
+            return render_template(
+                "user_data.html",
+                form=form
             )
-            new_role = db.session.query(Role).filter_by(id=user.role_id).first()
-            if new_role is not None:
-                session["ROLE"] = new_role.value
+        else:
+            return redirect("/restaurant/create_restaurant")
 
-            return redirect("/")
-    return render_template("create_user.html", form=form)
+    # get the resturant info and fill the form
+    # this part is both for POST and GET requests
+    q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
+    if q is not None:
+        print(q.covid_measures)
+        form = RestaurantForm(obj=q)
+        form2 = RestaurantTableForm()
+        tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+        return render_template(
+            "restaurant_data.html",
+            form=form,
+            only=["name", "lat", "lon", "covid_measures"],
+            tables=tables,
+            form2=form2,
+            message=message,
+        )
+    else:
+        return redirect("/restaurant/create_restaurant")
 
 
-@users.route("/customer/reservations", methods=["GET"])
+@users.route("/customer/reservations")
 @login_required
 @roles_allowed(roles=["CUSTOMER"])
 def myreservation():
