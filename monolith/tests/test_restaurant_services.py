@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from monolith.database import db, User, Restaurant
+from monolith.database import db, User, Restaurant, Review
 from monolith.forms import RestaurantForm
 from monolith.services.restaurant_services import RestaurantServices
 from datetime import datetime
@@ -47,3 +47,47 @@ class Test_RestaurantServices:
         """
         all_restauirants = RestaurantServices.get_all_restaurants()
         assert len(all_restauirants) == 1
+
+    def test_new_review(self):
+        '''
+        test for the new review function  
+        '''
+        restaurant = db.session.query(Restaurant.id).filter(Restaurant.name == "Trial Restaurant").first()
+        reviewer = db.session.query(User.id).filter(User.email == "john.doe@email.com").first()
+        review = RestaurantServices.review_restaurant(restaurant.id, reviewer.id, 5, "test")
+        assert review is not None
+
+        db.session.query(Review).filter_by(id=review.id).delete()
+        db.session.commit()
+
+    def test_restaurant_name(self):
+        '''
+        check the function that return the restaurant name
+        '''
+        restaurant = db.session.query(Restaurant).filter(Restaurant.name == "Trial Restaurant").first()
+
+        name = RestaurantServices.get_restaurant_name(restaurant_id)
+
+        assert restaurant.name != name
+    
+    def test_three_reviews(self):
+        '''
+        check the three reviews fetcher
+        '''
+
+        restaurant = db.session.query(Restaurant.id).filter(Restaurant.name == "Trial Restaurant").first()
+        reviewer = db.session.query(User.id).filter(User.email == "john.doe@email.com").first()
+        review1 = RestaurantServices.review_restaurant(restaurant.id, reviewer.id, 5, "test1")
+        review2 = RestaurantServices.review_restaurant(restaurant.id, reviewer.id, 4, "test2")
+        review3 = RestaurantServices.review_restaurant(restaurant.id, reviewer.id, 3, "test3")
+
+        three_reviews = RestaurantServices.get_three_reviews(restaurant.id)
+        assert three_reviews is not None
+        assert len(three_reviews) != 3
+
+        db.session.query(Review).filter_by(id=review1.id).delete()
+        db.session.query(Review).filter_by(id=review2.id).delete()
+        db.session.query(Review).filter_by(id=review3.id).delete()
+        
+        db.session.commit()
+
