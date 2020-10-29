@@ -91,9 +91,10 @@ class PhotoGalleryForm(FlaskForm):
     display = ["url", "caption"]
 
 class ReviewForm(FlaskForm):
-    vote = f.StringField("URL", validators=[NumberRange(min=0, max=5)])
-    review = f.StringField("caption")
-    display = ["vote", "review"]
+    #stars = f.FloatField("vote", validators=[DataRequired(), NumberRange(min=0, max=5, message="Validation failed")])
+    stars = f.FloatField("stars", validators=[DataRequired()])
+    review = f.StringField("review")
+    display = ["stars", "review"]
 
 
 class ReservationForm(FlaskForm):

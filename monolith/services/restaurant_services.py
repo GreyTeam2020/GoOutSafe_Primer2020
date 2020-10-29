@@ -1,4 +1,4 @@
-from monolith.database import Restaurant, Menu, OpeningHours, RestaurantTable
+from monolith.database import Restaurant, Menu, OpeningHours, RestaurantTable, Review
 from monolith.forms import RestaurantForm
 from monolith.database import db
 
@@ -111,3 +111,23 @@ class RestaurantServices:
         # execute and retrive results...
         result = db.engine.execute(stmt, params)
         return result.fetchall()
+
+    @staticmethod
+    def reviewRestaurant(restaurant_id, reviewer_id ,stars, review):
+        '''
+        This method insert a review to the specified restaurant
+        '''
+        print ("check")
+        if stars < 0 or stars > 5:
+            return None
+        
+        new_review = Review()
+        new_review.restaurant_id = restaurant_id
+        new_review.reviewer_id = reviewer_id
+        new_review.stars = stars
+        new_review.review = review
+
+        db.session.add(new_review)
+        db.session.commit()
+
+        return True
