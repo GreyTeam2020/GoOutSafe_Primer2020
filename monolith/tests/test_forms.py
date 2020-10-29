@@ -12,13 +12,14 @@ from utils import (
     get_rest_with_name,
     get_rest_with_name_and_phone,
 )
-from monolith.database import db, User, Restaurant, Positive
-from monolith.forms import UserForm, RestaurantForm, SearchUserForm
+from monolith.database import db, User, Restaurant, Positive, Review
+from monolith.forms import UserForm, RestaurantForm, SearchUserForm, ReviewForm
 from monolith.tests.utils import (
     visit_restaurant,
     visit_photo_gallery,
     mark_people_for_covid19,
     visit_reservation,
+    make_revew,
 )
 
 
@@ -345,3 +346,41 @@ class Test_GoOutSafeForm:
         )
         assert response.status_code == 200
         assert "restaurant_reservations_test" in response.data.decode("utf-8")
+
+    def test_make_review_ko(self, client):
+        """
+        TODO
+        """
+        email = "health_authority@gov.com"
+        pazz = "nocovid"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        trial_rest = db.session.query(Restaurant).all()[0]
+        form = ReviewForm()
+        form.stars = 3
+        form.review = "Good food"
+        response = make_revew(client, trial_rest.id, form)
+        assert response.status_code == 401
+
+    def test_make_review_ok(self, client):
+        """
+        TODO
+        """
+        email = "ham.burger@email.com"
+        pazz = "operator"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        trial_rest = db.session.query(Restaurant).all()[0]
+        form = ReviewForm()
+        form.stars = 3
+        form.review = "Good food"
+        response = make_revew(client, trial_rest.id, form)
+        assert response.status_code == 200
+        assert "review_done_test" in response.data.decode("utf-8")
+
+        db.session.query(Review).filter_by(review=form.review).delete()
+        db.session.commit()
