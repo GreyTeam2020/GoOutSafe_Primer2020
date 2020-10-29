@@ -96,7 +96,7 @@ def unmark_positive():
             email = form.email.data
             phone = form.phone.data
             message = HealthyServices.unmark_positive(email, phone)
-            if message =="":
+            if message == "":
                 return redirect("/")
             return render_template("unmark_positive.html", form=form, message=message)
     return render_template("unmark_positive.html", form=form)

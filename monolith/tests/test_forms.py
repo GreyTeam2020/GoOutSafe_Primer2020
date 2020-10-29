@@ -103,6 +103,9 @@ class Test_GoOutSafeForm:
     def test_delete_user(self, client):
         pass
 
+    def test_modify_user(self, client):
+        pass
+
     def test_register_new_restaurant_ko(self, client):
         """
         This test test the use case to create a new restaurant

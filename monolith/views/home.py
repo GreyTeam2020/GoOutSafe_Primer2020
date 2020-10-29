@@ -19,9 +19,9 @@ def index():
             n_positive = db.session.query(Positive).filter_by(marked=True).count()
             n_healed = (
                 db.session.query(Positive)
-                    .filter_by(marked=False)
-                    .distinct(Positive.user_id)
-                    .count()
+                .filter_by(marked=False)
+                .distinct(Positive.user_id)
+                .count()
             )
             return render_template(
                 "index_health.html",
@@ -31,21 +31,12 @@ def index():
             )
         elif session["ROLE"] == "OPERATOR":
             return render_template(
-                "index_operator.html",
-                _test=_test,
-                restaurants=restaurants
+                "index_operator.html", _test=_test, restaurants=restaurants
             )
         elif session["ROLE"] == "CUSTOMER":
             form = ReservationForm()
             return render_template(
-                "index_customer.html",
-                _test=_test,
-                restaurants=restaurants,
-                form=form
+                "index_customer.html", _test=_test, restaurants=restaurants, form=form
             )
 
-    return render_template(
-        "index.html",
-        _test=_test,
-        restaurants=restaurants
-    )
+    return render_template("index.html", _test=_test, restaurants=restaurants)

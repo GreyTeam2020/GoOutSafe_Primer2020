@@ -19,6 +19,7 @@ def _users():
     users = db.session.query(User)
     return render_template("users.html", users=users)
 
+
 @users.route("/user/create_operator", methods=["GET", "POST"])
 def create_operator():
     form = UserForm()
@@ -46,6 +47,7 @@ def create_operator():
 
             return redirect("/")
     return render_template("create_user.html", form=form)
+
 
 @users.route("/user/create_user", methods=["GET", "POST"])
 def create_user():
@@ -76,24 +78,36 @@ def create_user():
     return render_template("create_user.html", form=form)
 
 
-@users.route("/user/data", methods=["GET", "POST"])
-@login_required
-def user_data():
-    message = None
+@users.route("/user/modify_user", methods=["GET", "POST"])
+def modify_user():
+    form = UserForm()
     if request.method == "POST":
-        # TODO: add logic to update data
-        return redirect("/user/data")
-    else:
-        q = User.query.filter_by(id=current_user.id).first()
-        if q is not None:
-            form = UserForm(obj=q)
-            return render_template(
-                "user_data.html",
-                form=form
+        if form.validate_on_submit():
+            q = db.session.query(User).filter_by(email=form.email.data)
+            if q.first() is not None:
+                return render_template(
+                    "create_user.html",
+                    form=form,
+                    message="Email {} already registered".format(form.email.data),
+                )
+            user = User()
+            form.populate_obj(user)
+            user = UserService.create_user(user, form.password.data)
+            if user is not None and user.authenticate(form.password.data):
+                login_user(user)
+            DispatcherMessage.send_message(
+                type_message=REGISTRATION_EMAIL,
+                params=[user.email, user.lastname, "112344"],
             )
+            new_role = db.session.query(Role).filter_by(id=user.role_id).first()
+            if new_role is not None:
+                session["ROLE"] = new_role.value
+
+            return redirect("/")
+    return render_template("create_user.html", form=form)
 
 
-@users.route("/customer/reservations")
+@users.route("/customer/reservations", methods=["GET"])
 @login_required
 @roles_allowed(roles=["CUSTOMER"])
 def myreservation():
