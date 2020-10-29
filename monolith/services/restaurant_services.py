@@ -4,6 +4,7 @@ from monolith.database import db
 
 from sqlalchemy.sql.expression import func
 
+
 class RestaurantServices:
     """"""
 
@@ -120,7 +121,7 @@ class RestaurantServices:
         """
         if stars < 0 or stars > 5:
             return None
-        
+
         new_review = Review()
         new_review.restaurant_id = restaurant_id
         new_review.reviewer_id = reviewer_id
@@ -131,28 +132,29 @@ class RestaurantServices:
         db.session.commit()
 
         return new_review
-    
+
     @staticmethod
     def get_three_reviews(restaurant_id):
-        '''
+        """
         Given the restaurant_di return three random reviews
-        '''
-        reviews = (db.session.query(Review)
-        .filter_by(restaurant_id = restaurant_id)
-        .order_by(func.random())
-        .limit(3)
-        .all())
+        """
+        reviews = (
+            db.session.query(Review)
+            .filter_by(restaurant_id=restaurant_id)
+            .order_by(func.random())
+            .limit(3)
+            .all()
+        )
 
         return reviews
-    
+
     @staticmethod
     def get_restaurant_name(restaurant_id):
-        '''
+        """
         Given the id return the name of the resturant
-        '''
-        name = (db.session.query(Restaurant.name)
-        .filter_by(id = restaurant_id)
-        .first()
-        )[0]
+        """
+        name = (db.session.query(Restaurant.name).filter_by(id=restaurant_id).first())[
+            0
+        ]
 
         return name

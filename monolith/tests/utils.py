@@ -119,6 +119,7 @@ def visit_reservation(client, from_date, to_date, email):
         follow_redirects=True,
     )
 
+
 def make_revew(client, restaurant_id: int, form: ReviewForm):
     """
     perform the flask request to make a new url
