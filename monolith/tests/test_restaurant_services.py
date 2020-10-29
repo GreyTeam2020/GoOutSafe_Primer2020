@@ -66,7 +66,9 @@ class Test_RestaurantServices:
 
         def_rest = db.session.query(Restaurant).all()[0]
         assert def_rest is not None
-        all_reservation = RestaurantServices.get_reservation_rest(def_rest.owner_id, def_rest.id, from_date, to_date, email)
+        all_reservation = RestaurantServices.get_reservation_rest(
+            def_rest.owner_id, def_rest.id, from_date, to_date, email
+        )
         assert len(all_reservation) == 0
 
     def test_reservation_local_ok_by_email(self):
@@ -85,5 +87,7 @@ class Test_RestaurantServices:
 
         def_rest = db.session.query(Restaurant).all()[0]
         assert def_rest is not None
-        all_reservation = RestaurantServices.get_reservation_rest(def_rest.owner_id, def_rest.id, from_date, to_date, email)
+        all_reservation = RestaurantServices.get_reservation_rest(
+            def_rest.owner_id, def_rest.id, from_date, to_date, email
+        )
         assert len(all_reservation) == 1

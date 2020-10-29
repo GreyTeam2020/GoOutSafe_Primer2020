@@ -75,7 +75,7 @@ def restaurant_sheet(restaurant_id):
         cuisine=q_cuisine,
         weekDaysLabel=weekDaysLabel,
         photos=photos,
-        _test="visit_rest_test"
+        _test="visit_rest_test",
     )
 
 
@@ -166,7 +166,9 @@ def my_reservations():
     toDate = request.args.get("toDate", type=str)
     email = request.args.get("email", type=str)
 
-    reservations_as_list = RestaurantServices.get_reservation_rest(owner_id, restaurant_id, fromDate, toDate, email)
+    reservations_as_list = RestaurantServices.get_reservation_rest(
+        owner_id, restaurant_id, fromDate, toDate, email
+    )
 
     return render_template(
         "reservations.html",
