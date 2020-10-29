@@ -2,6 +2,7 @@ from monolith.database import Restaurant, Menu, OpeningHours, RestaurantTable, R
 from monolith.forms import RestaurantForm
 from monolith.database import db
 
+from sqlalchemy.sql.expression import func
 
 class RestaurantServices:
     """"""
@@ -90,3 +91,13 @@ class RestaurantServices:
         db.session.commit()
 
         return True
+    
+    @staticmethod
+    def getThreeReviews(restaurant_id):
+        reviews = (db.session.query(Review)
+        .filter_by(restaurant_id = restaurant_id)
+        .order_by(func.random())
+        .limit(3)
+        .all())
+
+        return reviews

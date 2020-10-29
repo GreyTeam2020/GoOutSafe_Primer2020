@@ -74,36 +74,50 @@
             <!-- Review section -->
             <div class="py-4 px-4">
               <div class="row justify-content-center">
-                <h2> What customers say about us.. </h2>
+                <h2> What customers say about us</h2>
               </div>  
             </div>
             <div class="py-4 px-4">
-              <div class="row">
-                <div class="col-md-4">
-                  <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
-                    <div class="toast-header">
-                      <div class="ratingStats mr-auto" data-rating="4.5"></div>
-                      <small>11 mins ago</small>
-                      <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="toast-body">
-                      Hello, world! This is a toast message.
-                    </div>
-                  </div>
-                </div>
+              
+              {% if reviews %}
+                <div class="row">
+                {% for review in reviews %}
                 
-              </div>
-            </div>
-
-            <div class="py-4 px-4">
+                  <div class="col-md-4">
+                    <div class="toast show" role="alert" aria-live="assertive" aria-atomic="true">
+                      <div class="toast-header">
+                        <div class="ratingStats mr-auto" data-rating="{{ review.stars }}"></div>
+                        <small>{{ review.data }}</small>
+                        <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="toast-body">
+                        {{ review.review }}
+                      </div>
+                    </div>
+                  </div> 
+                
+              
+                
+                {% endfor %}
+                </div>
+              
+              {% else %}
               <div class="row justify-content-center">
-                <button class="btn btn-primary" data-toggle="modal" data-target="#reviewRestaurant">Review this restaurant</button>
+                <h5>There is no reviews for this resturant..</h5>
               </div>
-            </div>
+                
+              {% endif %}
+              </div>
 
+              <div class="py-4 px-4">
+                <div class="row justify-content-center">
+                  <button class="btn btn-primary" data-toggle="modal" data-target="#reviewRestaurant">Review this restaurant</button>
+                </div>
+              </div>
 
+          </div>
         </div>
     </div>
 </div>
