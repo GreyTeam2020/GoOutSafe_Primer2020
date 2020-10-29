@@ -9,7 +9,7 @@ from monolith.database import (
     Menu,
     PhotoGallery,
 )
-from monolith.forms import PhotoGalleryForm
+from monolith.forms import PhotoGalleryForm, ReviewForm
 from monolith.services import RestaurantServices
 from monolith.auth import roles_allowed
 from flask_login import current_user, login_required
@@ -298,3 +298,18 @@ def my_photogallery():
         ).all()
         form = PhotoGalleryForm()
         return render_template("photogallery.html", form=form, photos=photos)
+
+@restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET", "POST"])
+@login_required
+@roles_allowed(roles=["OPERATOR", "CUSTOMER"])
+def restaurantReview(restaurant_id):
+    if request.method == "POST":
+        form = ReviewForm()
+        if (RestaurantServices.reviewRestaurant(restaurant_id, current_user.id,
+        form.data["stars"], form.data["review"]) is not None):
+            print("Review inserted!")
+            return redirect("/")
+    
+    return redirect("/")
+
+            
