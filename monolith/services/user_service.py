@@ -40,7 +40,15 @@ class UserService:
 
         if role_id is None:
             role_id = current_user.role_id
-        db.session.query(User).filter(User.email == current_user.email).update({"email":form.email.data, "firstname":form.firstname.data, "lastname":form.lastname.data, "dateofbirth":form.dateofbirth.data, "role_id":role_id})
+        db.session.query(User).filter(User.email == current_user.email).update(
+            {
+                "email": form.email.data,
+                "firstname": form.firstname.data,
+                "lastname": form.lastname.data,
+                "dateofbirth": form.dateofbirth.data,
+                "role_id": role_id,
+            }
+        )
         db.session.commit()
 
         user = db.session.query(User).filter_by(email=form.email.data).first()
