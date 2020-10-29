@@ -21,7 +21,7 @@ $(document).ready(function() {
     if($("#reservation_date").length) {
         $('#reservation_date').datetimepicker({
             inline: true,
-            format: 'd/m/Y H:m'
+            format: 'd/m/Y H:i'
         });
         $("#newBook").click(function () {
             $("#bookTableForm").submit();
