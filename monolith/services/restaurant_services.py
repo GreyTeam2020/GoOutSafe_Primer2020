@@ -55,3 +55,19 @@ class RestaurantServices:
             db.session.commit()
 
         return restaurant
+
+    @staticmethod
+    def get_all_restaurants():
+        """
+        Method to return a list of all restaurants inside the database
+        """
+        all_restaurants = db.session.query(Restaurant).all()
+        return all_restaurants
+
+    @staticmethod
+    def get_restaurants_id():
+        """
+        Method to return a list of all restaurants inside the database
+        """
+        all_restaurants = db.session.query(Restaurant).all()
+        return all_restaurants

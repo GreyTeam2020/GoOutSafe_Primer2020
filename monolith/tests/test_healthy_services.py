@@ -22,7 +22,6 @@ class Test_healthyServices:
 
     def test_mark_positive_already_covid(self):
         """
-
         :return:
         """
         user = db.session.query(User).filter_by(email="ham.burger@email.com").first()
@@ -36,7 +35,6 @@ class Test_healthyServices:
 
     def test_mark_positive_user_not_exist(self):
         """
-
         :return:
         """
         message = HealthyServices.mark_positive(

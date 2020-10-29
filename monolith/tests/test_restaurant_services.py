@@ -36,3 +36,11 @@ class Test_RestaurantServices:
 
         db.session.query(Restaurant).filter_by(id=restaurant.id).delete()
         db.session.commit()
+
+    def test_all_restaurant(self):
+        """
+        test about the services restaurant to test the result of all restaurants
+        :return:
+        """
+        all_restauirants = RestaurantServices.get_all_restaurants()
+        assert len(all_restauirants) == 1

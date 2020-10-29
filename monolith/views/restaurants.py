@@ -23,7 +23,10 @@ _max_seats = 6
 
 @restaurants.route("/restaurants")
 def _restaurants(message=""):
-    allrestaurants = db.session.query(Restaurant)
+    """
+    Return the list of restaurants stored inside the db
+    """
+    allrestaurants = RestaurantServices.get_all_restaurants()
     return render_template(
         "restaurants.html",
         message=message,
