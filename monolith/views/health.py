@@ -39,21 +39,19 @@ def mark_positive():
 @roles_allowed(roles=["HEALTH"])
 def search_contacts():
 
-    form = SearchUser()
+    form = SearchUserForm()
     if request.method == "POST":
         if form.validate_on_submit():
 
-            if form.email.data=="" and form.phone.data=="":
+            if form.email.data == "" and form.phone.data == "":
                 return render_template(
                     "search_contacts.html",
                     form=form,
-                    message="Insert an email or a phone number".format(
-                        form.email.data
-                    ),
+                    message="Insert an email or a phone number".format(form.email.data),
                 )
 
-            #filtering by email
-            if form.email.data!="":
+            # filtering by email
+            if form.email.data != "":
                 q_user = db.session.query(User).filter_by(
                     email=form.email.data,
                 )
@@ -66,14 +64,10 @@ def search_contacts():
                 return render_template(
                     "search_contacts.html",
                     form=form,
-                    message="The user is not registered".format(
-                        form.email.data
-                    ),
+                    message="The user is not registered".format(form.email.data),
                 )
-            
-            
-            contacts = HealthyServices.search_contacts(q_user.first().id)
 
+            q_contacts = HealthyServices.search_contacts(q_user.first().id)
 
             return render_template("/list_contacts.html", q_contacts=q_contacts)
     return render_template("/search_contacts.html", form=form)
