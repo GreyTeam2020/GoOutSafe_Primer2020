@@ -1,7 +1,6 @@
 from flask_wtf import FlaskForm
 import wtforms as f
-from wtforms.validators import DataRequired, Length, ValidationError, Email
-from email.utils import parseaddr
+from wtforms.validators import DataRequired, Length, Email
 
 
 class LoginForm(FlaskForm):
