@@ -15,22 +15,16 @@ book = Blueprint("book", __name__)
 def index():
     if current_user is not None and hasattr(current_user, "id"):
         # the date and time come as string, so I have to parse them and transform them in python datetime
-        if len(request.form.get("time").split(":")) == 1:
-            py_datetime = datetime.datetime(
-                int(request.form.get("date").split("/")[2].strip()),
-                int(request.form.get("date").split("/")[1].strip()),
-                int(request.form.get("date").split("/")[0].strip()),
-                int(request.form.get("time").split(":")[0].strip()),
-            )
-        else:
-            py_datetime = datetime.datetime(
-                int(request.form.get("date").split("/")[2].strip()),
-                int(request.form.get("date").split("/")[1].strip()),
-                int(request.form.get("date").split("/")[0].strip()),
-                int(request.form.get("time").split(":")[0].strip()),
-                int(request.form.get("time").split(":")[1].strip()),
-            )
 
+        #
+        py_datetime = datetime.datetime.strptime(request.form.get("reservation_date"), '%d/%m/%Y %H:%M')
+        #
+        restaurant_id = int (request.form.get("restaurant_id"))
+        #
+        people_number = int (request.form.get("people_number"))
+        #
+
+        
         # if user wants to book in the past..
         if py_datetime < datetime.datetime.now():
             return render_template(
@@ -43,7 +37,7 @@ def index():
         # check if the restaurant is open. 12 in open_lunch means open at lunch. 20 in open_dinner means open at dinner.
         opening_hour = (
             db.session.query(OpeningHours)
-            .filter_by(restaurant_id=request.form.get("restaurantID"))
+            .filter_by(restaurant_id=restaurant_id)
             .filter_by(week_day=week_day)
             .filter(
                 or_(
@@ -126,10 +120,10 @@ def index():
                 db.session.query(RestaurantTable.id)
                 .join(Reservation, RestaurantTable.id == Reservation.table_id)
                 .filter(
-                    RestaurantTable.restaurant_id == request.form.get("restaurantID")
+                    RestaurantTable.restaurant_id == restaurant_id
                 )
                 .filter(Reservation.reservation_date <= test_hour)
-                .filter(RestaurantTable.max_seats >= int(request.form.get("people")))
+                .filter(RestaurantTable.max_seats >= people_number)
             )
         else:
             # get the reservations in the same day, time (dinner) and restaurant... drops reservation in table with max_seats < number of people requested
@@ -137,17 +131,17 @@ def index():
                 db.session.query(RestaurantTable.id)
                 .join(Reservation, RestaurantTable.id == Reservation.table_id)
                 .filter(
-                    RestaurantTable.restaurant_id == request.form.get("restaurantID")
+                    RestaurantTable.restaurant_id == restaurant_id
                 )
                 .filter(Reservation.reservation_date >= test_hour)
-                .filter(RestaurantTable.max_seats >= int(request.form.get("people")))
+                .filter(RestaurantTable.max_seats >= people_number)
             )
 
         # from the list of all tables in the restaurant (the ones in which max_seats < number of people requested) drop the reserved ones
         all_restaurant_tables = (
             db.session.query(RestaurantTable)
-            .filter(RestaurantTable.max_seats >= int(request.form.get("people")))
-            .filter_by(restaurant_id=request.form.get("restaurantID"))
+            .filter(RestaurantTable.max_seats >= people_number)
+            .filter_by(restaurant_id=restaurant_id)
             .filter(~RestaurantTable.id.in_(reservations))
             .all()
         )
@@ -168,7 +162,7 @@ def index():
             # get restaurant and table name
             restaurant_name = (
                 db.session.query(Restaurant.name)
-                .filter_by(id=request.form.get("restaurantID"))
+                .filter_by(id=restaurant_id)
                 .first()[0]
             )
             table_name = (
@@ -182,7 +176,7 @@ def index():
             new_reservation.reservation_date = py_datetime
             new_reservation.customer_id = current_user.id
             new_reservation.table_id = min_value[0]
-            new_reservation.people_number = int(request.form.get("people"))
+            new_reservation.people_number = people_number
             db.session.add(new_reservation)
             db.session.commit()
 
