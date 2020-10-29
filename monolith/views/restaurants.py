@@ -22,14 +22,17 @@ _max_seats = 6
 
 
 @restaurants.route("/restaurant/restaurants")
-def _restaurants(message=""):
+def _restaurants(message="", _test=""):
     """
     Return the list of restaurants stored inside the db
     """
     allrestaurants = RestaurantServices.get_all_restaurants()
+    if len(_test) == 0:
+        _test = "all_rest_test"
     return render_template(
         "restaurants.html",
         message=message,
+        _test=_test,
         restaurants=allrestaurants,
         base_url="http://127.0.0.1:5000/restaurants",
     )
@@ -72,6 +75,7 @@ def restaurant_sheet(restaurant_id):
         cuisine=q_cuisine,
         weekDaysLabel=weekDaysLabel,
         photos=photos,
+        _test="visit_rest_test"
     )
 
 
