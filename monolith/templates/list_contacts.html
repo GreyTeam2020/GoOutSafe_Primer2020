@@ -1,0 +1,31 @@
+{% include 'header.html' %}
+  <!-- Page Content -->
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-12 text-center">
+          <h1 class="mt-5 mb-5">Contacts</h1>
+          <table id="allrestaurants" class="display" style="width:100%">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Bithday</th>
+                <th>Email</th>
+                <th>Phone number</th>
+              </tr>
+            </thead>
+            <tbody>
+                {% for contact in q_contacts %}
+                    <tr>
+                        <td>{{ contact.id }}</td>
+                        <td>{{ contact.firstname }} {{ contact.lastname }}</td>
+                        <td>{{ contact.email }}</td>
+                        <td>{{ contact.phone }}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+          </table>
+      </div>
+    </div>
+  </div>
+{% include 'footer.html' %}

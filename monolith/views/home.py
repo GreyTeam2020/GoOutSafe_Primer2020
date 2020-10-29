@@ -10,4 +10,8 @@ home = Blueprint("home", __name__)
 @home.route("/")
 def index():
     restaurants = db.session.query(Restaurant)
-    return render_template("index.html", restaurants=restaurants)
+    n_positive = db.session.query(Positive).filter_by(marked=True).count()
+    n_healed = db.session.query(Positive).filter_by(marked=False).distinct(Positive.user_id).count()
+
+    return render_template("index.html", restaurants=restaurants, n_positive=n_positive, n_healed=n_healed)
+
