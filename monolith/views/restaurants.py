@@ -62,6 +62,9 @@ def restaurant_sheet(restaurant_id):
     photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
     ## FIXME(vincenzopalazzo): This is only a test to try to fix
     session["RESTAURANT_ID"] = restaurant_id
+
+    review_form = ReviewForm()
+    
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -75,6 +78,8 @@ def restaurant_sheet(restaurant_id):
         cuisine=q_cuisine,
         weekDaysLabel=weekDaysLabel,
         photos=photos,
+        review_form=review_form,
+        
         _test="visit_rest_test",
     )
 
