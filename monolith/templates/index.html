@@ -9,18 +9,18 @@
               <!-- Home for Health authority-->
               {% if current_user.email == "health_authority@gov.com" %}
                 {{ current_user.email }}
-                <br>
-                N° actual positives :
-                <br>
-                N° actual healed :
-                <br>
 
+                <br>
                 <p class="lead"> Hi {{ current_user.firstname }}! <a href="/logout">Logout</a> </p>
-                {% if session["ROLE"] != "OPERATOR" %}
-                    <p class="mt-3 lead"> Do you have a restaurant? <a href="/create_restaurant">Register it</a></p>
-               {% endif %}
+
+                
+                N° actual positives : {{ n_positive }}
+                <br>
+                N° actual healed : {{ n_healed }}
+                <br><br>
+
                 <a href="/mark_positive"><button type="button" class="btn btn-primary mark" id="mark">Mark as a Covid-19 positive</button></a><br><br>
-                <button type="button" class="btn btn-primary listcontacts" id="listcontacts">Find contacts with a positive</button>
+                <a href="/search_contacts"><button type="button" class="btn btn-primary listcontacts" id="listcontacts">Find contacts with a positive</button></a>
                 
               {% endif %}
                 

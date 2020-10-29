@@ -34,3 +34,47 @@ def mark_positive():
                 return render_template("mark_positive.html", form=form, message=message)
             return redirect("/")
     return render_template("mark_positive.html", form=form)
+
+
+@health.route("/search_contacts", methods=["POST", "GET"])
+@roles_allowed(roles=["HEALTH"])
+def search_contacts():
+
+    form = SearchUser()
+    if request.method == "POST":
+        if form.validate_on_submit():
+
+            if form.email.data=="" and form.phone.data=="":
+                return render_template(
+                    "search_contacts.html",
+                    form=form,
+                    message="Insert an email or a phone number".format(
+                        form.email.data
+                    ),
+                )
+
+            #filtering by email
+            if form.email.data!="":
+                q_user = db.session.query(User).filter_by(
+                    email=form.email.data,
+                )
+            else:
+                q_user = db.session.query(User).filter_by(
+                    phone=form.phone.data,
+                )
+
+            if q_user.first() is None:
+                return render_template(
+                    "search_contacts.html",
+                    form=form,
+                    message="The user is not registered".format(
+                        form.email.data
+                    ),
+                )
+            
+            
+            contacts = HealthyServices.search_contacts(q_user.first().id)
+
+
+            return render_template("/list_contacts.html", q_contacts=q_contacts)
+    return render_template("/search_contacts.html", form=form)
