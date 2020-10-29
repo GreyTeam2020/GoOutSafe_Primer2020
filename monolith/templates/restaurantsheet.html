@@ -71,6 +71,8 @@
                     {% endfor %}
                 </div>
             </div>
+
+            <button class="btn btn-success" data-toggle="modal" data-target="#reviewRestaurant">review resturnat</button>
         </div>
     </div>
 </div>
@@ -116,7 +118,7 @@
               </button>
             </div>
             <div class="modal-body">
-              <form id ="reviewForm" action="/restaurant/review/{{ restaurant_id }}" method="POST">
+              <form id ="reviewForm" action="/restaurant/review/{{ id }}" method="POST">
                 <dl>
                  {% for field in review_form.display %}
                      <dt>{{ review_form[field].label(class_="sr-only") }}</dt>
