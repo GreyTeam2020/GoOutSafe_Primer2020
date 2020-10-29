@@ -112,7 +112,7 @@ class Test_RestaurantServices:
 
         name = RestaurantServices.get_restaurant_name(restaurant.id)
 
-        assert restaurant.name != name
+        assert restaurant.name == name
     
     def test_three_reviews(self):
         """
@@ -127,7 +127,7 @@ class Test_RestaurantServices:
 
         three_reviews = RestaurantServices.get_three_reviews(restaurant.id)
         assert three_reviews is not None
-        assert len(three_reviews) != 3
+        assert len(three_reviews) == 3
 
         db.session.query(Review).filter_by(id=review1.id).delete()
         db.session.query(Review).filter_by(id=review2.id).delete()
