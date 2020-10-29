@@ -26,12 +26,9 @@
     </div>
     <div class="row">
       <div class="col-md-12 text-center justify-content-center">
-         <p class="lead"> Hi {{ current_user.firstname }}! <a href="/logout">Logout</a> </p>
          <a href="/mark_positive"><button type="button" class="btn btn-primary"><span class="material-icons">check_circle</span> Mark as Positive</button></a>&nbsp;&nbsp;<a href="/unmark_positive"><button type="button" class="btn btn-primary"><span class="material-icons">unpublished</span> Unmark Positive</button></a><br><br>
          <a href="/search_contacts"><button type="button" class="btn btn-primary"><span class="material-icons">search</span> Find contacts with a positive</button></a><br><br>
-
       </div>
-
     </div>
   </div>
 {% include 'footer.html' %}
