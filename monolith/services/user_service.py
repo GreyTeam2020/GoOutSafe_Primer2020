@@ -37,11 +37,13 @@ class UserService:
         :param role_id: by default is none but it is possible setup to change also the role id
         :return: the user with the change if is changed
         """
+
         if role_id is None:
             role_id = current_user.role_id
-        user = db.session.query(User).filter(User.email == current_user.email).update({"email":form.email.data, "firstname":form.firstname.data, "lastname":form.lastname.data, "dateofbirth":form.dateofbirth.data, "role_id":role_id})
+        db.session.query(User).filter(User.email == current_user.email).update({"email":form.email.data, "firstname":form.firstname.data, "lastname":form.lastname.data, "dateofbirth":form.dateofbirth.data, "role_id":role_id})
         db.session.commit()
 
+        user = db.session.query(User).filter_by(email=form.email.data).first()
         return user
 
     @staticmethod
