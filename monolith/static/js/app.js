@@ -17,6 +17,9 @@ $(document).ready(function() {
         $('#mytables').DataTable();
         $("#submitTable").click(() => {$("#addTableForm").submit();});
     }
+    if ($("#submitReview").length){
+        $("#submitReview").click(() => {$("#reviewForm").submit();});
+    }
 
     if($("#reservation_date").length) {
         $('#reservation_date').datetimepicker({
