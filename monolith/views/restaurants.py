@@ -290,8 +290,7 @@ def restaurantReview(restaurant_id):
             restaurant_name = RestaurantServices.getRestaurantName(restaurant_id),
             review = review
             )
-            
     
-    return redirect("/")
+    return redirect("review.html")
 
             
