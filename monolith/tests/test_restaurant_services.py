@@ -1,3 +1,5 @@
+import os
+
 import pytest
 from monolith.database import db, User, Restaurant
 from monolith.forms import RestaurantForm
@@ -31,6 +33,7 @@ class Test_RestaurantServices:
         form.open_dinner.data = datetime.time(datetime(2020, 7, 1, 18, 00))
         form.close_dinner.data = datetime.time(datetime(2020, 6, 1, 22, 00))
         q_user = db.session.query(User).filter_by(email="ham.burger@email.com").first()
+        assert q_user is not None
         restaurant = RestaurantServices.create_new_restaurant(form, q_user.id, 6)
         assert restaurant is not None
 

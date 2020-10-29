@@ -1,37 +1,44 @@
-from datetime import datetime
+import os
 
 import pytest
-
 from monolith.database import db
-from monolith.services import HealthyServices, User
+from monolith.forms import UserForm
+from monolith.services import HealthyServices, User, UserService
+from monolith.tests.utils import create_user_on_db, del_user_on_db
 
 
 @pytest.mark.usefixtures("client")
 class Test_healthyServices:
     """"""
 
-    def test_mark_positive(self):
+    def test_mark_positive_ok(self):
         """
 
         :return:
         """
-        user = db.session.query(User).filter_by(email="ham.burger@email.com").first()
+        # an operator
+        user = create_user_on_db()
         assert user is not None
+        assert user.role_id is 3
         message = HealthyServices.mark_positive(user.email, user.phone)
         assert message != ""
+        db.session.query(User).filter_by(id=user.id).delete()
+        db.session.commit()
 
     def test_mark_positive_already_covid(self):
         """
         :return:
         """
-        user = db.session.query(User).filter_by(email="ham.burger@email.com").first()
+        user = create_user_on_db()
         assert user is not None
+        assert user.role_id is 3
         message = HealthyServices.mark_positive(user.email, user.phone)
         assert message != ""
         message = HealthyServices.mark_positive(user.email, user.phone)
         assert message == "User with email {} already Covid-19 positive".format(
             user.email
         )
+        del_user_on_db(user.id)
 
     def test_mark_positive_user_not_exist(self):
         """
@@ -55,17 +62,21 @@ class Test_healthyServices:
 
         :return:
         """
-        user = db.session.query(User).filter_by(email="ham.burger@email.com").first()
+        user = create_user_on_db()
+        assert user is not None
+        assert user.role_id is 3
         assert user is not None
         message = HealthyServices.mark_positive(user.email, "")
         assert message != ""
+        del_user_on_db(user.id)
 
     def test_mark_positive_user_by_email(self):
         """
 
         :return:
         """
-        user = db.session.query(User).filter_by(email="ham.burger@email.com").first()
+        user = create_user_on_db()
         assert user is not None
         message = HealthyServices.mark_positive("", user.phone)
         assert message != ""
+        del_user_on_db(user.id)
