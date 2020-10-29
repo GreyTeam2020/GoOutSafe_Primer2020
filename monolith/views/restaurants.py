@@ -79,7 +79,7 @@ def restaurant_sheet(restaurant_id):
         weekDaysLabel=weekDaysLabel,
         photos=photos,
         review_form=review_form,
-        reviews=RestaurantServices.getThreeReviews(restaurant_id)        
+        reviews=RestaurantServices.get_three_reviews(restaurant_id)        
         _test="visit_rest_test",
     )
 
@@ -281,13 +281,13 @@ def my_photogallery():
 def restaurantReview(restaurant_id):
     if request.method == "POST":
         form = ReviewForm()
-        review = RestaurantServices.reviewRestaurant(restaurant_id, current_user.id,
+        review = RestaurantServices.review_restaurant(restaurant_id, current_user.id,
         form.data["stars"], form.data["review"])
         if (review is not None):
             print("Review inserted!")
             ##FIXME @giacomofrigo
             return render_template("review.html",
-            restaurant_name = RestaurantServices.getRestaurantName(restaurant_id),
+            restaurant_name = RestaurantServices.get_restaurant_name(restaurant_id),
             review = review
             )
     
