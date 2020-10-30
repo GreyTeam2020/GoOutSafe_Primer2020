@@ -173,6 +173,7 @@ class Test_healthyServices:
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
     
+
     def test_mark_positive_user_by_phone(self):
         """
         :return:
