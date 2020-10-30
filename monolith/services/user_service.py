@@ -63,13 +63,13 @@ class UserService:
         db.session.commit()
 
     @staticmethod
-    def isPositive(user_id: int):
+    def is_positive(user_id: int):
         """
         Given a userid i return if the user is currently positive
         :param user_id: user id of the user checked
         return: boolean if the user is positive
         """
-        check =db.session.query(Positive).filter_by(user_id=int).filter_by(marked=True).first()
+        check =db.session.query(Positive).filter_by(user_id=user_id).filter_by(marked=True).first()
         if check is None:
             return False
         return True

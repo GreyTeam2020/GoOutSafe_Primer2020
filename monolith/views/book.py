@@ -40,7 +40,7 @@ def index():
                 "booking.html", success=False, error="You can not book in the past!"
             )
         # check if the user is positive
-        is_positive = UserService.isPositive(current_user.id)
+        is_positive = UserService.is_positive(current_user.id)
         if is_positive:
             return render_template(
                 "booking.html", success=False, error="You are marked as positive!"
