@@ -1,6 +1,8 @@
-from monolith.database import Restaurant, Menu, OpeningHours, RestaurantTable
+from monolith.database import Restaurant, Menu, OpeningHours, RestaurantTable, Review
 from monolith.forms import RestaurantForm
 from monolith.database import db
+
+from sqlalchemy.sql.expression import func
 
 
 class RestaurantServices:
@@ -111,3 +113,48 @@ class RestaurantServices:
         # execute and retrive results...
         result = db.engine.execute(stmt, params)
         return result.fetchall()
+
+    @staticmethod
+    def review_restaurant(restaurant_id, reviewer_id, stars, review):
+        """
+        This method insert a review to the specified restaurant
+        """
+        if stars < 0 or stars > 5:
+            return None
+
+        new_review = Review()
+        new_review.restaurant_id = restaurant_id
+        new_review.reviewer_id = reviewer_id
+        new_review.stars = stars
+        new_review.review = review
+
+        db.session.add(new_review)
+        db.session.commit()
+
+        return new_review
+
+    @staticmethod
+    def get_three_reviews(restaurant_id):
+        """
+        Given the restaurant_di return three random reviews
+        """
+        reviews = (
+            db.session.query(Review)
+            .filter_by(restaurant_id=restaurant_id)
+            .order_by(func.random())
+            .limit(3)
+            .all()
+        )
+
+        return reviews
+
+    @staticmethod
+    def get_restaurant_name(restaurant_id):
+        """
+        Given the id return the name of the resturant
+        """
+        name = (db.session.query(Restaurant.name).filter_by(id=restaurant_id).first())[
+            0
+        ]
+
+        return name

@@ -4,17 +4,14 @@ branches:
   only:
     - main
 env:
-  - TOX_ENV=py36
-cache:
-  - pip
+  - TOX_ENV=py36,p37,p38
 install:
   - pip install -r requirements.txt
   - pip install pytest-cov
   - pip install coverage==4.5.4
   - pip install python-coveralls
+  - pip install tox
 script:
-  - python -m pytest --cov-config .coveragerc --cov monolith
-after_success:
-  - coveralls --ignore-errors
+  - tox -e $TOX_ENV
 notifications:
   email: false

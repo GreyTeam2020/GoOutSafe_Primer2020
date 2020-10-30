@@ -9,7 +9,7 @@ from monolith.database import (
     Menu,
     PhotoGallery,
 )
-from monolith.forms import PhotoGalleryForm
+from monolith.forms import PhotoGalleryForm, ReviewForm
 from monolith.services import RestaurantServices
 from monolith.auth import roles_allowed
 from flask_login import current_user, login_required
@@ -62,6 +62,9 @@ def restaurant_sheet(restaurant_id):
     photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
     ## FIXME(vincenzopalazzo): This is only a test to try to fix
     session["RESTAURANT_ID"] = restaurant_id
+
+    review_form = ReviewForm()
+
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -75,6 +78,8 @@ def restaurant_sheet(restaurant_id):
         cuisine=q_cuisine,
         weekDaysLabel=weekDaysLabel,
         photos=photos,
+        review_form=review_form,
+        reviews=RestaurantServices.get_three_reviews(restaurant_id),
         _test="visit_rest_test",
     )
 
@@ -269,3 +274,25 @@ def my_photogallery():
         ).all()
         form = PhotoGalleryForm()
         return render_template("photogallery.html", form=form, photos=photos)
+
+
+@restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET", "POST"])
+@login_required
+@roles_allowed(roles=["OPERATOR", "CUSTOMER"])
+def restaurantReview(restaurant_id):
+    if request.method == "POST":
+        form = ReviewForm()
+        review = RestaurantServices.review_restaurant(
+            restaurant_id, current_user.id, form.data["stars"], form.data["review"]
+        )
+        if review is not None:
+            print("Review inserted!")
+            ##FIXME @giacomofrigo
+            return render_template(
+                "review.html",
+                _test="review_done_test",
+                restaurant_name=RestaurantServices.get_restaurant_name(restaurant_id),
+                review=review,
+            )
+
+    return redirect("review.html")
