@@ -37,15 +37,10 @@ class BookingServices:
             db.session.query(OpeningHours)
             .filter_by(restaurant_id=restaurant_id)
             .filter_by(week_day=week_day)
-            .filter(
-                or_(
-                    OpeningHours.open_lunch == datetime.time(hour=12),
-                    OpeningHours.open_lunch == datetime.time(hour=20),
-                )
-            )
             .first()
         )
 
+        
         # the restaurant is closed
         if opening_hour is None:
             print("No Opening hour")
@@ -89,33 +84,35 @@ class BookingServices:
             #
 
         # now let's see if there is a table
+        
+        '''
+        get the time delta (avg_time) from the restaurant table
+        '''
+        avg_time = (db.session.query(Restaurant)
+                    .filter_by(id = restaurant_id)
+                    .first()
+                    .avg_time)
 
-        # here we compute in datetime format the closing hour of the resturant for date requested by the user
-        # this will help us for checks in sql (check for all lunch, or check for all dinner)
-        test_hour = datetime.datetime.combine(
-            py_datetime.date(), opening_hour.close_lunch
+        '''
+        get all the reservation (with the reservation_date between the dates in which I want to book)
+        or (or the reservation_end between the dates in which I want to book)
+        the dates in which I want to book are:
+        start = py_datetime  
+        end = py_datetime + avg_time
+
+        always filtered by the people_number  
+        '''
+        reservations = (
+            db.session.query(RestaurantTable.id)
+                .join(Reservation, RestaurantTable.id == Reservation.table_id)
+                .filter(RestaurantTable.restaurant_id == restaurant_id)
+                .filter(or_(
+                Reservation.reservation_date.between(py_datetime, py_datetime+datetime.timedelta(minutes=avg_time)),
+                Reservation.reservation_end.between(py_datetime, py_datetime+datetime.timedelta(minutes=avg_time))
+                ))
+                .filter(RestaurantTable.max_seats >= people_number)
         )
-        print(test_hour)
 
-        # in this case a lunch is requested
-        if only_time < opening_hour.close_lunch:
-            # get the reservations in the same day, time (lunch) and restaurant... drops reservation in table with max_seats < number of people requested
-            reservations = (
-                db.session.query(RestaurantTable.id)
-                .join(Reservation, RestaurantTable.id == Reservation.table_id)
-                .filter(RestaurantTable.restaurant_id == restaurant_id)
-                .filter(Reservation.reservation_date <= test_hour)
-                .filter(RestaurantTable.max_seats >= people_number)
-            )
-        else:
-            # get the reservations in the same day, time (dinner) and restaurant... drops reservation in table with max_seats < number of people requested
-            reservations = (
-                db.session.query(RestaurantTable.id)
-                .join(Reservation, RestaurantTable.id == Reservation.table_id)
-                .filter(RestaurantTable.restaurant_id == restaurant_id)
-                .filter(Reservation.reservation_date >= test_hour)
-                .filter(RestaurantTable.max_seats >= people_number)
-            )
 
         # from the list of all tables in the restaurant (the ones in which max_seats < number of people requested) drop the reserved ones
         all_restaurant_tables = (
