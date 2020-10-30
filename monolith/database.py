@@ -71,6 +71,11 @@ class Restaurant(db.Model):
 
     covid_measures = db.Column(db.Text(500))
 
+    # THERE IS NO INTERVAL DATA TYPE IN SQL LITE (FUCK)
+    # avg_time = db.Column(db.Interval())
+    # I store the avg time in integer THAT REPRESENTS MINUTES
+    avg_time = db.Column(db.Integer, default=30)
+
     def __init__(self, *args, **kw):
         super(Restaurant, self).__init__(*args, **kw)
 
@@ -135,6 +140,7 @@ class Reservation(db.Model):
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     reservation_date = db.Column(db.DateTime)
+    reservation_end = db.Column(db.DateTime)
     # customer that did the the reservation
     customer_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     custumer = relationship("User", foreign_keys="Reservation.customer_id")

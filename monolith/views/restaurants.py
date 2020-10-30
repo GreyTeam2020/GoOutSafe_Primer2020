@@ -9,7 +9,7 @@ from monolith.database import (
     Menu,
     PhotoGallery,
 )
-from monolith.forms import PhotoGalleryForm, ReviewForm
+from monolith.forms import PhotoGalleryForm, ReviewForm, ReservationForm
 from monolith.services import RestaurantServices
 from monolith.auth import roles_allowed
 from flask_login import current_user, login_required
@@ -64,6 +64,7 @@ def restaurant_sheet(restaurant_id):
     session["RESTAURANT_ID"] = restaurant_id
 
     review_form = ReviewForm()
+    book_form = ReservationForm()
 
     return render_template(
         "restaurantsheet.html",
@@ -79,6 +80,7 @@ def restaurant_sheet(restaurant_id):
         weekDaysLabel=weekDaysLabel,
         photos=photos,
         review_form=review_form,
+        book_form=book_form,
         reviews=RestaurantServices.get_three_reviews(restaurant_id),
         _test="visit_rest_test",
     )
