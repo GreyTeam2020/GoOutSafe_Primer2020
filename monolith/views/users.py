@@ -95,7 +95,10 @@ def user_data():
         q = User.query.filter_by(id=current_user.id).first()
         if q is not None:
             form = UserForm(obj=q)
-            return render_template("user_data.html", form=form)
+            return render_template(
+                "user_data.html",
+                form=form
+            )
 
 
 @users.route("/user/delete")

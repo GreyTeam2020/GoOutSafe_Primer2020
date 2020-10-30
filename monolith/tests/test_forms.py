@@ -20,6 +20,10 @@ from monolith.tests.utils import (
     mark_people_for_covid19,
     visit_reservation,
     make_revew,
+    delete_positive_with_user_id,
+    del_user_on_db,
+    unmark_people_for_covid19,
+    search_contact_positive_covid19,
 )
 
 
@@ -275,8 +279,8 @@ class Test_GoOutSafeForm:
 
         assert q_already_positive is None
 
-        db.session.query(User).filter_by(id=q_user.id).delete()
-        db.session.commit()
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
 
     def test_mark_positive_ok(self, client):
         """
@@ -312,8 +316,8 @@ class Test_GoOutSafeForm:
         )
         assert q_already_positive is not None
 
-        db.session.query(User).filter_by(id=q_user.id).delete()
-        db.session.commit()
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
 
     def test_see_reservation_ko(self, client):
         """
@@ -384,3 +388,246 @@ class Test_GoOutSafeForm:
 
         db.session.query(Review).filter_by(review=form.review).delete()
         db.session.commit()
+
+    def test_mark_positive_ko_user_already_positive(self, client):
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        mark = SearchUserForm()
+        mark.email = user.email
+        mark.phone = user.phone
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is not None
+
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is not None
+
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
+
+    def test_mark_positive_ko_not_registered_user(self, client):
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        mark = SearchUserForm()
+        mark.email = "joe@gmail.com"
+        mark.phone = "324545"
+        response = unmark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+    def test_mark_positive_ko_empty_fields(self, client):
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        mark = SearchUserForm()
+        mark.email = ""
+        mark.phone = ""
+        response = unmark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+    def test_unmark_positive_ko_unathorized(self, client):
+
+        response = login(client, "john.doe@email.com", "customer")
+        assert response.status_code == 200
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        unmark = SearchUserForm()
+        unmark.email = user.email
+        unmark.phone = user.phone
+        response = unmark_people_for_covid19(client, unmark)
+        assert response.status_code == 401
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+
+        assert q_already_positive is None
+
+        del_user_on_db(q_user.id)
+
+    def test_unmark_positive_ko_user_not_positive(self, client):
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        unmark = SearchUserForm()
+        unmark.email = user.email
+        unmark.phone = user.phone
+        response = unmark_people_for_covid19(client, unmark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+
+        assert q_already_positive is None
+
+        del_user_on_db(q_user.id)
+
+    def test_unmark_positive_ko_user_not_registered(self, client):
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        unmark = SearchUserForm()
+        unmark.email = "joe@gmail.com"
+        unmark.phone = "324545"
+        response = unmark_people_for_covid19(client, unmark)
+        assert response.status_code == 200
+
+    def test_unmark_positive_ko_empty_fields(self, client):
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        mark = SearchUserForm()
+        mark.email = user.email
+        mark.phone = user.phone
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is not None
+
+        unmark = SearchUserForm()
+        unmark.email = ""
+        unmark.phone = ""
+
+        response = unmark_people_for_covid19(client, unmark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is not None
+
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
+
+    def test_unmark_positive_ok(self, client):
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        mark = SearchUserForm()
+        mark.email = user.email
+        mark.phone = user.phone
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is not None
+
+        response = unmark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is None
+
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
+
+    def test_search_contacts_with_positive_ko(self, client):
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        mark = SearchUserForm()
+        mark.email = user.email
+        mark.phone = user.phone
+        response = search_contact_positive_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_user = get_user_with_email(user.email)
+        del_user_on_db(q_user.id)
+
+    def test_search_contacts_with_user_not_registered(self, client):
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        mark = SearchUserForm()
+        mark.email = "joe@gmail.com"
+        mark.phone = "324545"
+        response = search_contact_positive_covid19(client, mark)
+        assert response.status_code == 200

@@ -171,43 +171,6 @@ def create_app(tests=False):
             db.session.add(second_table)
             db.session.commit()
 
-        # a reservation
-        q = db.session.query(Reservation).filter(Reservation.id == 1)
-        reservation = q.first()
-        if reservation is None:
-            # insert the first table
-            q = db.session.query(User).filter(User.email == "john.doe@email.com")
-            customer = q.first()
-            q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 1)
-            table = q.first()
-            first_reservation = Reservation()
-            first_reservation.reservation_date = datetime.datetime(
-                2020, 10, 28, hour=12
-            )
-            first_reservation.customer_id = customer.id
-            first_reservation.table_id = table.id
-            first_reservation.people_number = 2
-            db.session.add(first_reservation)
-            db.session.commit()
-
-        """
-        #another reservation
-        q = db.session.query(Reservation).filter(Reservation.id == 2)
-        reservation = q.first()
-        if reservation is None:
-            second_reservation = Reservation()
-            q = db.session.query(User).filter(User.email == "john.doe@email.com")
-            customer = q.first()
-            q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 2)
-            table = q.first()
-            second_reservation.reservation_date = datetime.datetime(2020, 10, 28, hour=12)
-            second_reservation.customer_id=customer.id
-            second_reservation.table_id=table.id
-            second_reservation.people_number = 6
-            db.session.add(second_reservation)
-            db.session.commit()
-        """
-
         # insert some opening hours
         q = (
             db.session.query(OpeningHours)
@@ -272,6 +235,31 @@ def create_app(tests=False):
             third_opening_hours.open_dinner = datetime.time(hour=20)
             third_opening_hours.close_dinner = datetime.time(hour=22)
             db.session.add(third_opening_hours)
+            db.session.commit()
+
+        # a reservation
+        q = db.session.query(Reservation).filter(Reservation.id == 1)
+        reservation = q.first()
+        if reservation is None:
+            # insert the first table
+            q = db.session.query(User).filter(User.email == "john.doe@email.com")
+            customer = q.first()
+            q = db.session.query(RestaurantTable).filter(RestaurantTable.id == 1)
+            table = q.first()
+            q = db.session.query(Restaurant).filter(Restaurant.id == 1)
+            restaurant = q.first()
+            first_reservation = Reservation()
+            first_reservation.reservation_date = datetime.datetime(
+                2020, 10, 28, hour=12
+            )
+            first_reservation.reservation_end = (
+                first_reservation.reservation_date
+                + datetime.timedelta(minutes=restaurant.avg_time)
+            )
+            first_reservation.customer_id = customer.id
+            first_reservation.table_id = table.id
+            first_reservation.people_number = 2
+            db.session.add(first_reservation)
             db.session.commit()
 
         # insert a review

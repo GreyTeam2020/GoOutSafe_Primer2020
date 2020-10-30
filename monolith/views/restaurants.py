@@ -9,7 +9,7 @@ from monolith.database import (
     Menu,
     PhotoGallery,
 )
-from monolith.forms import PhotoGalleryForm, ReviewForm
+from monolith.forms import PhotoGalleryForm, ReviewForm, ReservationForm
 from monolith.services import RestaurantServices
 from monolith.auth import roles_allowed
 from flask_login import current_user, login_required
@@ -19,23 +19,6 @@ from monolith.utils.formatter import my_date_formatter
 restaurants = Blueprint("restaurants", __name__)
 
 _max_seats = 6
-
-
-@restaurants.route("/restaurant/restaurants")
-def _restaurants(message="", _test=""):
-    """
-    Return the list of restaurants stored inside the db
-    """
-    allrestaurants = RestaurantServices.get_all_restaurants()
-    if len(_test) == 0:
-        _test = "all_rest_test"
-    return render_template(
-        "restaurants.html",
-        message=message,
-        _test=_test,
-        restaurants=allrestaurants,
-        base_url="http://127.0.0.1:5000/restaurants",
-    )
 
 
 @restaurants.route("/restaurant/<restaurant_id>")
@@ -64,6 +47,7 @@ def restaurant_sheet(restaurant_id):
     session["RESTAURANT_ID"] = restaurant_id
 
     review_form = ReviewForm()
+    book_form = ReservationForm()
 
     return render_template(
         "restaurantsheet.html",
@@ -79,6 +63,7 @@ def restaurant_sheet(restaurant_id):
         weekDaysLabel=weekDaysLabel,
         photos=photos,
         review_form=review_form,
+        book_form=book_form,
         reviews=RestaurantServices.get_three_reviews(restaurant_id),
         _test="visit_rest_test",
     )
@@ -243,7 +228,7 @@ def my_photogallery():
 @restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR", "CUSTOMER"])
-def restaurantReview(restaurant_id):
+def restaurant_review(restaurant_id):
     if request.method == "POST":
         form = ReviewForm()
         review = RestaurantServices.review_restaurant(
@@ -260,3 +245,19 @@ def restaurantReview(restaurant_id):
             )
 
     return redirect("review.html")
+
+
+@restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET"])
+@roles_allowed(roles=["OPERATOR", "CUSTOMER", "ADMIN"])
+def search_restaurant():
+    name = request.form.get("name")
+    current_app.logger.debug(
+        "An user want search a restaurant with name {}".format(name)
+    )
+    if name is None or len(name) is 0:
+        message = "Message not specified"
+        return render_template("index.html", _test="error_search_test", error=message)
+    filter_by_name = RestaurantServices.get_restaurants_by_keyword(name=name)
+    return render_template(
+        "index.html", _test="error_search_test", restaurants=filter_by_name
+    )
