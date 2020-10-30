@@ -49,6 +49,8 @@ def restaurant_sheet(restaurant_id):
     review_form = ReviewForm()
     book_form = ReservationForm()
 
+    dishes = db.session.query(MenuDish).filter_by(restaurant_id=restaurant_id).all()
+
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -65,6 +67,7 @@ def restaurant_sheet(restaurant_id):
         review_form=review_form,
         book_form=book_form,
         reviews=RestaurantServices.get_three_reviews(restaurant_id),
+        dishes=dishes,
         _test="visit_rest_test",
     )
 
