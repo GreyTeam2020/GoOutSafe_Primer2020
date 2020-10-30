@@ -6,7 +6,14 @@ from monolith.forms import RestaurantForm
 from monolith.services.restaurant_services import RestaurantServices
 from datetime import datetime
 
-from monolith.tests.utils import get_user_with_email, login
+from monolith.tests.utils import (
+    get_user_with_email,
+    create_restaurants_on_db,
+    del_restaurant_on_db,
+    del_user_on_db,
+    create_user_on_db,
+    login,
+)
 
 
 @pytest.mark.usefixtures("client")
@@ -39,8 +46,7 @@ class Test_RestaurantServices:
         restaurant = RestaurantServices.create_new_restaurant(form, q_user.id, 6)
         assert restaurant is not None
 
-        db.session.query(Restaurant).filter_by(id=restaurant.id).delete()
-        db.session.commit()
+        del_restaurant_on_db(restaurant.id)
 
     def test_all_restaurant(self):
         """
@@ -121,9 +127,7 @@ class Test_RestaurantServices:
             .filter(Restaurant.name == "Trial Restaurant")
             .first()
         )
-
         name = RestaurantServices.get_restaurant_name(restaurant.id)
-
         assert restaurant.name == name
 
     def test_three_reviews(self):
@@ -159,6 +163,41 @@ class Test_RestaurantServices:
 
         db.session.commit()
 
+    def test_search_restaurant_by_key_ok_complete_name(self):
+        """
+        This test unit test the service to perform the search by keyword of the restaurants
+        on persistence
+        """
+        rest_by_name = RestaurantServices.get_restaurants_by_keyword(name="Trial")
+        assert len(rest_by_name) is 1
+
+    def test_search_restaurant_by_key_ok_partial_name(self):
+        """
+        This test unit test the service to perform the search by keyword of the restaurants
+        on persistence
+        """
+        user = create_user_on_db()
+        rest = create_restaurants_on_db("Gino Sorbillo", user.id)
+        assert rest is not None
+        rest_by_name = RestaurantServices.get_restaurants_by_keyword(name=rest.name)
+        assert len(rest_by_name) is 1
+
+        rest_by_name = RestaurantServices.get_restaurants_by_keyword(name="Gino")
+        assert len(rest_by_name) is 1
+
+        rest_by_name = RestaurantServices.get_restaurants_by_keyword(name="gino")
+        assert len(rest_by_name) is 1
+
+        rest_by_name = RestaurantServices.get_restaurants_by_keyword(name="Sorbillo")
+        assert len(rest_by_name) is 1
+
+        rest_by_name = RestaurantServices.get_restaurants_by_keyword(name="sorbillo")
+        assert len(rest_by_name) is 1
+
+        del_user_on_db(user.id)
+        for rest in rest_by_name:
+            del_restaurant_on_db(rest.id)
+
     def test_delete_dish_menu(self, client):
         """
         check if dish get deletedS
@@ -170,14 +209,14 @@ class Test_RestaurantServices:
         assert "logged_test" in response.data.decode("utf-8")
 
         dish = MenuDish()
-        dish.name="Pearà"
-        dish.price=5.50
-        dish.restaurant_id=1
+        dish.name = "Pearà"
+        dish.price = 5.50
+        dish.restaurant_id = 1
         db.session.add(dish)
         db.session.commit()
         assert dish is not None
 
-        client.get("/restaurant/menu/delete/"+str(dish.id))
+        client.get("/restaurant/menu/delete/" + str(dish.id))
 
         dish = db.session.query(MenuDish).filter_by(name="Pearà").first()
         assert dish is None

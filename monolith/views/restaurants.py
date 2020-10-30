@@ -273,17 +273,17 @@ def restaurant_review(restaurant_id):
     return redirect("review.html")
 
 
-@restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET"])
-@roles_allowed(roles=["OPERATOR", "CUSTOMER", "ADMIN"])
-def search_restaurant():
-    name = request.form.get("name")
+@restaurants.route("/restaurant/search/<name_rest>", methods=["GET"])
+def search_restaurant(name_rest):
     current_app.logger.debug(
-        "An user want search a restaurant with name {}".format(name)
+        "An user want search a restaurant with name {}".format(name_rest)
     )
-    if name is None or len(name) is 0:
+    if name_rest is None or len(name_rest) is 0:
         message = "Message not specified"
-        return render_template("index.html", _test="error_search_test", error=message)
-    filter_by_name = RestaurantServices.get_restaurants_by_keyword(name=name)
+        return render_template(
+            "index.html", _test="rest_error_search_test", error=message
+        )
+    filter_by_name = RestaurantServices.get_restaurants_by_keyword(name=name_rest)
     return render_template(
-        "index.html", _test="error_search_test", restaurants=filter_by_name
+        "index.html", _test="rest_search_test", restaurants=filter_by_name
     )

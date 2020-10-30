@@ -11,7 +11,7 @@ from monolith.tests.utils import (
 
 
 @pytest.mark.usefixtures("client")
-class Test_healthyServices:
+class Test_HealthyServices:
     """"""
 
     def test_mark_positive_user_precondition(self):

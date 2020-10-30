@@ -170,12 +170,12 @@ class RestaurantServices:
         """
         This method contains the logic to perform the search restaurant by keywords
         The keywords supported are:
+        https://stackoverflow.com/questions/3325467/sqlalchemy-equivalent-to-sql-like-statement
         :param name: is the name of restaurants
         """
         if name is None:
             raise Exception("Name is required to make this type of research")
-        restaurants_list = db.session.query(Restaurant).filter_by(name=name).all()
-        return restaurants_list
+        return Restaurant.query.filter(Restaurant.name.ilike("%{}%".format(name))).all()
 
     @staticmethod
     def get_restaurant_people(restaurant_id: int):
