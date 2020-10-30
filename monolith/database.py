@@ -192,12 +192,13 @@ class MenuPhotoGallery(db.Model):
     menu_id = db.Column(db.Integer, db.ForeignKey("menu.id"))
     menu = relationship("Menu", foreign_keys="MenuPhotoGallery.menu_id")
 
+
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    #review, reletion with user table
+    # review, reletion with user table
     reviewer_id = db.Column(db.Integer, db.ForeignKey("user.id"))
     reviewer = relationship("User", foreign_keys="Review.reviewer_id")
-    #restaurant 
+    # restaurant
     restaurant_id = db.Column(db.Integer, db.ForeignKey("restaurant.id"))
     restaurant = relationship("Restaurant", foreign_keys="Review.restaurant_id")
 

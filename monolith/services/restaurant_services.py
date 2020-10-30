@@ -4,6 +4,7 @@ from monolith.database import db
 
 from sqlalchemy.sql.expression import func
 
+
 class RestaurantServices:
     """"""
 
@@ -74,13 +75,53 @@ class RestaurantServices:
         return all_restaurants
 
     @staticmethod
-    def review_restaurant(restaurant_id, reviewer_id ,stars, review):
-        '''
+    def get_reservation_rest(owner_id, restaurant_id, from_date, to_date, email):
+        """
+        This method contains the logic to find all reservation in the restaurant
+        with the filter on the date
+        """
+
+        queryString = (
+            "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv "
+            "join user cust on cust.id = reserv.customer_id "
+            "join restaurant_table tab on reserv.table_id = tab.id "
+            "join restaurant rest on rest.id = tab.restaurant_id "
+            "where rest.owner_id = :owner_id "
+            "and rest.id = :restaurant_id "
+        )
+
+        # add filters...
+        if from_date:
+            queryString = queryString + " and  reserv.reservation_date > :fromDate"
+        if to_date:
+            queryString = queryString + " and  reserv.reservation_date < :toDate"
+        if email:
+            queryString = queryString + " and  cust.email = :email"
+        queryString = queryString + " order by reserv.reservation_date desc"
+
+        stmt = db.text(queryString)
+
+        # bind filter params...
+        params = {"owner_id": owner_id, "restaurant_id": restaurant_id}
+        if from_date:
+            params["fromDate"] = from_date + " 00:00:00.000"
+        if to_date:
+            params["toDate"] = to_date + " 23:59:59.999"
+        if email:
+            params["email"] = email
+
+        # execute and retrive results...
+        result = db.engine.execute(stmt, params)
+        return result.fetchall()
+
+    @staticmethod
+    def review_restaurant(restaurant_id, reviewer_id, stars, review):
+        """
         This method insert a review to the specified restaurant
-        '''
+        """
         if stars < 0 or stars > 5:
             return None
-        
+
         new_review = Review()
         new_review.restaurant_id = restaurant_id
         new_review.reviewer_id = reviewer_id
@@ -91,28 +132,29 @@ class RestaurantServices:
         db.session.commit()
 
         return new_review
-    
+
     @staticmethod
     def get_three_reviews(restaurant_id):
-        '''
+        """
         Given the restaurant_di return three random reviews
-        '''
-        reviews = (db.session.query(Review)
-        .filter_by(restaurant_id = restaurant_id)
-        .order_by(func.random())
-        .limit(3)
-        .all())
+        """
+        reviews = (
+            db.session.query(Review)
+            .filter_by(restaurant_id=restaurant_id)
+            .order_by(func.random())
+            .limit(3)
+            .all()
+        )
 
         return reviews
-    
+
     @staticmethod
     def get_restaurant_name(restaurant_id):
-        '''
+        """
         Given the id return the name of the resturant
-        '''
-        name = (db.session.query(Restaurant.name)
-        .filter_by(id = restaurant_id)
-        .first()
-        )[0]
+        """
+        name = (db.session.query(Restaurant.name).filter_by(id=restaurant_id).first())[
+            0
+        ]
 
         return name

@@ -22,14 +22,17 @@ _max_seats = 6
 
 
 @restaurants.route("/restaurant/restaurants")
-def _restaurants(message=""):
+def _restaurants(message="", _test=""):
     """
     Return the list of restaurants stored inside the db
     """
     allrestaurants = RestaurantServices.get_all_restaurants()
+    if len(_test) == 0:
+        _test = "all_rest_test"
     return render_template(
         "restaurants.html",
         message=message,
+        _test=_test,
         restaurants=allrestaurants,
         base_url="http://127.0.0.1:5000/restaurants",
     )
@@ -61,7 +64,7 @@ def restaurant_sheet(restaurant_id):
     session["RESTAURANT_ID"] = restaurant_id
 
     review_form = ReviewForm()
-    
+
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -76,7 +79,8 @@ def restaurant_sheet(restaurant_id):
         weekDaysLabel=weekDaysLabel,
         photos=photos,
         review_form=review_form,
-        reviews=RestaurantServices.get_three_reviews(restaurant_id)        
+        reviews=RestaurantServices.get_three_reviews(restaurant_id),
+        _test="visit_rest_test",
     )
 
 
@@ -167,41 +171,13 @@ def my_reservations():
     toDate = request.args.get("toDate", type=str)
     email = request.args.get("email", type=str)
 
-    queryString = (
-        "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv "
-        "join user cust on cust.id = reserv.customer_id "
-        "join restaurant_table tab on reserv.table_id = tab.id "
-        "join restaurant rest on rest.id = tab.restaurant_id "
-        "where rest.owner_id = :owner_id "
-        "and rest.id = :restaurant_id "
+    reservations_as_list = RestaurantServices.get_reservation_rest(
+        owner_id, restaurant_id, fromDate, toDate, email
     )
-
-    # add filters...
-    if fromDate:
-        queryString = queryString + " and  reserv.reservation_date > :fromDate"
-    if toDate:
-        queryString = queryString + " and  reserv.reservation_date < :toDate"
-    if email:
-        queryString = queryString + " and  cust.email = :email"
-    queryString = queryString + " order by reserv.reservation_date desc"
-
-    stmt = db.text(queryString)
-
-    # bind filter params...
-    params = {"owner_id": owner_id, "restaurant_id": restaurant_id}
-    if fromDate:
-        params["fromDate"] = fromDate + " 00:00:00.000"
-    if toDate:
-        params["toDate"] = toDate + " 23:59:59.999"
-    if email:
-        params["email"] = email
-
-    # execute and retrive results...
-    result = db.engine.execute(stmt, params)
-    reservations_as_list = result.fetchall()
 
     return render_template(
         "reservations.html",
+        _test="restaurant_reservations_test",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
     )
@@ -299,22 +275,24 @@ def my_photogallery():
         form = PhotoGalleryForm()
         return render_template("photogallery.html", form=form, photos=photos)
 
+
 @restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR", "CUSTOMER"])
 def restaurantReview(restaurant_id):
     if request.method == "POST":
         form = ReviewForm()
-        review = RestaurantServices.review_restaurant(restaurant_id, current_user.id,
-        form.data["stars"], form.data["review"])
-        if (review is not None):
+        review = RestaurantServices.review_restaurant(
+            restaurant_id, current_user.id, form.data["stars"], form.data["review"]
+        )
+        if review is not None:
             print("Review inserted!")
             ##FIXME @giacomofrigo
-            return render_template("review.html",
-            restaurant_name = RestaurantServices.get_restaurant_name(restaurant_id),
-            review = review
+            return render_template(
+                "review.html",
+                _test="review_done_test",
+                restaurant_name=RestaurantServices.get_restaurant_name(restaurant_id),
+                review=review,
             )
-    
-    return redirect("review.html")
 
-            
+    return redirect("review.html")
