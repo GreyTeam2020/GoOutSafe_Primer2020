@@ -1,5 +1,6 @@
 import json
-from monolith.database import db, User, Restaurant, Positive, RestaurantTable
+from datetime import datetime
+from monolith.database import db, User, Restaurant, Positive, OpeningHours
 from monolith.forms import (
     UserForm,
     RestaurantForm,
@@ -8,7 +9,7 @@ from monolith.forms import (
     DishForm,
     ReservationForm, PhotoGalleryForm,
 )
-from monolith.services import UserService
+from monolith.services import UserService, RestaurantServices
 
 
 def login(client, username, password):
@@ -143,6 +144,17 @@ def make_revew(client, restaurant_id: int, form: ReviewForm):
     )
 
 
+def research_restaurant(client, name):
+    """
+    This method is an util method to contains the code to perform the
+    flask request to research the user by name or substring
+    :param client:
+    :param name:
+    :return:
+    """
+    return client.get("/restaurant/search/{}".format(name), follow_redirects=True)
+
+
 def create_new_menu(client, form: DishForm):
     """
     This util have the code to perform the request with flask client
@@ -265,8 +277,36 @@ def create_user_on_db():
     return UserService.create_user(user, form.password)
 
 
+def create_restaurants_on_db(name: str = "Gino Sorbillo", user_id: int = None):
+    form = RestaurantForm()
+    form.name.data = name
+    form.phone.data = "1234"
+    form.lat.data = 183
+    form.lon.data = 134
+    form.n_tables.data = 50
+    form.covid_measures.data = "We can survive"
+    form.cuisine.data = ["Italian food"]
+    form.open_days.data = ["0"]
+    form.open_lunch.data = datetime.time(datetime(2020, 7, 1, 12, 12))
+    form.close_lunch.data = datetime.time(datetime(2020, 7, 1, 15, 12))
+    form.open_dinner.data = datetime.time(datetime(2020, 7, 1, 18, 23))
+    form.close_dinner.data = datetime.time(datetime(2020, 6, 1, 22, 32))
+    return RestaurantServices.create_new_restaurant(form, user_id, 6)
+
+
 def del_user_on_db(id):
     db.session.query(User).filter_by(id=id).delete()
+    db.session.commit()
+
+
+def del_restaurant_on_db(id):
+    db.session.query(Restaurant).filter_by(id=id).delete()
+    del_time_for_rest(id)
+    db.session.commit()
+
+
+def del_time_for_rest(id):
+    db.session.query(OpeningHours).filter_by(restaurant_id=id).delete()
     db.session.commit()
 
 

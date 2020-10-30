@@ -31,6 +31,10 @@ from monolith.tests.utils import (
     del_user_on_db,
     unmark_people_for_covid19,
     search_contact_positive_covid19,
+    del_restaurant_on_db,
+    create_user_on_db,
+    create_restaurants_on_db,
+    research_restaurant,
     create_new_menu,
     create_new_reservation, create_new_user_with_form, create_new_restaurant_with_form, create_new_table,
     create_new_photo,
@@ -159,9 +163,8 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         response = client.get("/")  ## get index
         assert restaurant_form.name in response.data.decode("utf-8")
-
-        db.session.query(rest.id).delete()
-        db.session.commit()
+        rest = get_rest_with_name(restaurant_form.name)
+        del_restaurant_on_db(rest.id)
 
     def test_register_new_restaurant_ko(self, client):
         """
@@ -210,15 +213,47 @@ class Test_GoOutSafeForm:
         assert response.status_code == 401
         rest = get_rest_with_name(restaurant_form.name)
         assert rest is None
-
-        db.session.query(User).filter_by(id=user.id).delete()
-        db.session.commit()
+        del_user_on_db(user.id)
 
     def test_modify_new_restaurant(self, client):
         pass
 
     def test_research_restaurant_by_name(self, client):
-        pass
+        """
+        This method perform the flask request to search the restaurant by name
+        or an key inside the name
+        :param client:
+        :return:
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        user = get_user_with_email(email)
+        rest = create_restaurants_on_db(user_id=user.id)
+        assert "logged_test" in response.data.decode("utf-8")
+        assert rest is not None
+
+        response = research_restaurant(client, rest.name)
+        assert response.status_code is 200
+        assert "rest_search_test" in response.data.decode("utf-8")
+
+        del_restaurant_on_db(rest.id)
+
+    def test_research_restaurant_by_name_ok_with_anonymus(self, client):
+        """
+        This method perform the flask request to search the restaurant by name
+        or an key inside the name
+        :param client:
+        :return:
+        """
+        email = "ham.burger@email.com"
+        user = get_user_with_email(email)
+        rest = create_restaurants_on_db(user_id=user.id)
+        assert rest is not None
+        response = research_restaurant(client=client, name=rest.name)
+        assert response.status_code is 200
+        assert "rest_search_test" in response.data.decode("utf-8")
+        del_restaurant_on_db(rest.id)
 
     def test_open_photo_view_ok(self, client):
         """

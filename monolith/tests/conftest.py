@@ -1,5 +1,4 @@
-import pytest
-import sys, os
+import sys
 from monolith.tests.fixtures.client import *
 from monolith.tests.fixtures.clean_db import *
 
