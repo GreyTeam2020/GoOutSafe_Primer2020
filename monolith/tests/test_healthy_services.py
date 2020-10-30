@@ -5,6 +5,7 @@ from monolith.tests.utils import (
     create_user_on_db,
     del_user_on_db,
     positive_with_user_id,
+    delete_positive_with_user_id,
 )
 
 
@@ -20,8 +21,10 @@ class Test_healthyServices:
         user = create_user_on_db()
         assert user is not None
         assert user.role_id is 3
-        positive = positive_with_user_id(user.id)
-        assert positive.marked is False
+        positive = positive_with_user_id(user.id, marked=True)
+        assert positive is None
+        delete_positive_with_user_id(user.id)
+        del_user_on_db(user.id)
 
     def test_mark_positive_ok(self):
         """
@@ -31,12 +34,12 @@ class Test_healthyServices:
         user = create_user_on_db()
         assert user is not None
         assert user.role_id is 3
-        positive = positive_with_user_id(user.id, marked=True)
-        assert positive is not None
+        positive = positive_with_user_id(user.id)
+        assert positive is None
         message = HealthyServices.mark_positive(user.email, user.phone)
         assert len(message) is 0
-        db.session.query(User).filter_by(id=user.id).delete()
-        db.session.commit()
+        delete_positive_with_user_id(user.id)
+        del_user_on_db(user.id)
 
     def test_mark_positive_already_covid(self):
         """
@@ -53,6 +56,7 @@ class Test_healthyServices:
         assert message == "User with email {} already Covid-19 positive".format(
             user.email
         )
+        delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
     def test_mark_positive_user_not_exist(self):
@@ -83,6 +87,7 @@ class Test_healthyServices:
         assert positive is None
         message = HealthyServices.mark_positive(user.email, "")
         assert len(message) is 0
+        delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
     def test_mark_positive_user_by_email(self):
@@ -95,4 +100,5 @@ class Test_healthyServices:
         assert positive is None
         message = HealthyServices.mark_positive("", user.phone)
         assert len(message) is 0
+        delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)

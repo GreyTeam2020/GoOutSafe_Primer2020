@@ -20,6 +20,8 @@ from monolith.tests.utils import (
     mark_people_for_covid19,
     visit_reservation,
     make_revew,
+    delete_positive_with_user_id,
+    del_user_on_db,
 )
 
 
@@ -275,8 +277,8 @@ class Test_GoOutSafeForm:
 
         assert q_already_positive is None
 
-        db.session.query(User).filter_by(id=q_user.id).delete()
-        db.session.commit()
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
 
     def test_mark_positive_ok(self, client):
         """
@@ -312,8 +314,8 @@ class Test_GoOutSafeForm:
         )
         assert q_already_positive is not None
 
-        db.session.query(User).filter_by(id=q_user.id).delete()
-        db.session.commit()
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
 
     def test_see_reservation_ko(self, client):
         """
