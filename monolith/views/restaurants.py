@@ -132,6 +132,7 @@ def my_reservations():
         _test="restaurant_reservations_test",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
+        reservations_n=RestaurantServices.get_restaurant_people(restaurant_id)
     )
 
 
