@@ -151,6 +151,9 @@ class BookingServices:
             # register on db the reservation
             new_reservation = Reservation()
             new_reservation.reservation_date = py_datetime
+            new_reservation.reservation_end = py_datetime + datetime.timedelta(
+                minutes=avg_time
+            )
             new_reservation.customer_id = current_user.id
             new_reservation.table_id = min_value[0]
             new_reservation.people_number = people_number

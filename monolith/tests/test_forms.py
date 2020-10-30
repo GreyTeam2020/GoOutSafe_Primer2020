@@ -23,7 +23,7 @@ from monolith.tests.utils import (
     delete_positive_with_user_id,
     del_user_on_db,
     unmark_people_for_covid19,
-    search_contact_positive_covid19
+    search_contact_positive_covid19,
 )
 
 
@@ -389,12 +389,6 @@ class Test_GoOutSafeForm:
         db.session.query(Review).filter_by(review=form.review).delete()
         db.session.commit()
 
-
-
-
-
-
-
     def test_mark_positive_ko_user_already_positive(self, client):
 
         user = UserForm()
@@ -433,7 +427,6 @@ class Test_GoOutSafeForm:
         delete_positive_with_user_id(q_user.id)
         del_user_on_db(q_user.id)
 
-
     def test_mark_positive_ko_not_registered_user(self, client):
 
         response = login(client, "health_authority@gov.com", "nocovid")
@@ -456,10 +449,8 @@ class Test_GoOutSafeForm:
         response = unmark_people_for_covid19(client, mark)
         assert response.status_code == 200
 
-
-
     def test_unmark_positive_ko_unathorized(self, client):
-        
+
         response = login(client, "john.doe@email.com", "customer")
         assert response.status_code == 200
 
@@ -487,9 +478,8 @@ class Test_GoOutSafeForm:
 
         del_user_on_db(q_user.id)
 
-
     def test_unmark_positive_ko_user_not_positive(self, client):
-        
+
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -517,9 +507,7 @@ class Test_GoOutSafeForm:
 
         del_user_on_db(q_user.id)
 
-
     def test_unmark_positive_ko_user_not_registered(self, client):
-        
 
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
@@ -530,9 +518,8 @@ class Test_GoOutSafeForm:
         response = unmark_people_for_covid19(client, unmark)
         assert response.status_code == 200
 
-
     def test_unmark_positive_ko_empty_fields(self, client):
-        
+
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -573,9 +560,8 @@ class Test_GoOutSafeForm:
         delete_positive_with_user_id(q_user.id)
         del_user_on_db(q_user.id)
 
-
     def test_unmark_positive_ok(self, client):
-        
+
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -611,13 +597,9 @@ class Test_GoOutSafeForm:
 
         delete_positive_with_user_id(q_user.id)
         del_user_on_db(q_user.id)
-    
-
-
-
 
     def test_search_contacts_with_positive_ko(self, client):
-        
+
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -639,9 +621,8 @@ class Test_GoOutSafeForm:
         q_user = get_user_with_email(user.email)
         del_user_on_db(q_user.id)
 
-   
     def test_search_contacts_with_user_not_registered(self, client):
-        
+
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
 

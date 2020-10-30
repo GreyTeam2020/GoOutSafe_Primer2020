@@ -3,6 +3,7 @@ from monolith.database import db, User, Restaurant, Positive
 from monolith.forms import UserForm, RestaurantForm, SearchUserForm, ReviewForm
 from monolith.services import UserService
 
+
 def login(client, username, password):
     return client.post(
         "/login",
@@ -235,6 +236,7 @@ def unmark_people_for_covid19(client, form: SearchUserForm):
         ),
         follow_redirects=True,
     )
+
 
 def search_contact_positive_covid19(client, form: SearchUserForm):
     """

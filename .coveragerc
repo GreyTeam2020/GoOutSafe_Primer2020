@@ -8,3 +8,4 @@ omit =
     monolith/services/__init__.py
     monolith/__init__.py
     monolith/utils/send_mail.py
+    monolith/utils/formatter.py
