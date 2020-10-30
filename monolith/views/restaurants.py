@@ -68,26 +68,6 @@ def restaurant_sheet(restaurant_id):
         _test="visit_rest_test",
     )
 
-
-@restaurants.route("/restaurant/like/<restaurant_id>")
-@login_required
-def _like(restaurant_id):
-    """
-    TODO user restaurant services
-    """
-    q = Like.query.filter_by(liker_id=current_user.id, restaurant_id=restaurant_id)
-    if q.first() is not None:
-        new_like = Like()
-        new_like.liker_id = current_user.id
-        new_like.restaurant_id = restaurant_id
-        db.session.add(new_like)
-        db.session.commit()
-        message = ""
-    else:
-        message = "You've already liked this place!"
-    return _restaurants(message)
-
-
 @restaurants.route("/restaurant/create", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR"])
