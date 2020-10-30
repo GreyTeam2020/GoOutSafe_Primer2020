@@ -31,7 +31,7 @@ def create_operator():
                     "create_user.html",
                     form=form,
                     message="Email {} already registered".format(form.email.data),
-                    type="operator"
+                    type="operator",
                 )
             user = User()
             form.populate_obj(user)
@@ -61,7 +61,7 @@ def create_user():
                     "create_user.html",
                     form=form,
                     message="Email {} already registered".format(form.email.data),
-                    type="customer"
+                    type="customer",
                 )
             user = User()
             form.populate_obj(user)
@@ -95,10 +95,7 @@ def user_data():
         q = User.query.filter_by(id=current_user.id).first()
         if q is not None:
             form = UserForm(obj=q)
-            return render_template(
-                "user_data.html",
-                form=form
-            )
+            return render_template("user_data.html", form=form)
 
 
 @users.route("/user/delete")
