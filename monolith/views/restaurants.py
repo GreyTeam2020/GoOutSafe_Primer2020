@@ -7,9 +7,9 @@ from monolith.database import (
     RestaurantTable,
     OpeningHours,
     Menu,
-    PhotoGallery,
+    PhotoGallery, MenuDish,
 )
-from monolith.forms import PhotoGalleryForm, ReviewForm, ReservationForm
+from monolith.forms import PhotoGalleryForm, ReviewForm, ReservationForm, DishForm
 from monolith.services import RestaurantServices
 from monolith.auth import roles_allowed
 from flask_login import current_user, login_required
@@ -180,6 +180,38 @@ def my_tables():
         db.session.commit()
         return redirect("/restaurant/data")
 
+
+@restaurants.route("/restaurant/menu", methods=["GET", "POST"])
+@login_required
+@roles_allowed(roles=["OPERATOR"])
+def my_menu():
+    if request.method == "POST":
+        form = DishForm()
+        # add dish to the db
+        if form.validate_on_submit():
+            dish = MenuDish()
+            dish.name = form.data["name"]
+            dish.price = form.data["price"]
+            dish.restaurant_id = session["RESTAURANT_ID"]
+            db.session.add(dish)
+            db.session.commit()
+        else:
+            print(form.errors)
+        return redirect("/restaurant/menu")
+    else:
+        dishes = MenuDish.query.filter_by(
+            restaurant_id=session["RESTAURANT_ID"]
+        ).all()
+        form = DishForm()
+        return render_template("restaurant_menu.html", form=form, dishes=dishes)
+
+@restaurants.route("/restaurant/menu/delete/<dish_id>")
+@login_required
+@roles_allowed(roles=["OPERATOR"])
+def delete_dish(dish_id):
+    db.session.query(MenuDish).filter_by(id=dish_id).delete()
+    db.session.commit()
+    return redirect("/restaurant/menu")
 
 @restaurants.route("/restaurant/photogallery", methods=["GET", "POST"])
 @login_required

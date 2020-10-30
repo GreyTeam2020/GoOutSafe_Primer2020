@@ -110,3 +110,9 @@ class ReservationForm(FlaskForm):
     people_number = f.IntegerField("N. of People", validators=[DataRequired()])
     restaurant_id = f.HiddenField("")
     display = ["reservation_date", "people_number", "restaurant_id"]
+
+
+class DishForm(FlaskForm):
+    name = f.StringField("Dish name", validators=[DataRequired()])
+    price = f.FloatField("Price", validators=[DataRequired()])
+    display = ["name", "price"]
