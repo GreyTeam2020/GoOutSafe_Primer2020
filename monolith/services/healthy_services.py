@@ -61,19 +61,42 @@ class HealthyServices:
             db.session.add(new_positive)
             db.session.commit()
 
-            #start notification zone
+            # start notification zone
             restaurant_notified = []
             user_notified = []
-            all_reservations = db.session.query(Reservation).filter(
-                Reservation.reservation_date >= (datetime.today() - timedelta(days=14)),
-                Reservation.reservation_date < datetime.today()).all()
+            all_reservations = (
+                db.session.query(Reservation)
+                .filter(
+                    Reservation.reservation_date
+                    >= (datetime.today() - timedelta(days=14)),
+                    Reservation.reservation_date < datetime.today(),
+                )
+                .all()
+            )
             for reservation in all_reservations:
-                table = db.session.query(RestaurantTable).filter_by(id=reservation.table_id).first()
-                opening = db.session.query(OpeningHours).filter(OpeningHours.restaurant_id == table.restaurant_id,
-                                                                OpeningHours.week_day == reservation.reservation_date.weekday()).first()
-                period = [opening.open_dinner, opening.close_dinner] if (
-                            opening.open_dinner <= reservation.reservation_date.time()) else [opening.open_lunch, opening.close_lunch]
-                restaurant = db.session.query(Restaurant).filter_by(id=table.restaurant_id).first()
+                table = (
+                    db.session.query(RestaurantTable)
+                    .filter_by(id=reservation.table_id)
+                    .first()
+                )
+                opening = (
+                    db.session.query(OpeningHours)
+                    .filter(
+                        OpeningHours.restaurant_id == table.restaurant_id,
+                        OpeningHours.week_day == reservation.reservation_date.weekday(),
+                    )
+                    .first()
+                )
+                period = (
+                    [opening.open_dinner, opening.close_dinner]
+                    if (opening.open_dinner <= reservation.reservation_date.time())
+                    else [opening.open_lunch, opening.close_lunch]
+                )
+                restaurant = (
+                    db.session.query(Restaurant)
+                    .filter_by(id=table.restaurant_id)
+                    .first()
+                )
 
                 # Notify Restaurant
                 if restaurant.id not in restaurant_notified:
@@ -85,21 +108,34 @@ class HealthyServices:
                     sendPossibilePositiveContact(owner.email, owner.firstname, reservation.reservation_date, restaurant.name)
                     """
 
-                all_contacts = db.session.query(Reservation).filter(
-                    extract("day", Reservation.reservation_date) == extract("day", reservation.reservation_date),
-                    extract("month", Reservation.reservation_date) == extract("month", reservation.reservation_date),
-                    extract("year", Reservation.reservation_date) == extract("year", reservation.reservation_date),
-                    extract("hour", Reservation.reservation_date) >= extract("hour", period[0]),
-                    extract("hour", Reservation.reservation_date) <= extract("hour", period[1]),
-                ).all()
+                all_contacts = (
+                    db.session.query(Reservation)
+                    .filter(
+                        extract("day", Reservation.reservation_date)
+                        == extract("day", reservation.reservation_date),
+                        extract("month", Reservation.reservation_date)
+                        == extract("month", reservation.reservation_date),
+                        extract("year", Reservation.reservation_date)
+                        == extract("year", reservation.reservation_date),
+                        extract("hour", Reservation.reservation_date)
+                        >= extract("hour", period[0]),
+                        extract("hour", Reservation.reservation_date)
+                        <= extract("hour", period[1]),
+                    )
+                    .all()
+                )
                 for contact in all_contacts:
                     if contact.customer_id not in user_notified:
                         user_notified.append(contact.customer_id)
-                        thisuser = db.session.query(User).filter_by(id=contact.customer_id).first()
+                        thisuser = (
+                            db.session.query(User)
+                            .filter_by(id=contact.customer_id)
+                            .first()
+                        )
                         if thisuser is not None:
                             """
                             Send the email!
-        
+
                             sendPossibilePositiveContact(thisuser.email, thisuser.firstname, contact.reservation_date, restaurant.name)
                             """
             return ""
@@ -109,19 +145,50 @@ class HealthyServices:
     @staticmethod
     def search_contacts(id_user):
         result = []
-        all_reservations = db.session.query(Reservation).filter(Reservation.reservation_date >= (datetime.today()-timedelta(days=14)), Reservation.reservation_date < datetime.today()).all()
+        all_reservations = (
+            db.session.query(Reservation)
+            .filter(
+                Reservation.reservation_date >= (datetime.today() - timedelta(days=14)),
+                Reservation.reservation_date < datetime.today(),
+            )
+            .all()
+        )
         for reservation in all_reservations:
-            table = db.session.query(RestaurantTable).filter_by(id=reservation.table_id).first()
-            opening = db.session.query(OpeningHours).filter(OpeningHours.restaurant_id == table.restaurant_id, OpeningHours.week_day==reservation.reservation_date.weekday()).first()
-            period = [opening.open_dinner, opening.close_dinner] if (opening.open_dinner <= reservation.reservation_date.time()) else [opening.open_lunch, opening.close_lunch]
+            table = (
+                db.session.query(RestaurantTable)
+                .filter_by(id=reservation.table_id)
+                .first()
+            )
+            opening = (
+                db.session.query(OpeningHours)
+                .filter(
+                    OpeningHours.restaurant_id == table.restaurant_id,
+                    OpeningHours.week_day == reservation.reservation_date.weekday(),
+                )
+                .first()
+            )
+            period = (
+                [opening.open_dinner, opening.close_dinner]
+                if (opening.open_dinner <= reservation.reservation_date.time())
+                else [opening.open_lunch, opening.close_lunch]
+            )
 
-            all_contacts = db.session.query(Reservation).filter(
-                extract("day", Reservation.reservation_date) == extract("day", reservation.reservation_date),
-                extract("month", Reservation.reservation_date) == extract("month", reservation.reservation_date),
-                extract("year", Reservation.reservation_date) == extract("year", reservation.reservation_date),
-                extract("hour", Reservation.reservation_date) >= extract("hour", period[0]),
-                extract("hour", Reservation.reservation_date) <= extract("hour", period[1]),
-            ).all()
+            all_contacts = (
+                db.session.query(Reservation)
+                .filter(
+                    extract("day", Reservation.reservation_date)
+                    == extract("day", reservation.reservation_date),
+                    extract("month", Reservation.reservation_date)
+                    == extract("month", reservation.reservation_date),
+                    extract("year", Reservation.reservation_date)
+                    == extract("year", reservation.reservation_date),
+                    extract("hour", Reservation.reservation_date)
+                    >= extract("hour", period[0]),
+                    extract("hour", Reservation.reservation_date)
+                    <= extract("hour", period[1]),
+                )
+                .all()
+            )
             for contact in all_contacts:
                 if contact.customer_id not in result:
                     result.append(contact.customer_id)
@@ -137,7 +204,8 @@ class HealthyServices:
                         str(user.dateofbirth).split()[0],
                         user.email,
                         user.phone,
-                    ])
+                    ]
+                )
 
         return contact_users
 

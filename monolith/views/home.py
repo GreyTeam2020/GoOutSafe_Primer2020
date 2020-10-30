@@ -39,7 +39,11 @@ def index():
             print(current_user.id)
             is_positive = UserService.is_positive(current_user.id)
             return render_template(
-                "index_customer.html", _test=_test, restaurants=restaurants, form=form, is_positive=is_positive
+                "index_customer.html",
+                _test=_test,
+                restaurants=restaurants,
+                form=form,
+                is_positive=is_positive,
             )
 
     return render_template("index.html", _test=_test, restaurants=restaurants)
