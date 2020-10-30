@@ -1,6 +1,6 @@
 from flask_login import current_user
 
-from monolith.database import db, User
+from monolith.database import db, User, Positive
 from monolith.forms import UserForm
 
 
@@ -61,3 +61,15 @@ class UserService:
         else:
             db.session.query(User).filter_by(email=email).delete()
         db.session.commit()
+
+    @staticmethod
+    def isPositive(user_id: int):
+        """
+        Given a userid i return if the user is currently positive
+        :param user_id: user id of the user checked
+        return: boolean if the user is positive
+        """
+        check =db.session.query(Positive).filter_by(user_id=int).filter_by(marked=True).first()
+        if check is None:
+            return False
+        return True
