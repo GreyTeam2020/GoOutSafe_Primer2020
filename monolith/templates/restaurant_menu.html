@@ -15,14 +15,14 @@
               </tr>
             </thead>
             <tbody>
-                <!-- TODO { % for dish in dishes %} -->
+                {% for dish in dishes %}
                     <tr>
-                        <td>{ { dish.id }}</td>
-                        <td>{ { dish.name }}</td>
-                        <td>{ { dish.price }}</td>
-                        <td></td>
+                        <td>{{ dish.id }}</td>
+                        <td>{{ dish.name }}</td>
+                        <td>{{ dish.price }}</td>
+                        <td><a href=""><a href="/restaurant/menu/delete/{{ dish.id }}"><button class="btn btn-danger">Delete</button></a></td>
                     </tr>
-                <!-- { % endfor %} -->
+                {% endfor %}
             </tbody>
           </table>
       </div>
@@ -40,10 +40,21 @@
           </div>
           <div class="modal-body">
             <form method="POST" action="" id="addDishForm">
-                <label>Name</label>
-                <input type="text" class="form-control" name="name" placeholder="Name">
-                <label>Price</label>
-                <input type="text" class="form-control" name="price" placeholder="Price">
+                {{ form.hidden_tag()  }}
+                {% for field in form.display %}
+                   <dt>{{ form[field].label }}</dt>
+                   <dd class="text-center">{{ form[field](class_="form-control", placeholder=form[field].label.text) }}</dd>
+                     {% if form[field].errors %}
+                        {% for e in form[field].errors %}
+                         <p class="help-block">{{ e }}</p>
+                        {% endfor %}
+                     {% endif %}
+               {% endfor %}
+               {% if error %}
+                  <div class="alert alert-danger" role="alert">
+                      {{ error }}
+                  </div>
+              {% endif  %}
             </form>
           </div>
           <div class="modal-footer">

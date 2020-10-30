@@ -13,7 +13,13 @@ from utils import (
     get_rest_with_name_and_phone,
 )
 from monolith.database import db, User, Restaurant, Positive, Review
-from monolith.forms import UserForm, RestaurantForm, SearchUserForm, ReviewForm
+from monolith.forms import (
+    UserForm,
+    RestaurantForm,
+    SearchUserForm,
+    ReviewForm,
+    DishForm,
+)
 from monolith.tests.utils import (
     visit_restaurant,
     visit_photo_gallery,
@@ -24,6 +30,7 @@ from monolith.tests.utils import (
     del_user_on_db,
     unmark_people_for_covid19,
     search_contact_positive_covid19,
+    create_new_menu,
 )
 
 
@@ -631,3 +638,44 @@ class Test_GoOutSafeForm:
         mark.phone = "324545"
         response = search_contact_positive_covid19(client, mark)
         assert response.status_code == 200
+
+    def test_create_new_menu_restaurant_ok(self, client):
+        """
+        This test case perform the request with flask client to make
+        the request to access at the db
+        :param client:
+        :return:
+        """
+        email = "ham.burger@email.com"
+        pazz = "operator"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        rest = db.session.query(Restaurant).all()[0]
+        form = DishForm()
+        form.name = "Pasta"
+        form.price = 14
+        with client.session_transaction() as session:
+            session["RESTAURANT_ID"] = rest.id
+        response = create_new_menu(client, form)
+        assert response.status_code is 200
+        assert "menu_ok_test" in response.data.decode("utf-8")
+        
+        logout(client)
+
+    def test_create_new_menu_restaurant_ko(self, client):
+        """
+        This test case perform the request with flask client to make
+        the request to access at the db
+        :param client:
+        :return:
+        """
+        rest = db.session.query(Restaurant).all()[0]
+        form = DishForm()
+        form.name = "Pasta"
+        form.price = 14
+        with client.session_transaction() as session:
+            session["RESTAURANT_ID"] = rest.id
+        response = create_new_menu(client, form)
+        assert response.status_code is not 403

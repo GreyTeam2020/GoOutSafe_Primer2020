@@ -189,6 +189,18 @@ class Menu(db.Model):
     description = db.Column(db.Text(255))
 
 
+class MenuDish(db.Model):
+    # menu dishes
+    __tablename__ = "menu_dish"
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    # restaurant
+    restaurant_id = db.Column(db.Integer, db.ForeignKey("restaurant.id"))
+    restaurant = relationship("Restaurant", foreign_keys="MenuDish.restaurant_id")
+    #
+    name = db.Column(db.Text(100))
+    price = db.Column(db.Float())
+
+
 class MenuPhotoGallery(db.Model):
     # menu photos
     __tablename__ = "menu_photo_gallery"

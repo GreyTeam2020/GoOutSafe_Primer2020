@@ -25,9 +25,6 @@
                   <div class="card-body">
                     <img src="https://images.pexels.com/photos/6267/menu-restaurant-vintage-table.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500"
                         class="card-img-top" alt="logo restaurant"/>
-                    <p class="card-text text-dark mt-3">
-                        <i class="material-icons text-dark ">thumb_down</i>  <i class="material-icons text-dark">thumb_up</i> {{ restaurant.likes }}
-                    </p>
                     <div class="ratingStats" data-rating="4.5"></div>
                     <a href="/restaurant/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
                        {% if not is_positive %}

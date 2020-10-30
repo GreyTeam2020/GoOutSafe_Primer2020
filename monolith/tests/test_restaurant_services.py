@@ -1,12 +1,12 @@
 import os
 
 import pytest
-from monolith.database import db, User, Restaurant, Review
+from monolith.database import db, User, Restaurant, Review, MenuDish
 from monolith.forms import RestaurantForm
 from monolith.services.restaurant_services import RestaurantServices
 from datetime import datetime
 
-from monolith.tests.utils import get_user_with_email
+from monolith.tests.utils import get_user_with_email, login
 
 
 @pytest.mark.usefixtures("client")
@@ -158,3 +158,26 @@ class Test_RestaurantServices:
         db.session.query(Review).filter_by(id=review3.id).delete()
 
         db.session.commit()
+
+    def test_delete_dish_menu(self, client):
+        """
+        check if dish get deletedS
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        dish = MenuDish()
+        dish.name="Pearà"
+        dish.price=5.50
+        dish.restaurant_id=1
+        db.session.add(dish)
+        db.session.commit()
+        assert dish is not None
+
+        client.get("/restaurant/menu/delete/"+str(dish.id))
+
+        dish = db.session.query(MenuDish).filter_by(name="Pearà").first()
+        assert dish is None

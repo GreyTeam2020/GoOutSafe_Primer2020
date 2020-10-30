@@ -56,13 +56,26 @@
                     </div>
                 </div>
             </div>
-
+            <div class="row justify-content-center mt-5">
+                <div class="col-sm-7">
+                    <h1 align="center">Our Menu</h1>
+                    {% if dishes|length == 0 %}
+                         <h5 align="center">No dishes inserted yet</h5>
+                    {% endif %}
+                    <ul class="list-group">
+                        {% for dish in dishes %}
+                            <li class="list-group-item">
+                              <h4 class="list-group-item-heading">{{ dish.name }}<span class="badge float-right">{{ dish.price }} €</span></h4>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
             <div class="py-4 px-4">
-                <div class="d-flex align-items-center justify-content-between mb-3">
+                <div class=" mb-3">
+                    <h1 align="center">Photos</h1>
                     {% if photos|length == 0 %}
-                         <h5 class="mb-0">No photo uploaded yet</h5>
-                    {% else %}
-                         <h5 class="mb-0">Photos</h5>
+                         <h5 align="center">No photo uploaded yet</h5>
                     {% endif %}
                 </div>
                 <div class="row">

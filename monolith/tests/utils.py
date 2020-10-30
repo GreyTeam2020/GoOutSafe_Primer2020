@@ -1,6 +1,12 @@
 import json
 from monolith.database import db, User, Restaurant, Positive
-from monolith.forms import UserForm, RestaurantForm, SearchUserForm, ReviewForm
+from monolith.forms import (
+    UserForm,
+    RestaurantForm,
+    SearchUserForm,
+    ReviewForm,
+    DishForm,
+)
 from monolith.services import UserService
 
 
@@ -129,6 +135,25 @@ def make_revew(client, restaurant_id: int, form: ReviewForm):
         data=dict(
             stars=form.stars,
             review=form.review,
+            submit=True,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )
+
+
+def create_new_menu(client, form: DishForm):
+    """
+    This util have the code to perform the request with flask client
+    and make a new mewnu
+    :param form:
+    :return:
+    """
+    return client.post(
+        "/restaurant/menu",
+        data=dict(
+            name=form.name,
+            price=form.price,
             submit=True,
             headers={"Content-type": "application/x-www-form-urlencoded"},
         ),

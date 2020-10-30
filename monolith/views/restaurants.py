@@ -8,8 +8,9 @@ from monolith.database import (
     OpeningHours,
     Menu,
     PhotoGallery,
+    MenuDish,
 )
-from monolith.forms import PhotoGalleryForm, ReviewForm, ReservationForm
+from monolith.forms import PhotoGalleryForm, ReviewForm, ReservationForm, DishForm
 from monolith.services import RestaurantServices
 from monolith.auth import roles_allowed
 from flask_login import current_user, login_required
@@ -49,6 +50,8 @@ def restaurant_sheet(restaurant_id):
     review_form = ReviewForm()
     book_form = ReservationForm()
 
+    dishes = db.session.query(MenuDish).filter_by(restaurant_id=restaurant_id).all()
+
     return render_template(
         "restaurantsheet.html",
         id=restaurant_id,
@@ -65,27 +68,9 @@ def restaurant_sheet(restaurant_id):
         review_form=review_form,
         book_form=book_form,
         reviews=RestaurantServices.get_three_reviews(restaurant_id),
+        dishes=dishes,
         _test="visit_rest_test",
     )
-
-
-@restaurants.route("/restaurant/like/<restaurant_id>")
-@login_required
-def _like(restaurant_id):
-    """
-    TODO user restaurant services
-    """
-    q = Like.query.filter_by(liker_id=current_user.id, restaurant_id=restaurant_id)
-    if q.first() is not None:
-        new_like = Like()
-        new_like.liker_id = current_user.id
-        new_like.restaurant_id = restaurant_id
-        db.session.add(new_like)
-        db.session.commit()
-        message = ""
-    else:
-        message = "You've already liked this place!"
-    return _restaurants(message)
 
 
 @restaurants.route("/restaurant/create", methods=["GET", "POST"])
@@ -119,7 +104,9 @@ def create_restaurant():
                 )
 
             # set the owner
-            newrestaurant = RestaurantServices.create_new_restaurant(form, q_user.id, _max_seats)
+            newrestaurant = RestaurantServices.create_new_restaurant(
+                form, q_user.id, _max_seats
+            )
             session["RESTAURANT_ID"] = newrestaurant.id
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
@@ -149,6 +136,7 @@ def my_reservations():
         _test="restaurant_reservations_test",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
+        reservations_n=RestaurantServices.get_restaurant_people(restaurant_id),
     )
 
 
@@ -161,7 +149,7 @@ def my_data():
         # TODO: add logic to update data
         return redirect("/restaurant/data")
     else:
-        if ("RESTAURANT_ID" in session):
+        if "RESTAURANT_ID" in session:
             q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
             if q is not None:
                 form = RestaurantForm(obj=q)
@@ -199,6 +187,44 @@ def my_tables():
         RestaurantTable.query.filter_by(id=request.args.get("id")).delete()
         db.session.commit()
         return redirect("/restaurant/data")
+
+
+@restaurants.route("/restaurant/menu", methods=["GET", "POST"])
+@login_required
+@roles_allowed(roles=["OPERATOR"])
+def my_menu():
+    if request.method == "POST":
+        form = DishForm()
+        # add dish to the db
+        if form.validate_on_submit():
+            dish = MenuDish()
+            dish.name = form.data["name"]
+            dish.price = form.data["price"]
+            dish.restaurant_id = session["RESTAURANT_ID"]
+            db.session.add(dish)
+            db.session.commit()
+            _test = "menu_ok_test"
+        else:
+            _test = "menu_ko_form_test"
+            print(form.errors)
+        return render_template(
+            "restaurant_menu.html", _test=_test, form=form, dishes=[]
+        )
+    else:
+        dishes = MenuDish.query.filter_by(restaurant_id=session["RESTAURANT_ID"]).all()
+        form = DishForm()
+        return render_template(
+            "restaurant_menu.html", _test="menu_view_test", form=form, dishes=dishes
+        )
+
+
+@restaurants.route("/restaurant/menu/delete/<dish_id>")
+@login_required
+@roles_allowed(roles=["OPERATOR"])
+def delete_dish(dish_id):
+    db.session.query(MenuDish).filter_by(id=dish_id).delete()
+    db.session.commit()
+    return redirect("/restaurant/menu")
 
 
 @restaurants.route("/restaurant/photogallery", methods=["GET", "POST"])

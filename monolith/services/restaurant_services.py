@@ -1,8 +1,17 @@
-from monolith.database import Restaurant, Menu, OpeningHours, RestaurantTable, Review
+from datetime import datetime
+
+from monolith.database import (
+    Restaurant,
+    Menu,
+    OpeningHours,
+    RestaurantTable,
+    Review,
+    Reservation,
+)
 from monolith.forms import RestaurantForm
 from monolith.database import db
 
-from sqlalchemy.sql.expression import func
+from sqlalchemy.sql.expression import func, extract
 
 
 class RestaurantServices:
@@ -167,3 +176,63 @@ class RestaurantServices:
             raise Exception("Name is required to make this type of research")
         restaurants_list = db.session.query(Restaurant).filter_by(name=name).all()
         return restaurants_list
+
+    @staticmethod
+    def get_restaurant_people(restaurant_id: int):
+        """
+        Given the id of the restaurant return the number of people at lunch and dinner
+        """
+        openings = (
+            db.session.query(OpeningHours)
+            .filter(
+                OpeningHours.week_day == datetime.today().weekday(),
+                OpeningHours.restaurant_id == restaurant_id,
+            )
+            .first()
+        )
+        tables = (
+            db.session.query(RestaurantTable)
+            .filter_by(restaurant_id=restaurant_id)
+            .all()
+        )
+        tables_id = []
+        for table in tables:
+            tables_id.append(table.id)
+
+        reservations_l = (
+            db.session.query(Reservation)
+            .filter(
+                Reservation.table_id.in_(tables_id),
+                extract("day", Reservation.reservation_date)
+                == extract("day", datetime.today()),
+                extract("month", Reservation.reservation_date)
+                == extract("month", datetime.today()),
+                extract("year", Reservation.reservation_date)
+                == extract("year", datetime.today()),
+                extract("hour", Reservation.reservation_date)
+                >= extract("hour", openings.open_lunch),
+                extract("hour", Reservation.reservation_date)
+                <= extract("hour", openings.close_lunch),
+            )
+            .all()
+        )
+
+        reservations_d = (
+            db.session.query(Reservation)
+            .filter(
+                Reservation.table_id.in_(tables_id),
+                extract("day", Reservation.reservation_date)
+                == extract("day", datetime.today()),
+                extract("month", Reservation.reservation_date)
+                == extract("month", datetime.today()),
+                extract("year", Reservation.reservation_date)
+                == extract("year", datetime.today()),
+                extract("hour", Reservation.reservation_date)
+                >= extract("hour", openings.open_dinner),
+                extract("hour", Reservation.reservation_date)
+                <= extract("hour", openings.close_dinner),
+            )
+            .all()
+        )
+
+        return [len(reservations_l), len(reservations_d)]
