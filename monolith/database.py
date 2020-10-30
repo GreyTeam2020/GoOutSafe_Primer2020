@@ -1,8 +1,9 @@
 from datetime import datetime
-
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
 from flask_sqlalchemy import SQLAlchemy
+from decimal import Decimal as D
+import sqlalchemy.types as types
 
 
 db = SQLAlchemy()
@@ -193,6 +194,19 @@ class MenuPhotoGallery(db.Model):
     menu = relationship("Menu", foreign_keys="MenuPhotoGallery.menu_id")
 
 
+class SqliteNumeric(types.TypeDecorator):
+    impl = types.String
+
+    def load_dialect_impl(self, dialect):
+        return dialect.type_descriptor(types.VARCHAR(100))
+
+    def process_bind_param(self, value, dialect):
+        return str(value)
+
+    def process_result_value(self, value, dialect):
+        return D(value)
+
+
 class Review(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     # review, reletion with user table
@@ -202,6 +216,6 @@ class Review(db.Model):
     restaurant_id = db.Column(db.Integer, db.ForeignKey("restaurant.id"))
     restaurant = relationship("Restaurant", foreign_keys="Review.restaurant_id")
 
-    stars = db.Column(db.Numeric())
+    stars = db.Column(SqliteNumeric())
     review = db.Column(db.Text())
     data = db.Column(db.DateTime(), default=datetime.now())
