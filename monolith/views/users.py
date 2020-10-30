@@ -31,6 +31,7 @@ def create_operator():
                     "create_user.html",
                     form=form,
                     message="Email {} already registered".format(form.email.data),
+                    type="operator"
                 )
             user = User()
             form.populate_obj(user)
@@ -46,7 +47,7 @@ def create_operator():
                 session["ROLE"] = new_role.value
 
             return redirect("/")
-    return render_template("create_user.html", form=form)
+    return render_template("create_user.html", form=form, type="operator")
 
 
 @users.route("/user/create_user", methods=["GET", "POST"])
@@ -60,6 +61,7 @@ def create_user():
                     "create_user.html",
                     form=form,
                     message="Email {} already registered".format(form.email.data),
+                    type="customer"
                 )
             user = User()
             form.populate_obj(user)
@@ -75,7 +77,7 @@ def create_user():
                 session["ROLE"] = new_role.value
 
             return redirect("/")
-    return render_template("create_user.html", form=form)
+    return render_template("create_user.html", form=form, type="customer")
 
 
 @users.route("/user/data", methods=["GET", "POST"])

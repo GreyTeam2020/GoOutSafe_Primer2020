@@ -20,7 +20,7 @@
 
     <form class="form-signin"  action="" method="POST">
       <img class="mb-4" src="{{ url_for('static',filename='images/logo.png') }}" alt=""  height="72">
-      <h1 class="h3 mb-3 font-weight-normal">Create an Account</h1>
+      <h1 class="h3 mb-3 font-weight-normal">Create an Account<br>as {{ type }}</h1>
       {{ form.hidden_tag() }}
       <dl>
        {% for field in form.display %}
@@ -38,8 +38,13 @@
           </div>
       {% endif  %}
       </dl>
-    <button class="btn btn-lg btn-primary btn-block" type="submit">Create Account</button>
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Create {{ type }} Account</button>
     <p class="mt-5 mb-3 text-muted">Do you have an account? <a href="/login">Login</a></p>
+    {% if type == "customer" %}
+        <p class="mt-5 mb-3 text-muted">Are you a Restaurant operator?<br><a href="/user/create_operator">Signup as Operator</a></p>
+    {% else %}
+        <p class="mt-5 mb-3 text-muted">Are you a Customer?<br><a href="/user/create_user">Signup as Customer</a></p>
+    {% endif %}
   </form>
   </div>
  </body>

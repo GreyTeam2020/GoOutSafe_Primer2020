@@ -134,24 +134,8 @@ def create_restaurant():
                 )
 
             # set the owner
-            RestaurantServices.create_new_restaurant(form, q_user.id, _max_seats)
-            ##new_restaurant = Restaurant()
-
-            ##TODO remove this code here
-            """
-            if q_user.role_id is not 2:
-                q_user.role_id = 2
-                db.session.commit()
-                current_app.logger.debug(
-                    "User {} with id {} update from role {} to {}".format(
-                        q_user.email, q_user.id, 3, q_user.role_id
-                    )
-                )
-            """
-            # set the new role in session
-            # if not the role will be anonymous
-            session["ROLE"] = "OPERATOR"
-
+            newrestaurant = RestaurantServices.create_new_restaurant(form, q_user.id, _max_seats)
+            session["RESTAURANT_ID"] = newrestaurant.id
             return redirect("/")
     return render_template("create_restaurant.html", form=form)
 
@@ -190,44 +174,24 @@ def my_data():
     message = None
     if request.method == "POST":
         # TODO: add logic to update data
-        return redirect("/restaurant/my_restaurant_data")
+        return redirect("/restaurant/data")
     else:
-        q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
-        if q is not None:
-            print(q.covid_measures)
-            form = RestaurantForm(obj=q)
-            form2 = RestaurantTableForm()
-            tables = RestaurantTable.query.filter_by(
-                restaurant_id=session["RESTAURANT_ID"]
-            )
-            return render_template(
-                "restaurant_data.html",
-                form=form,
-                only=["name", "lat", "lon", "covid_measures"],
-                tables=tables,
-                form2=form2,
-            )
-        else:
-            return redirect("/restaurant/create_restaurant")
-
-    # get the resturant info and fill the form
-    # this part is both for POST and GET requests
-    q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
-    if q is not None:
-        print(q.covid_measures)
-        form = RestaurantForm(obj=q)
-        form2 = RestaurantTableForm()
-        tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
-        return render_template(
-            "restaurant_data.html",
-            form=form,
-            only=["name", "lat", "lon", "covid_measures"],
-            tables=tables,
-            form2=form2,
-            message=message,
-        )
-    else:
-        return redirect("/restaurant/create_restaurant")
+        if ("RESTAURANT_ID" in session):
+            q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
+            if q is not None:
+                form = RestaurantForm(obj=q)
+                form2 = RestaurantTableForm()
+                tables = RestaurantTable.query.filter_by(
+                    restaurant_id=session["RESTAURANT_ID"]
+                )
+                return render_template(
+                    "restaurant_data.html",
+                    form=form,
+                    only=["name", "lat", "lon", "covid_measures"],
+                    tables=tables,
+                    form2=form2,
+                )
+        return redirect("/restaurant/create")
 
 
 @restaurants.route("/restaurant/tables", methods=["GET", "POST"])
