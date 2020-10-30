@@ -52,7 +52,6 @@ def send_positive_in_restaurant(
     send_email(subject, body, to_email)
 
 
-
 def send_reservation_confirm(
     to_email, to_name, date_reservation, restaurant_name, number_seat
 ):

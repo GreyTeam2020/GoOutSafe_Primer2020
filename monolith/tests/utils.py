@@ -1,5 +1,5 @@
 import json
-from monolith.database import db, User, Restaurant
+from monolith.database import db, User, Restaurant, Positive
 from monolith.forms import UserForm, RestaurantForm, SearchUserForm, ReviewForm
 from monolith.services import UserService
 
@@ -193,3 +193,13 @@ def create_user_on_db():
 def del_user_on_db(id):
     db.session.query(User).filter_by(id=id).delete()
     db.session.commit()
+
+
+def positive_with_user_id(user_id: int = None, marked: bool = True):
+    """
+    This method is an util function to search inside the positive user
+    """
+    if user_id is None:
+        return db.session.query(Positive).all()
+    else:
+        return db.session.query(Positive).filter_by(user_id=user_id, marked=marked).first()

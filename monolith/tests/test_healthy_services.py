@@ -1,52 +1,59 @@
-import os
-
 import pytest
 from monolith.database import db
-from monolith.forms import UserForm
-from monolith.services import HealthyServices, User, UserService
-from monolith.tests.utils import create_user_on_db, del_user_on_db
-
-from monolith.database import (
-    Positive,
-    User,
-    OpeningHours,
-    RestaurantTable,
-    Reservation,
-    Restaurant,
+from monolith.services import HealthyServices, User
+from monolith.tests.utils import (
+    create_user_on_db,
+    del_user_on_db,
+    positive_with_user_id,
 )
+
 
 @pytest.mark.usefixtures("client")
 class Test_healthyServices:
     """"""
-    
-    
-    def test_mark_positive(self):
-        """
 
+    def test_mark_positive_user_precondition(self):
+        """
         :return:
         """
         # an operator
-        
-        
-        first_customer = User()
-        first_customer.firstname = "John"
-        first_customer.lastname = "Doe"
-        first_customer.email = "test2@email.com"
-        first_customer.phone = "65"
-        first_customer.is_admin = False
-        first_customer.set_password("customer")
-        first_customer.role_id = 3
-        db.session.add(first_customer)
+        user = create_user_on_db()
+        assert user is not None
+        assert user.role_id is 3
+        positive = positive_with_user_id(user.id)
+        assert positive.marked is False
+
+    def test_mark_positive_ok(self):
+        """
+        :return:
+        """
+        # an operator
+        user = create_user_on_db()
+        assert user is not None
+        assert user.role_id is 3
+        positive = positive_with_user_id(user.id, marked=True)
+        assert positive is not None
+        message = HealthyServices.mark_positive(user.email, user.phone)
+        assert len(message) is 0
+        db.session.query(User).filter_by(id=user.id).delete()
         db.session.commit()
-        
 
-        q_already_positive = db.session.query(Positive)
-            .filter(Positive.user_id==first_customer.id, Positive.marked==True)
-            .first()
-            
-
-        assert q_already_positive is not None
-
+    def test_mark_positive_already_covid(self):
+        """
+        :return:
+        """
+        user = create_user_on_db()
+        assert user is not None
+        assert user.role_id is 3
+        positive = positive_with_user_id(user.id)
+        assert positive is None
+        message = HealthyServices.mark_positive(user.email, user.phone)
+        assert len(message) is 0
+        message = HealthyServices.mark_positive(user.email, user.phone)
+        assert message == "User with email {} already Covid-19 positive".format(
+            user.email
+        )
+        del_user_on_db(user.id)
 
     def test_mark_positive_user_not_exist(self):
         """
@@ -59,32 +66,33 @@ class Test_healthyServices:
 
     def test_mark_positive_nan_proprieties(self):
         """
-
         :return:
         """
         message = HealthyServices.mark_positive("", "")
         assert message == "Insert an email or a phone number"
-   
 
+    def test_mark_positive_user_by_email(self):
+        """
+        :return:
+        """
+        user = create_user_on_db()
+        assert user is not None
+        assert user.role_id is 3
+        assert user is not None
+        positive = positive_with_user_id(user.id)
+        assert positive is None
+        message = HealthyServices.mark_positive(user.email, "")
+        assert len(message) is 0
+        del_user_on_db(user.id)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    
+    def test_mark_positive_user_by_email(self):
+        """
+        :return:
+        """
+        user = create_user_on_db()
+        assert user is not None
+        positive = positive_with_user_id(user.id)
+        assert positive is None
+        message = HealthyServices.mark_positive("", user.phone)
+        assert len(message) is 0
+        del_user_on_db(user.id)

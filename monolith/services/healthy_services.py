@@ -43,10 +43,10 @@ class HealthyServices:
 
         if q_user.first() is None:
             return "The user is not registered"
-        
+
         q_already_positive = (
             db.session.query(Positive)
-            .filter(Positive.user_id==q_user.first().id, Positive.marked==True)
+            .filter(Positive.user_id == q_user.first().id, Positive.marked == True)
             .first()
         )
 
@@ -67,16 +67,21 @@ class HealthyServices:
                     Reservation.table_id == RestaurantTable.id,
                     RestaurantTable.restaurant_id == Restaurant.id,
                     Reservation.reservation_date <= datetime.today(),
-                    Reservation.reservation_date >= datetime.today() - timedelta(days=14),
+                    Reservation.reservation_date
+                    >= datetime.today() - timedelta(days=14),
                 )
                 .all()
             )
 
             for restaurant in q_restaurants:
 
-                q_owner = db.session.query(User).filter(
-                    restaurant[0].owner_id == User.id,
-                ).first()
+                q_owner = (
+                    db.session.query(User)
+                    .filter(
+                        restaurant[0].owner_id == User.id,
+                    )
+                    .first()
+                )
 
                 """
                 print(
@@ -89,7 +94,6 @@ class HealthyServices:
                     restaurant[1].reservation_date, restaurant[0].name
                 )
                 """
-
 
             # send email to people that were in the same restaurant
             # of a positive person
@@ -156,12 +160,12 @@ class HealthyServices:
                         .filter(User.id == contact[0].customer_id)
                         .first()
                     )
-                    
+
                     """MANDARE LA MAIL AI CONTATTI
                     sendPossibilePositiveContact(user.email, user.firstname, 
                         contact[0].reservation_date.cast(Date), contact[1].name)
                     """
-                
+
             return ""
         else:
             return "User with email {} already Covid-19 positive".format(user_email)
@@ -275,10 +279,10 @@ class HealthyServices:
             q_user = db.session.query(User).filter_by(
                 phone=user_phone,
             )
-        
+
         if q_user.first() is None:
             return "The user is not registered"
-        
+
         q_already_positive = (
             db.session.query(Positive)
             .filter_by(user_id=q_user.first().id, marked=True)
@@ -291,4 +295,3 @@ class HealthyServices:
             return ""
         else:
             return "User with email {} is not Covid-19 positive".format(user_email)
-        
