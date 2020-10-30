@@ -18,6 +18,14 @@ class UserForm(FlaskForm):
     display = ["email", "firstname", "lastname", "password", "dateofbirth"]
 
 
+class UserEditForm(FlaskForm):
+    email = f.StringField("email", validators=[DataRequired(), Email()])
+    firstname = f.StringField("firstname", validators=[DataRequired()])
+    lastname = f.StringField("lastname", validators=[DataRequired()])
+    dateofbirth = f.DateField("dateofbirth", format="%d/%m/%Y")
+    display = ["email", "firstname", "lastname", "dateofbirth"]
+
+
 class RestaurantForm(FlaskForm):
     name = f.StringField("name", validators=[DataRequired()])
     ## FIXME(vincenzopalazzo) modify the phone length
