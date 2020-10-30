@@ -7,7 +7,7 @@ from monolith.database import (
     RestaurantTable,
     Reservation,
     OpeningHours,
-    Review
+    Review,
 )
 import decimal
 from monolith.views import blueprints
@@ -171,8 +171,6 @@ def create_app(tests=False):
             db.session.add(second_table)
             db.session.commit()
 
-    
-
         # insert some opening hours
         q = (
             db.session.query(OpeningHours)
@@ -254,20 +252,23 @@ def create_app(tests=False):
             first_reservation.reservation_date = datetime.datetime(
                 2020, 10, 28, hour=12
             )
-            first_reservation.reservation_end = first_reservation.reservation_date + datetime.timedelta(minutes=restaurant.avg_time)
+            first_reservation.reservation_end = (
+                first_reservation.reservation_date
+                + datetime.timedelta(minutes=restaurant.avg_time)
+            )
             first_reservation.customer_id = customer.id
             first_reservation.table_id = table.id
             first_reservation.people_number = 2
             db.session.add(first_reservation)
             db.session.commit()
 
-        #insert a review
+        # insert a review
         q = db.session.query(Review).filter_by(id=1).first()
         if q is None:
             review = Review()
             q = db.session.query(Restaurant).filter(
-                    Restaurant.name == "Trial Restaurant"
-                )
+                Restaurant.name == "Trial Restaurant"
+            )
             restaurant = q.first()
 
             q = db.session.query(User).filter(User.email == "john.doe@email.com")
@@ -276,10 +277,9 @@ def create_app(tests=False):
             review.reviewer_id = user.id
             review.review = "ciao"
             review.stars = decimal.Decimal(4.5)
-            
+
             db.session.add(review)
             db.session.commit()
-            
 
     return app
 

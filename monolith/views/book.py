@@ -33,15 +33,18 @@ def index():
         #
         people_number = int(request.form.get("people_number"))
         #
-        book = BookingServices.book(restaurant_id, current_user, py_datetime, people_number)
+        book = BookingServices.book(
+            restaurant_id, current_user, py_datetime, people_number
+        )
 
         if book[0] == False:
-            return render_template(
-                "booking.html", success=False, error=book[1]
-            )
+            return render_template("booking.html", success=False, error=book[1])
         else:
             return render_template(
-                "booking.html", success=True, restaurant_name=book[1], table_name=book[2]
+                "booking.html",
+                success=True,
+                restaurant_name=book[1],
+                table_name=book[2],
             )
     else:
         return render_template("booking.html", success=False, error="not logged in")

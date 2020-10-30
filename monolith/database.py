@@ -70,9 +70,9 @@ class Restaurant(db.Model):
 
     covid_measures = db.Column(db.Text(500))
 
-    #THERE IS NO INTERVAL DATA TYPE IN SQL LITE (FUCK)
-    #avg_time = db.Column(db.Interval())
-    #I store the avg time in integer THAT REPRESENTS MINUTES
+    # THERE IS NO INTERVAL DATA TYPE IN SQL LITE (FUCK)
+    # avg_time = db.Column(db.Interval())
+    # I store the avg time in integer THAT REPRESENTS MINUTES
     avg_time = db.Column(db.Integer, default=30)
 
     def __init__(self, *args, **kw):
@@ -112,6 +112,7 @@ class RestaurantTable(db.Model):
         db.Boolean, default=False
     )  # I don't understand the purpose of this field..
 
+
 class Role(db.Model):
     # this is the role of a user (like operator, customer....)
     __tablename__ = "role"
@@ -149,7 +150,6 @@ class Reservation(db.Model):
     #
     people_number = db.Column(db.Integer)  # number of people in this reservation
     checkin = db.Column(db.Boolean, default=False)
-    
 
 
 class PhotoGallery(db.Model):

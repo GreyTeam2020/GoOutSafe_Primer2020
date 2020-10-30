@@ -90,6 +90,7 @@ class PhotoGalleryForm(FlaskForm):
     caption = f.StringField("caption")
     display = ["url", "caption"]
 
+
 class ReviewForm(FlaskForm):
     stars = f.FloatField("stars", validators=[DataRequired()])
     review = f.StringField("review")

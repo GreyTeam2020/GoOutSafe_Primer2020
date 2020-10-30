@@ -12,7 +12,6 @@ from monolith.database import (
 
 
 class BookingServices:
-
     @staticmethod
     def book(restaurant_id, current_user, py_datetime, people_number):
         # if user wants to book in the past..
@@ -28,7 +27,6 @@ class BookingServices:
         if is_positive:
             return (False, "You are marked as positive!")
 
-
         week_day = py_datetime.weekday()
         only_time = py_datetime.time()
 
@@ -40,7 +38,6 @@ class BookingServices:
             .first()
         )
 
-        
         # the restaurant is closed
         if opening_hour is None:
             print("No Opening hour")
@@ -84,16 +81,15 @@ class BookingServices:
             #
 
         # now let's see if there is a table
-        
-        '''
-        get the time delta (avg_time) from the restaurant table
-        '''
-        avg_time = (db.session.query(Restaurant)
-                    .filter_by(id = restaurant_id)
-                    .first()
-                    .avg_time)
 
-        '''
+        """
+        get the time delta (avg_time) from the restaurant table
+        """
+        avg_time = (
+            db.session.query(Restaurant).filter_by(id=restaurant_id).first().avg_time
+        )
+
+        """
         get all the reservation (with the reservation_date between the dates in which I want to book)
         or (or the reservation_end between the dates in which I want to book)
         the dates in which I want to book are:
@@ -101,18 +97,23 @@ class BookingServices:
         end = py_datetime + avg_time
 
         always filtered by the people_number  
-        '''
+        """
         reservations = (
             db.session.query(RestaurantTable.id)
-                .join(Reservation, RestaurantTable.id == Reservation.table_id)
-                .filter(RestaurantTable.restaurant_id == restaurant_id)
-                .filter(or_(
-                Reservation.reservation_date.between(py_datetime, py_datetime+datetime.timedelta(minutes=avg_time)),
-                Reservation.reservation_end.between(py_datetime, py_datetime+datetime.timedelta(minutes=avg_time))
-                ))
-                .filter(RestaurantTable.max_seats >= people_number)
+            .join(Reservation, RestaurantTable.id == Reservation.table_id)
+            .filter(RestaurantTable.restaurant_id == restaurant_id)
+            .filter(
+                or_(
+                    Reservation.reservation_date.between(
+                        py_datetime, py_datetime + datetime.timedelta(minutes=avg_time)
+                    ),
+                    Reservation.reservation_end.between(
+                        py_datetime, py_datetime + datetime.timedelta(minutes=avg_time)
+                    ),
+                )
+            )
+            .filter(RestaurantTable.max_seats >= people_number)
         )
-
 
         # from the list of all tables in the restaurant (the ones in which max_seats < number of people requested) drop the reserved ones
         all_restaurant_tables = (
@@ -124,7 +125,7 @@ class BookingServices:
         )
 
         # if there are tables available.. get the one with minimum max_seats
-        print ("OK, Ther are {} tables available".format(len(all_restaurant_tables)))
+        print("OK, Ther are {} tables available".format(len(all_restaurant_tables)))
         if len(all_restaurant_tables) > 0:
             min_value = (
                 all_restaurant_tables[0].id,
