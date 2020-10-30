@@ -279,7 +279,7 @@ def my_photogallery():
 @restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET", "POST"])
 @login_required
 @roles_allowed(roles=["OPERATOR", "CUSTOMER"])
-def restaurantReview(restaurant_id):
+def restaurant_review(restaurant_id):
     if request.method == "POST":
         form = ReviewForm()
         review = RestaurantServices.review_restaurant(
@@ -296,3 +296,19 @@ def restaurantReview(restaurant_id):
             )
 
     return redirect("review.html")
+
+
+@restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET"])
+@roles_allowed(roles=["OPERATOR", "CUSTOMER", "ADMIN"])
+def search_restaurant():
+    name = request.form.get("name")
+    current_app.logger.debug(
+        "An user want search a restaurant with name {}".format(name)
+    )
+    if name is None or len(name) is 0:
+        message = "Message not specified"
+        return render_template("index.html", _test="error_search_test", error=message)
+    filter_by_name = RestaurantServices.get_restaurants_by_keyword(name=name)
+    return render_template(
+        "index.html", _test="error_search_test", restaurants=filter_by_name
+    )

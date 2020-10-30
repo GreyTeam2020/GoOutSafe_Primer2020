@@ -151,10 +151,19 @@ class RestaurantServices:
     @staticmethod
     def get_restaurant_name(restaurant_id):
         """
-        Given the id return the name of the resturant
+        Given the id return the name of the restaurant
         """
-        name = (db.session.query(Restaurant.name).filter_by(id=restaurant_id).first())[
-            0
-        ]
-
+        name = db.session.query(Restaurant.name).filter_by(id=restaurant_id).first()[0]
         return name
+
+    @staticmethod
+    def get_restaurants_by_keyword(name: str = None):
+        """
+        This method contains the logic to perform the search restaurant by keywords
+        The keywords supported are:
+        :param name: is the name of restaurants
+        """
+        if name is None:
+            raise Exception("Name is required to make this type of research")
+        restaurants_list = db.session.query(Restaurant).filter_by(name=name).all()
+        return restaurants_list
