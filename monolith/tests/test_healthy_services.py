@@ -104,17 +104,6 @@ class Test_healthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-
-
-
-
-
-
-
-
-
-
-
     def test_unmark_positive_ok(self):
         """
         :return:
