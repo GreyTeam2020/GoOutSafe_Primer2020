@@ -14,6 +14,8 @@ from flask_login import login_required
 
 from sqlalchemy import or_, cast
 
+from monolith.services import UserService
+
 book = Blueprint("book", __name__)
 
 
@@ -38,12 +40,7 @@ def index():
                 "booking.html", success=False, error="You can not book in the past!"
             )
         # check if the user is positive
-        is_positive = (
-            db.session.query(Positive)
-            .filter_by(user_id=current_user.id)
-            .filter_by(marked=True)
-            .first()
-        )
+        is_positive = UserService.isPositive(current_user.id)
         if is_positive:
             return render_template(
                 "booking.html", success=False, error="You are marked as positive!"
