@@ -212,3 +212,10 @@ def delete_positive_with_user_id(user_id: int, marked: bool = True):
     This method is an util function to search inside the positive user
     """
     return db.session.query(Positive).filter_by(user_id=user_id, marked=marked).delete()
+
+
+def delete_was_positive_with_user_id(user_id: int, marked: bool = True):
+    """
+    This method is an util function to search inside the positive user
+    """
+    return db.session.query(Positive).filter_by(user_id=user_id).delete()
