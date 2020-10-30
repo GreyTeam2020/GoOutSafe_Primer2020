@@ -69,7 +69,7 @@ def search_contacts():
 
             q_already_positive = (
                 db.session.query(Positive)
-                .filter_by(user_id=q_user.first().id, marked=True)
+                .filter(Positive.user_id==q_user.first().id, Positive.marked==True)
                 .first()
             )
             if q_already_positive is None:

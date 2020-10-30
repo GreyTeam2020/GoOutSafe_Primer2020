@@ -6,39 +6,47 @@ from monolith.forms import UserForm
 from monolith.services import HealthyServices, User, UserService
 from monolith.tests.utils import create_user_on_db, del_user_on_db
 
+from monolith.database import (
+    Positive,
+    User,
+    OpeningHours,
+    RestaurantTable,
+    Reservation,
+    Restaurant,
+)
 
 @pytest.mark.usefixtures("client")
 class Test_healthyServices:
     """"""
-
-    def test_mark_positive_ok(self):
+    
+    
+    def test_mark_positive(self):
         """
 
         :return:
         """
         # an operator
-        user = create_user_on_db()
-        assert user is not None
-        assert user.role_id is 3
-        message = HealthyServices.mark_positive(user.email, user.phone)
-        assert message != ""
-        db.session.query(User).filter_by(id=user.id).delete()
+        
+        
+        first_customer = User()
+        first_customer.firstname = "John"
+        first_customer.lastname = "Doe"
+        first_customer.email = "test2@email.com"
+        first_customer.phone = "65"
+        first_customer.is_admin = False
+        first_customer.set_password("customer")
+        first_customer.role_id = 3
+        db.session.add(first_customer)
         db.session.commit()
+        
 
-    def test_mark_positive_already_covid(self):
-        """
-        :return:
-        """
-        user = create_user_on_db()
-        assert user is not None
-        assert user.role_id is 3
-        message = HealthyServices.mark_positive(user.email, user.phone)
-        assert message != ""
-        message = HealthyServices.mark_positive(user.email, user.phone)
-        assert message == "User with email {} already Covid-19 positive".format(
-            user.email
-        )
-        del_user_on_db(user.id)
+        q_already_positive = db.session.query(Positive)
+            .filter(Positive.user_id==first_customer.id, Positive.marked==True)
+            .first()
+            
+
+        assert q_already_positive is not None
+
 
     def test_mark_positive_user_not_exist(self):
         """
@@ -56,27 +64,27 @@ class Test_healthyServices:
         """
         message = HealthyServices.mark_positive("", "")
         assert message == "Insert an email or a phone number"
+   
 
-    def test_mark_positive_user_by_email(self):
-        """
 
-        :return:
-        """
-        user = create_user_on_db()
-        assert user is not None
-        assert user.role_id is 3
-        assert user is not None
-        message = HealthyServices.mark_positive(user.email, "")
-        assert message != ""
-        del_user_on_db(user.id)
 
-    def test_mark_positive_user_by_email(self):
-        """
 
-        :return:
-        """
-        user = create_user_on_db()
-        assert user is not None
-        message = HealthyServices.mark_positive("", user.phone)
-        assert message != ""
-        del_user_on_db(user.id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
