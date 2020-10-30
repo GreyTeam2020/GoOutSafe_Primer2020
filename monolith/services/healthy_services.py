@@ -11,7 +11,9 @@ from monolith.database import (
 )
 from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
-from sqlalchemy import cast, Date
+from sqlalchemy import cast, Date, extract
+
+from monolith.services import UserService
 from monolith.utils import send_mail
 
 
@@ -59,204 +61,83 @@ class HealthyServices:
             db.session.add(new_positive)
             db.session.commit()
 
-            # send email to restaurants where there was a positive
-            q_restaurants = (
-                db.session.query(Restaurant, Reservation)
-                .filter(
-                    new_positive.user_id == Reservation.customer_id,
-                    Reservation.table_id == RestaurantTable.id,
-                    RestaurantTable.restaurant_id == Restaurant.id,
-                    Reservation.reservation_date <= datetime.today(),
-                    Reservation.reservation_date
-                    >= datetime.today() - timedelta(days=14),
-                )
-                .all()
-            )
+            #start notification zone
+            restaurant_notified = []
+            user_notified = []
+            all_reservations = db.session.query(Reservation).filter(
+                Reservation.reservation_date >= (datetime.today() - timedelta(days=14)),
+                Reservation.reservation_date < datetime.today()).all()
+            for reservation in all_reservations:
+                table = db.session.query(RestaurantTable).filter_by(id=reservation.table_id).first()
+                opening = db.session.query(OpeningHours).filter(OpeningHours.restaurant_id == table.restaurant_id,
+                                                                OpeningHours.week_day == reservation.reservation_date.weekday()).first()
+                period = [opening.open_dinner, opening.close_dinner] if (
+                            opening.open_dinner <= reservation.reservation_date.time()) else [opening.open_lunch, opening.close_lunch]
+                restaurant = db.session.query(Restaurant).filter_by(id=table.restaurant_id).first()
 
-            for restaurant in q_restaurants:
+                # Notify Restaurant
+                if restaurant.id not in restaurant_notified:
+                    restaurant_notified.append(restaurant.id)
+                    owner = db.session.query(User).filter_by(id=restaurant.owner_id)
+                    """
+                    Send the email!
 
-                q_owner = (
-                    db.session.query(User)
-                    .filter(
-                        restaurant[0].owner_id == User.id,
-                    )
-                    .first()
-                )
-
-                """
-                print(
-                    q_owner.email, q_owner.firstname, 
-                    restaurant[1].reservation_date, restaurant[0].name
-                )
-                MAIL AI RISTORANTI
-                send_positive_in_restaurant(
-                    q_owner.email, q_owner.name, 
-                    restaurant[1].reservation_date, restaurant[0].name
-                )
-                """
-
-            # send email to people that were in the same restaurant
-            # of a positive person
-            reservation_positive = aliased(Reservation)
-            reservations_clients = aliased(Reservation)
-            Table_positive = aliased(RestaurantTable)
-            Tables_clients = aliased(RestaurantTable)
-
-            q_contacts = (
-                db.session.query(reservations_clients, Restaurant)
-                .filter(
-                    new_positive.user_id == reservation_positive.customer_id,
-                    reservation_positive.table_id == Table_positive.id,
-                    Table_positive.restaurant_id == Restaurant.id,
-                    Restaurant.id == Tables_clients.restaurant_id,
-                    Tables_clients.id == reservations_clients.table_id,
-                    OpeningHours.restaurant_id == Restaurant.id,
-                    reservation_positive.reservation_date.cast(Date)
-                    == reservations_clients.reservation_date.cast(Date),
-                    reservation_positive.reservation_date <= datetime.today(),
-                    reservation_positive.reservation_date
-                    >= datetime.today() - timedelta(days=14),
-                    (
-                        (
-                            (
-                                reservation_positive.reservation_date
-                                >= OpeningHours.open_dinner
-                            )
-                            & (
-                                reservations_clients.reservation_date
-                                >= OpeningHours.open_dinner
-                            )
-                        )
-                        | (
-                            (
-                                reservation_positive.reservation_date
-                                <= OpeningHours.close_lunch
-                            )
-                            & (
-                                reservations_clients.reservation_date
-                                <= OpeningHours.close_lunch
-                            )
-                        )
-                    ),
-                )
-                .all()
-            )
-
-            for contact in q_contacts:
-                users = (
-                    db.session.query(User)
-                    .filter(
-                        User.id == contact[0].customer_id,
-                        User.id == Positive.user_id,
-                        Positive.marked == True,
-                    )
-                    .first()
-                )
-
-                # if the user is already positive i don't show him
-                if users is None:
-                    user = (
-                        db.session.query(User)
-                        .filter(User.id == contact[0].customer_id)
-                        .first()
-                    )
-
-                    """MANDARE LA MAIL AI CONTATTI
-                    sendPossibilePositiveContact(user.email, user.firstname, 
-                        contact[0].reservation_date.cast(Date), contact[1].name)
+                    sendPossibilePositiveContact(owner.email, owner.firstname, reservation.reservation_date, restaurant.name)
                     """
 
+                all_contacts = db.session.query(Reservation).filter(
+                    extract("day", Reservation.reservation_date) == extract("day", reservation.reservation_date),
+                    extract("month", Reservation.reservation_date) == extract("month", reservation.reservation_date),
+                    extract("year", Reservation.reservation_date) == extract("year", reservation.reservation_date),
+                    extract("hour", Reservation.reservation_date) >= extract("hour", period[0]),
+                    extract("hour", Reservation.reservation_date) <= extract("hour", period[1]),
+                ).all()
+                for contact in all_contacts:
+                    if contact.customer_id not in user_notified:
+                        user_notified.append(contact.customer_id)
+                        thisuser = db.session.query(User).filter_by(id=contact.customer_id).first()
+                        if thisuser is not None:
+                            """
+                            Send the email!
+        
+                            sendPossibilePositiveContact(thisuser.email, thisuser.firstname, contact.reservation_date, restaurant.name)
+                            """
             return ""
         else:
             return "User with email {} already Covid-19 positive".format(user_email)
 
     @staticmethod
     def search_contacts(id_user):
-        """
-        This method search for people that where in the same restaurant
-        of a positive
-        :return: return the list of contacts
-        """
+        result = []
+        all_reservations = db.session.query(Reservation).filter(Reservation.reservation_date >= (datetime.today()-timedelta(days=14)), Reservation.reservation_date < datetime.today()).all()
+        for reservation in all_reservations:
+            table = db.session.query(RestaurantTable).filter_by(id=reservation.table_id).first()
+            opening = db.session.query(OpeningHours).filter(OpeningHours.restaurant_id == table.restaurant_id, OpeningHours.week_day==reservation.reservation_date.weekday()).first()
+            period = [opening.open_dinner, opening.close_dinner] if (opening.open_dinner <= reservation.reservation_date.time()) else [opening.open_lunch, opening.close_lunch]
 
-        # searching for the contacts
-        reservation_positive = aliased(Reservation)
-        reservations_clients = aliased(Reservation)
-        Table_positive = aliased(RestaurantTable)
-        Tables_clients = aliased(RestaurantTable)
-
-        q_contacts = (
-            db.session.query(reservations_clients)
-            .filter(
-                id_user == reservation_positive.customer_id,
-                reservation_positive.table_id == Table_positive.id,
-                Table_positive.restaurant_id == Restaurant.id,
-                Restaurant.id == Tables_clients.restaurant_id,
-                Tables_clients.id == reservations_clients.table_id,
-                OpeningHours.restaurant_id == Restaurant.id,
-                reservation_positive.reservation_date.cast(Date)
-                == reservations_clients.reservation_date.cast(Date),
-                reservation_positive.reservation_date <= datetime.today(),
-                reservation_positive.reservation_date
-                >= datetime.today() - timedelta(days=14),
-                (
-                    (
-                        (
-                            reservation_positive.reservation_date
-                            >= OpeningHours.open_dinner
-                        )
-                        & (
-                            reservations_clients.reservation_date
-                            >= OpeningHours.open_dinner
-                        )
-                    )
-                    | (
-                        (
-                            reservation_positive.reservation_date
-                            <= OpeningHours.close_lunch
-                        )
-                        & (
-                            reservations_clients.reservation_date
-                            <= OpeningHours.close_lunch
-                        )
-                    )
-                ),
-            )
-            .distinct()
-            .all()
-        )
-
+            all_contacts = db.session.query(Reservation).filter(
+                extract("day", Reservation.reservation_date) == extract("day", reservation.reservation_date),
+                extract("month", Reservation.reservation_date) == extract("month", reservation.reservation_date),
+                extract("year", Reservation.reservation_date) == extract("year", reservation.reservation_date),
+                extract("hour", Reservation.reservation_date) >= extract("hour", period[0]),
+                extract("hour", Reservation.reservation_date) <= extract("hour", period[1]),
+            ).all()
+            for contact in all_contacts:
+                if contact.customer_id not in result:
+                    result.append(contact.customer_id)
+        touser = db.session.query(User).filter(User.id.in_(result)).all()
         contact_users = []
 
-        i = 1
-        for contact in q_contacts:
-            users = (
-                db.session.query(User, Positive)
-                .filter(
-                    User.id == contact.customer_id,
-                    User.id == Positive.user_id,
-                    Positive.marked == True,
-                )
-                .first()
-            )
-
-            # if the user is already positive i don't show him
-            if users is None:
-                user = (
-                    db.session.query(User)
-                    .filter(User.id == contact.customer_id)
-                    .first()
-                )
-
+        for user in touser:
+            if not UserService.is_positive(user.id):
                 contact_users.append(
                     [
-                        i,
+                        user.id,
                         user.firstname + " " + user.lastname,
                         str(user.dateofbirth).split()[0],
                         user.email,
                         user.phone,
-                    ]
-                )
-                i += 1
+                    ])
 
         return contact_users
 

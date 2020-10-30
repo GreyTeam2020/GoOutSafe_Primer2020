@@ -3,6 +3,7 @@ from flask_login import current_user
 
 from monolith.database import db, Restaurant, Positive
 from monolith.forms import ReservationForm
+from monolith.services import UserService
 
 home = Blueprint("home", __name__)
 
@@ -35,8 +36,10 @@ def index():
             )
         elif session["ROLE"] == "CUSTOMER":
             form = ReservationForm()
+            print(current_user.id)
+            is_positive = UserService.is_positive(current_user.id)
             return render_template(
-                "index_customer.html", _test=_test, restaurants=restaurants, form=form
+                "index_customer.html", _test=_test, restaurants=restaurants, form=form, is_positive=is_positive
             )
 
     return render_template("index.html", _test=_test, restaurants=restaurants)

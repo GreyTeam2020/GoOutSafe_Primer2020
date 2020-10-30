@@ -1,6 +1,6 @@
 from flask import Blueprint, redirect, render_template, request, current_app, session
 from monolith.database import db, User, Like, Role
-from monolith.forms import UserForm
+from monolith.forms import UserForm, UserEditForm
 from monolith.utils import send_mail
 from flask_login import login_user, current_user
 from monolith.utils.dispaccer_events import DispatcherMessage
@@ -31,6 +31,7 @@ def create_operator():
                     "create_user.html",
                     form=form,
                     message="Email {} already registered".format(form.email.data),
+                    type="operator"
                 )
             user = User()
             form.populate_obj(user)
@@ -46,7 +47,7 @@ def create_operator():
                 session["ROLE"] = new_role.value
 
             return redirect("/")
-    return render_template("create_user.html", form=form)
+    return render_template("create_user.html", form=form, type="operator")
 
 
 @users.route("/user/create_user", methods=["GET", "POST"])
@@ -60,6 +61,7 @@ def create_user():
                     "create_user.html",
                     form=form,
                     message="Email {} already registered".format(form.email.data),
+                    type="customer"
                 )
             user = User()
             form.populate_obj(user)
@@ -75,7 +77,7 @@ def create_user():
                 session["ROLE"] = new_role.value
 
             return redirect("/")
-    return render_template("create_user.html", form=form)
+    return render_template("create_user.html", form=form, type="customer")
 
 
 @users.route("/user/data", methods=["GET", "POST"])
@@ -83,16 +85,20 @@ def create_user():
 def user_data():
     message = None
     if request.method == "POST":
-        form = UserForm()
+        form = UserEditForm()
         if form.validate_on_submit():
             UserService.modify_user(form)
             return render_template("user_data.html", form=form)
-        return render_template("user_data.html", form=form, error="Validazione Fallita")
+        print(form.errors.items())
+        return render_template("user_data.html", form=form, error="Error in the data")
     else:
         q = User.query.filter_by(id=current_user.id).first()
         if q is not None:
             form = UserForm(obj=q)
-            return render_template("user_data.html", form=form)
+            return render_template(
+                "user_data.html",
+                form=form
+            )
 
 
 @users.route("/user/delete")
