@@ -27,6 +27,7 @@ class Test_HealthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
+
     def test_mark_positive_ok(self):
         """
         :return:
@@ -41,6 +42,7 @@ class Test_HealthyServices:
         assert len(message) is 0
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
+
 
     def test_mark_positive_already_covid(self):
         """
@@ -60,6 +62,7 @@ class Test_HealthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
+
     def test_mark_positive_user_not_exist(self):
         """
         :return:
@@ -69,12 +72,14 @@ class Test_HealthyServices:
         )
         assert message == "The user is not registered"
 
+
     def test_mark_positive_nan_proprieties(self):
         """
         :return:
         """
         message = HealthyServices.mark_positive("", "")
         assert message == "Insert an email or a phone number"
+
 
     def test_mark_positive_user_by_email(self):
         """
@@ -91,6 +96,7 @@ class Test_HealthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
+
     def test_mark_positive_user_by_phone(self):
         """
         :return:
@@ -103,6 +109,7 @@ class Test_HealthyServices:
         assert len(message) is 0
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
+
 
     def test_unmark_positive_ok(self):
         """
@@ -122,6 +129,7 @@ class Test_HealthyServices:
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
+
     def test_unmark_user_not_positive(self):
         """
         :return:
@@ -138,6 +146,7 @@ class Test_HealthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
+
     def test_unmark_user_not_in_app(self):
         """
         :return:
@@ -145,12 +154,14 @@ class Test_HealthyServices:
         message = HealthyServices.unmark_positive("alibaba@alibaba.com", "")
         assert message == "The user is not registered"
 
+
     def test_unmark_positive_nan_proprieties(self):
         """
         :return:
         """
         message = HealthyServices.mark_positive("", "")
         assert message == "Insert an email or a phone number"
+
 
     def test_unmark_positive_user_by_email(self):
         """
@@ -170,6 +181,7 @@ class Test_HealthyServices:
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
+
     def test_mark_positive_user_by_phone(self):
         """
         :return:
@@ -187,3 +199,6 @@ class Test_HealthyServices:
 
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
+
+
+        #aggiungere search contacts

@@ -32,7 +32,7 @@ def mark_positive():
             message = HealthyServices.mark_positive(email, phone)
             if message is None:
                 return redirect("/")
-            return render_template("mark_positive.html", form=form, message=message)
+            return render_template("mark_positive.html", _test="mark_positive_page", form=form, message=message)
 
     return render_template("mark_positive.html", form=form)
 
@@ -48,6 +48,7 @@ def search_contacts():
             if form.email.data == "" and form.phone.data == "":
                 return render_template(
                     "search_contacts.html",
+                    _test="search_contacts_no_data",
                     form=form,
                     message="Insert an email or a phone number".format(form.email.data),
                 )
@@ -65,6 +66,7 @@ def search_contacts():
             if q_user.first() is None:
                 return render_template(
                     "search_contacts.html",
+                    _test="search_contact_not_registered",
                     form=form,
                     message="The user is not registered".format(form.email.data),
                 )
@@ -77,6 +79,7 @@ def search_contacts():
             if q_already_positive is None:
                 return render_template(
                     "search_contacts.html",
+                    _test="search_contacts_no_positive",
                     form=form,
                     message="The user is not a covid-19 positive".format(
                         form.email.data
@@ -85,7 +88,7 @@ def search_contacts():
             print("start searching")
             contacts = HealthyServices.search_contacts(q_user.first().id)
 
-            return render_template("/list_contacts.html", contacts=contacts)
+            return render_template("/list_contacts.html", _test="list_page", contacts=contacts)
     return render_template("/search_contacts.html", form=form)
 
 
@@ -100,5 +103,5 @@ def unmark_positive():
             message = HealthyServices.unmark_positive(email, phone)
             if message is None:
                 return redirect("/")
-            return render_template("unmark_positive.html", form=form, message=message)
+            return render_template("unmark_positive.html", _test="unmark_positive_page", form=form, message=message)
     return render_template("unmark_positive.html", form=form)

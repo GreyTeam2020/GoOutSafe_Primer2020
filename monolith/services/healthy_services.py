@@ -142,6 +142,7 @@ class HealthyServices:
         else:
             return "User with email {} already Covid-19 positive".format(user_email)
 
+
     @staticmethod
     def search_contacts(id_user):
         result = []
@@ -208,6 +209,7 @@ class HealthyServices:
                 )
 
         return contact_users
+
 
     @staticmethod
     def unmark_positive(user_email: str, user_phone: str) -> str:

@@ -42,6 +42,7 @@ def register_user(client, user: UserForm):
         lastname=user.lastname,
         password=user.password,
         dateofbirth=user.dateofbirth,
+        phone=user.phone,
         submit=True,
         headers={"Content-type": "application/x-www-form-urlencoded"},
     )
