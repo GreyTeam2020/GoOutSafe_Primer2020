@@ -1,8 +1,7 @@
 import json
-from monolith.database import db, User, Restaurant
+from monolith.database import db, User, Restaurant, Positive
 from monolith.forms import UserForm, RestaurantForm, SearchUserForm, ReviewForm
 from monolith.services import UserService
-
 
 def login(client, username, password):
     return client.post(
@@ -193,3 +192,61 @@ def create_user_on_db():
 def del_user_on_db(id):
     db.session.query(User).filter_by(id=id).delete()
     db.session.commit()
+
+
+def positive_with_user_id(user_id: int = None, marked: bool = True):
+    """
+    This method is an util function to search inside the positive user
+    """
+    if user_id is None:
+        return db.session.query(Positive).all()
+    else:
+        return (
+            db.session.query(Positive).filter_by(user_id=user_id, marked=marked).first()
+        )
+
+
+def delete_positive_with_user_id(user_id: int, marked: bool = True):
+    """
+    This method is an util function to search inside the positive user
+    """
+    return db.session.query(Positive).filter_by(user_id=user_id, marked=marked).delete()
+
+
+def delete_was_positive_with_user_id(user_id: int, marked: bool = True):
+    """
+    This delete a row of a previous positive person
+    """
+    return db.session.query(Positive).filter_by(user_id=user_id).delete()
+
+
+def unmark_people_for_covid19(client, form: SearchUserForm):
+    """
+    This method perform the request to mark a people as not positive
+    :return: response from request
+    """
+    return client.post(
+        "/unmark_positive",
+        data=dict(
+            email=form.email,
+            phone=form.phone,
+            submit=True,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )
+
+def search_contact_positive_covid19(client, form: SearchUserForm):
+    """
+    This method search contacts with a covid19 positive person
+    """
+    return client.post(
+        "/search_contacts",
+        data=dict(
+            email=form.email,
+            phone=form.phone,
+            submit=True,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )

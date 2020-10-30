@@ -46,7 +46,7 @@ class HealthyServices:
 
         q_already_positive = (
             db.session.query(Positive)
-            .filter_by(user_id=q_user.first().id, marked=True)
+            .filter(Positive.user_id == q_user.first().id, Positive.marked == True)
             .first()
         )
 
@@ -61,7 +61,7 @@ class HealthyServices:
 
             # send email to restaurants where there was a positive
             q_restaurants = (
-                db.session.query(Restaurant)
+                db.session.query(Restaurant, Reservation)
                 .filter(
                     new_positive.user_id == Reservation.customer_id,
                     Reservation.table_id == RestaurantTable.id,
@@ -75,9 +75,27 @@ class HealthyServices:
 
             for restaurant in q_restaurants:
 
-                """DDEFINIRE UNA MAIL PER IL RISTORATORE e mandarla"""
+                q_owner = (
+                    db.session.query(User)
+                    .filter(
+                        restaurant[0].owner_id == User.id,
+                    )
+                    .first()
+                )
 
-            # send email to people that were in the same restauant
+                """
+                print(
+                    q_owner.email, q_owner.firstname, 
+                    restaurant[1].reservation_date, restaurant[0].name
+                )
+                MAIL AI RISTORANTI
+                send_positive_in_restaurant(
+                    q_owner.email, q_owner.name, 
+                    restaurant[1].reservation_date, restaurant[0].name
+                )
+                """
+
+            # send email to people that were in the same restaurant
             # of a positive person
             reservation_positive = aliased(Reservation)
             reservations_clients = aliased(Reservation)
@@ -142,16 +160,12 @@ class HealthyServices:
                         .filter(User.id == contact[0].customer_id)
                         .first()
                     )
-                    """
-                    Send the email!
 
-                    print(user.email, user.firstname, 
-                            contact[0].reservation_date, contact[1].name)
-                
-
+                    """MANDARE LA MAIL AI CONTATTI
                     sendPossibilePositiveContact(user.email, user.firstname, 
                         contact[0].reservation_date.cast(Date), contact[1].name)
                     """
+
             return ""
         else:
             return "User with email {} already Covid-19 positive".format(user_email)
