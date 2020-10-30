@@ -661,6 +661,8 @@ class Test_GoOutSafeForm:
         response = create_new_menu(client, form)
         assert response.status_code is 200
         assert "menu_ok_test" in response.data.decode("utf-8")
+        
+        logout(client)
 
     def test_create_new_menu_restaurant_ko(self, client):
         """
@@ -676,4 +678,4 @@ class Test_GoOutSafeForm:
         with client.session_transaction() as session:
             session["RESTAURANT_ID"] = rest.id
         response = create_new_menu(client, form)
-        assert response.status_code is 401
+        assert response.status_code is not 403
