@@ -32,7 +32,7 @@ from monolith.tests.utils import (
     unmark_people_for_covid19,
     search_contact_positive_covid19,
     create_new_menu,
-    create_new_reservation,
+    create_new_reservation, create_new_user_with_form,
 )
 
 import datetime
@@ -115,9 +115,6 @@ class Test_GoOutSafeForm:
 
         db.session.query(User).filter_by(id=user_query.id).delete()
         db.session.commit()
-
-    def test_delete_user(self, client):
-        pass
 
     def test_modify_user(self, client):
         pass
@@ -758,3 +755,88 @@ class Test_GoOutSafeForm:
 
         response = create_new_reservation(client, form)
         assert response.status_code == 401
+
+    def test_create_operator(self, client):
+        """
+        test to create an operator
+        """
+        #view page
+        client.get("/create_operator")
+
+        #POST
+        user = UserForm()
+        user.firstname = "Steve"
+        user.lastname = "Jobs"
+        user.email = "steve@apple.com"
+        response = create_new_user_with_form(client, user, "operator")
+
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+    def test_create_operator_already(self, client):
+        """
+        test to create an operator with pre-existing email
+        """
+        user = UserForm()
+        user.firstname = "Steve"
+        user.lastname = "Jobs"
+        user.email = "steve@apple.com"
+        response = create_new_user_with_form(client, user, "operator")
+
+        assert response.status_code == 200
+        assert "logged_test" not in response.data.decode("utf-8")
+
+    def test_edit_user_data(self, client):
+        """
+        test edit of user info
+        """
+        email = "steve@apple.com"
+        password = "12345678"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        # view page
+        client.get("/user/data")
+
+        # POST
+        response = client.post(
+            "/user/data",
+            data=dict(
+                email=email,
+                firstname="Stefano",
+                lastname="Lavori",
+                dateofbirth="22/03/1998",
+                headers={"Content-type": "application/x-www-form-urlencoded"},
+            ),
+            follow_redirects=True,
+        )
+
+        assert response.status_code == 200
+        assert "Hi Stefano" in response.data.decode("utf-8")
+
+    def test_delete_user(self, client):
+        """
+        test delete user url
+        """
+        email = "steve@apple.com"
+        password = "12345678"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        response = client.get("/user/delete")
+        assert response.status_code == 302
+
+    def test_get_user_reservations(self, client):
+        """
+        test reservation page of customer
+        """
+        email = "john.doe@email.com"
+        password = "customer"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        response = client.get("/customer/reservations")
+        assert response.status_code == 200

@@ -162,6 +162,27 @@ def create_new_menu(client, form: DishForm):
     )
 
 
+def create_new_user_with_form(client, form: UserForm, type):
+    """
+    This util have the code to perform the request with flask client
+    and make a new user
+    :param form:
+    :return:
+    """
+    return client.post(
+        "/user/create_"+type,
+        data=dict(
+            email=form.email,
+            firstname=form.firstname,
+            lastname=form.lastname,
+            password="12345678",
+            dateofbirth="22/03/1998",
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )
+
+
 def get_user_with_email(email):
     """
     This method factorize the code to get an user with a email

@@ -56,7 +56,6 @@ def restaurant_sheet(restaurant_id):
         "restaurantsheet.html",
         id=restaurant_id,
         name=record.name,
-        likes=record.likes,
         lat=record.lat,
         lon=record.lon,
         phone=record.phone,
