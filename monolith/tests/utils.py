@@ -1,12 +1,12 @@
 import json
-from monolith.database import db, User, Restaurant, Positive
+from monolith.database import db, User, Restaurant, Positive, RestaurantTable
 from monolith.forms import (
     UserForm,
     RestaurantForm,
     SearchUserForm,
     ReviewForm,
     DishForm,
-    ReservationForm,
+    ReservationForm, PhotoGalleryForm,
 )
 from monolith.services import UserService
 
@@ -183,6 +183,34 @@ def create_new_user_with_form(client, form: UserForm, type):
     )
 
 
+def create_new_restaurant_with_form(client, restaurant: RestaurantForm):
+    """
+    This util have the code to perform the request with flask client
+    and make a new user
+    :param form:
+    :return:
+    """
+    return client.post(
+        "/restaurant/create",
+        data=dict(
+            name=restaurant.name,
+            phone=restaurant.phone,
+            lat=restaurant.lat,
+            lon=restaurant.lon,
+            n_tables=restaurant.n_tables,
+            cuisine=restaurant.cuisine,
+            open_days=restaurant.open_days,
+            open_lunch=restaurant.open_lunch,
+            close_lunch=restaurant.close_lunch,
+            open_dinner=restaurant.open_dinner,
+            close_dinner=restaurant.close_dinner,
+            covid_measures=restaurant.covid_measures,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )
+
+
 def get_user_with_email(email):
     """
     This method factorize the code to get an user with a email
@@ -314,6 +342,44 @@ def create_new_reservation(client, form: ReservationForm):
             reservation_date=form.reservation_date,
             people_number=form.people_number,
             restaurant_id=form.restaurant_id,
+            submit=True,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )
+
+
+def create_new_table(client, form: RestaurantTable):
+    """
+    This util have the code to perform the request with flask client
+    and make a new table
+    :param form:
+    :return:
+    """
+    return client.post(
+        "/restaurant/tables",
+        data=dict(
+            restaurant_id=form.restaurant_id,
+            max_seats=form.max_seats,
+            name=form.name,
+            submit=True,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )
+
+def create_new_photo(client, form: PhotoGalleryForm):
+    """
+    This util have the code to perform the request with flask client
+    and add a new photo
+    :param form:
+    :return:
+    """
+    return client.post(
+        "/restaurant/photogallery",
+        data=dict(
+            caption=form.caption,
+            url=form.url,
             submit=True,
             headers={"Content-type": "application/x-www-form-urlencoded"},
         ),

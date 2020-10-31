@@ -12,14 +12,14 @@ from utils import (
     get_rest_with_name,
     get_rest_with_name_and_phone,
 )
-from monolith.database import db, User, Restaurant, Positive, Review, Reservation
+from monolith.database import db, User, Restaurant, Positive, Review, Reservation, RestaurantTable, OpeningHours
 from monolith.forms import (
     UserForm,
     RestaurantForm,
     SearchUserForm,
     ReviewForm,
     DishForm,
-    ReservationForm,
+    ReservationForm, PhotoGalleryForm,
 )
 from monolith.tests.utils import (
     visit_restaurant,
@@ -32,7 +32,8 @@ from monolith.tests.utils import (
     unmark_people_for_covid19,
     search_contact_positive_covid19,
     create_new_menu,
-    create_new_reservation, create_new_user_with_form,
+    create_new_reservation, create_new_user_with_form, create_new_restaurant_with_form, create_new_table,
+    create_new_photo,
 )
 
 import datetime
@@ -653,6 +654,10 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
 
+        #GET
+        response = client.get("/restaurant/menu")
+        assert response.status_code is 200
+
         rest = db.session.query(Restaurant).all()[0]
         form = DishForm()
         form.name = "Pasta"
@@ -840,3 +845,126 @@ class Test_GoOutSafeForm:
 
         response = client.get("/customer/reservations")
         assert response.status_code == 200
+
+    def test_create_restaurant_form(self, client):
+        """
+        test to create a restaurant
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        # view page
+        response = client.get("/restaurant/create")
+        assert response.status_code == 200
+
+        # POST
+        restaurant = RestaurantForm()
+        restaurant.name = "Krusty Krab"
+        restaurant.phone = "0451245152"
+        restaurant.lat = "1"
+        restaurant.lon = "1"
+        restaurant.n_tables = "1"
+        restaurant.cuisine = "Italian food"
+        restaurant.open_days = "0"
+        restaurant.open_lunch = "11:00"
+        restaurant.close_lunch = "12:00"
+        restaurant.open_dinner = "20:00"
+        restaurant.close_dinner = "21:00"
+        restaurant.covid_measures = "masks"
+        response = create_new_restaurant_with_form(client, restaurant)
+        assert response.status_code == 200
+        assert "Register your Restaurant" not in response.data.decode("utf-8")
+
+    def test_create_restaurant_already_form(self, client):
+        """
+        test to create a restaurant already existent
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        # POST
+        restaurant = RestaurantForm()
+        restaurant.name = "Krusty Krab"
+        restaurant.phone = "0451245152"
+        restaurant.lat = "1"
+        restaurant.lon = "1"
+        restaurant.n_tables = "1"
+        restaurant.cuisine = "Italian food"
+        restaurant.open_days = "0"
+        restaurant.open_lunch = "11:00"
+        restaurant.close_lunch = "12:00"
+        restaurant.open_dinner = "20:00"
+        restaurant.close_dinner = "21:00"
+        restaurant.covid_measures = "masks"
+        response = create_new_restaurant_with_form(client, restaurant)
+        assert response.status_code == 200
+        assert "Register your Restaurant" in response.data.decode("utf-8")
+
+        db.session.query(Restaurant).filter_by(name=restaurant.name).delete()
+        db.session.query(OpeningHours).delete()
+        db.session.commit()
+
+    def test_edit_restaurant_data(self, client):
+        """
+        test edit of restaurant info
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        # view page
+        response = client.get("/restaurant/data")
+        assert response.status_code == 200
+
+        # POST
+        # TODO: still miss the logic there
+
+    def test_create_and_delete_table(self, client):
+        """
+        test to create a table and then destroy it
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        table = RestaurantTable()
+        table.restaurant_id = "1"
+        table.max_seats = "4"
+        table.name = "TestTable123"
+        response = create_new_table(client, table)
+        assert response.status_code == 200
+        assert table.name in response.data.decode("utf-8")
+
+        table = db.session.query(RestaurantTable).filter_by(name="TestTable123").first()
+        assert table is not None
+
+        response = client.get("/restaurant/tables?id="+str(table.id))
+        assert response.status_code == 302
+
+    def test_add_photo(self, client):
+        """
+        test to create a photo
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        photo = PhotoGalleryForm()
+        photo.caption = "photo"
+        photo.url = "https://www.google.com/pic.jpg"
+        response = create_new_photo(client, photo)
+        assert response.status_code == 200
+        assert photo.caption in response.data.decode("utf-8")
+
