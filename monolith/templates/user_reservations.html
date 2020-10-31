@@ -23,7 +23,7 @@
                         <td><a href="/restaurant/{{ reservation.rest_id }}">{{ reservation.name }}</a></td>
                         <td>{{ reservation.people_number }}</td>
                         <td>{{ reservation.id_table }}</td>
-                        <td><button class="btn btn-primary deleteBooking">Delete</button></td>
+                        <td><button class="btn btn-primary deleteBooking" data-id="{{ reservation.id }}">Delete</button></td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -31,5 +31,17 @@
       </div>
     </div>
   </div>
+
+<script>
+    {% if deleted %}
+        Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: 'Your reservation has been canceled',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    {% endif %}
+</script>
 
 {% include 'footer.html' %}

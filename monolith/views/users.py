@@ -104,34 +104,11 @@ def user_delete():
 @roles_allowed(roles=["CUSTOMER"])
 def myreservation():
 
-    # for security reason, that are retrive on server side, not passed by params
-    customer_id = current_user.id
-
     # filter params
     fromDate = request.args.get("fromDate", type=str)
     toDate = request.args.get("toDate", type=str)
 
-    queryString = (
-        "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, rest.name, rest.id as rest_id "
-        "from reservation reserv "
-        "join user cust on cust.id = reserv.customer_id "
-        "join restaurant_table tab on reserv.table_id = tab.id "
-        "join restaurant rest on rest.id = tab.restaurant_id "
-        "where cust.id = :customer_id"
-    )
-
-    stmt = db.text(queryString)
-
-    # bind filter params...
-    params = {"customer_id": customer_id}
-    if fromDate:
-        params["fromDate"] = fromDate + " 00:00:00.000"
-    if toDate:
-        params["toDate"] = toDate + " 23:59:59.999"
-
-    # execute and retrive results...
-    result = db.engine.execute(stmt, params)
-    reservations_as_list = result.fetchall()
+    reservations_as_list = UserService.get_customer_reservation(fromDate, toDate, current_user.id)
 
     return render_template(
         "user_reservations.html",
@@ -139,6 +116,34 @@ def myreservation():
         my_date_formatter=my_date_formatter,
     )
 
+
+@users.route("/customer/deletereservations/<reservation_id>", methods=["GET", "POST"])
+def delete_reservations(reservation_id):
+
+    deleted = UserService.delete_reservation(reservation_id, current_user.id)
+
+    reservations_as_list = UserService.get_customer_reservation(None, None, current_user.id)
+
+    return render_template(
+        "user_reservations.html",
+        reservations_as_list=reservations_as_list,
+        my_date_formatter=my_date_formatter,
+        deleted=deleted,
+    )
+
+@users.route("/customer/edit_reservation/<reservation_id>", methods=["GET", "POST"])
+def delete_reservations(reservation_id):
+
+    deleted = UserService.delete_reservation(reservation_id, current_user.id)
+
+    reservations_as_list = UserService.get_customer_reservation(None, None, current_user.id)
+
+    return render_template(
+        "user_reservations.html",
+        reservations_as_list=reservations_as_list,
+        my_date_formatter=my_date_formatter,
+        deleted=deleted,
+    )
 
 @users.route("/testsendemail")
 def _testsendemail():
