@@ -12,13 +12,14 @@ from utils import (
     get_rest_with_name,
     get_rest_with_name_and_phone,
 )
-from monolith.database import db, User, Restaurant, Positive, Review
+from monolith.database import db, User, Restaurant, Positive, Review, Reservation
 from monolith.forms import (
     UserForm,
     RestaurantForm,
     SearchUserForm,
     ReviewForm,
     DishForm,
+    ReservationForm,
 )
 from monolith.tests.utils import (
     visit_restaurant,
@@ -31,7 +32,10 @@ from monolith.tests.utils import (
     unmark_people_for_covid19,
     search_contact_positive_covid19,
     create_new_menu,
+    create_new_reservation,
 )
+
+import datetime
 
 
 @pytest.mark.usefixtures("client")
@@ -661,7 +665,7 @@ class Test_GoOutSafeForm:
         response = create_new_menu(client, form)
         assert response.status_code is 200
         assert "menu_ok_test" in response.data.decode("utf-8")
-        
+
         logout(client)
 
     def test_create_new_menu_restaurant_ko(self, client):
@@ -679,3 +683,60 @@ class Test_GoOutSafeForm:
             session["RESTAURANT_ID"] = rest.id
         response = create_new_menu(client, form)
         assert response.status_code is not 403
+
+    def test_create_new_reservation_ok(self, client):
+        """
+        This test case perform the request in order to create
+        a new reservation for user john doe
+        :param client:
+        :return:
+        """
+
+        email = "john.doe@email.com"
+        pazz = "customer"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        restaurant = (
+            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
+        )
+        form = ReservationForm()
+        form.restaurant_id = restaurant.id
+        form.reservation_date = "23/11/2020 12:00"
+        form.people_number = 2
+
+        response = create_new_reservation(client, form)
+        assert response.status_code == 200
+
+        # delete data from db
+        d1 = datetime.datetime(year=2020, month=11, day=23, hour=12)
+        db.session.query(Reservation).filter_by(reservation_date=d1).delete()
+        db.session.commit()
+
+    def test_create_new_reservation_ko(self, client):
+        """
+        This test case perform the request in order to create
+        a new reservation for user john doe THAT HAVE TO FAIL
+        RESTAURANT IS CLOSED AT 10:00
+        :param client:
+        :return:
+        """
+
+        email = "john.doe@email.com"
+        pazz = "customer"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        restaurant = (
+            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
+        )
+        form = ReservationForm()
+        form.restaurant_id = restaurant.id
+        form.reservation_date = "23/11/2020 10:00"
+        form.people_number = 2
+
+        response = create_new_reservation(client, form)
+        assert response.status_code == 200
+        assert "closed" in response.data.decode("utf-8")

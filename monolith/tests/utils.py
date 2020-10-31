@@ -6,6 +6,7 @@ from monolith.forms import (
     SearchUserForm,
     ReviewForm,
     DishForm,
+    ReservationForm,
 )
 from monolith.services import UserService
 
@@ -272,6 +273,26 @@ def search_contact_positive_covid19(client, form: SearchUserForm):
         data=dict(
             email=form.email,
             phone=form.phone,
+            submit=True,
+            headers={"Content-type": "application/x-www-form-urlencoded"},
+        ),
+        follow_redirects=True,
+    )
+
+
+def create_new_reservation(client, form: ReservationForm):
+    """
+    This util have the code to perform the request with flask client
+    and make a new reservation
+    :param form:
+    :return:
+    """
+    return client.post(
+        "/restaurant/book",
+        data=dict(
+            reservation_date=form.reservation_date,
+            people_number=form.people_number,
+            restaurant_id=form.restaurant_id,
             submit=True,
             headers={"Content-type": "application/x-www-form-urlencoded"},
         ),
