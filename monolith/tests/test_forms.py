@@ -442,10 +442,10 @@ class Test_GoOutSafeForm:
     def test_mark_positive_ok_email(self, client):
         """
         This test cases test the use case to mark a person as covid19
-        positive, the work flow is the following:
-        - Login as normal user (this is wrong, the test should be failed)
+        positive using the email, the work flow is the following:
         - Create a new customer
-        - mark this customer as positive
+        - health authority marks this customer as positive
+        - check the customer is positive
         - delete the customer
         :param client:
         """
@@ -480,10 +480,10 @@ class Test_GoOutSafeForm:
     def test_mark_positive_ok_phone(self, client):
         """
         This test cases test the use case to mark a person as covid19
-        positive, the work flow is the following:
-        - Login as normal user (this is wrong, the test should be failed)
+        positive using the phone, the work flow is the following:
         - Create a new customer
-        - mark this customer as positive
+        - health authority marks this customer as positive using the phone number
+        - check the customer is positive
         - delete the customer
         :param client:
         """
@@ -516,6 +516,17 @@ class Test_GoOutSafeForm:
 
 
     def test_mark_positive_ko_user_already_positive(self, client):
+        """
+        This test cases test the use case to mark a 
+        covid19 positive person as covid19 positive .
+        The work flow is the following:
+        - Create a new customer
+        - health authority marks this customer as positive
+        - check the customer is positive
+        - health authority tries to mark the customer (already positive) as positive
+        - delete the customer
+        :param client:
+        """
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -555,6 +566,12 @@ class Test_GoOutSafeForm:
 
 
     def test_mark_positive_ko_not_registered_user(self, client):
+        """
+        This test cases test the use case to mark a not registered
+        person as covid19 positive. The work flow is the following:
+        - health authority tries to mark a not registered customer as positive
+        :param client:
+        """
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
 
@@ -567,6 +584,12 @@ class Test_GoOutSafeForm:
 
 
     def test_mark_positive_ko_empty_fields(self, client):
+        """
+        This test cases test the use case where the health authority
+        tries o mark as a positive a customer indicating no data of user
+        - health authority tries to mark a user as positive indicating no data
+        :param client:
+        """
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
 
@@ -579,6 +602,14 @@ class Test_GoOutSafeForm:
         
 
     def test_unmark_positive_ko_unathorized(self, client):
+        """
+        This test cases test the use case where a customer tries to 
+        unmark as not positive himself. The work flow is the following:
+        - register a new customer 
+        - this customer tries to mark himself as not positive person
+        - delete the customer 
+        :param client:
+        """
         response = login(client, "john.doe@email.com", "customer")
         assert response.status_code == 200
 
@@ -598,15 +629,18 @@ class Test_GoOutSafeForm:
         assert response.status_code == 401
 
         q_user = get_user_with_email(user.email)
-        q_already_positive = (
-            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
-        )
-
-        assert q_already_positive is None
         del_user_on_db(q_user.id)
         
 
     def test_unmark_positive_ko_user_not_positive(self, client):
+        """
+        This test cases test the use case where the health authority 
+        try to mark as healed a not positive person. The work flow is the following:
+        - register a new customer 
+        - the health authority tries to unmark a not positive person
+        - delete the customer 
+        :param client:
+        """
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -635,7 +669,15 @@ class Test_GoOutSafeForm:
 
         del_user_on_db(q_user.id)
 
+
     def test_unmark_positive_ko_user_not_registered(self, client):
+        """
+        This test cases test the use case where the health authority 
+        try to mark as healed a person who is not registered. 
+        The work flow is the following:
+        - the health authority tries to unmark a person who isn't registered
+        :param client:
+        """
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
 
@@ -646,7 +688,16 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "unmark_positive_page" in response.data.decode("utf-8")
 
+
     def test_unmark_positive_ko_empty_fields(self, client):
+        """
+        This test cases test the use case where the health authority 
+        try to mark a person inserting no data. The work flow is the following:
+        - register a new customer 
+        - the health authority tries to unmark a person inserting no data
+        - delete the customer 
+        :param client:
+        """
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -690,6 +741,15 @@ class Test_GoOutSafeForm:
 
 
     def test_unmark_positive_ok(self, client):
+        """
+        This test cases test the use case where the health authority 
+        try to mark as healed a positive person. The work flow is the following:
+        - register a new customer 
+        - the health authority marks the customer as positive
+        - the health authority unmarks te customer
+        - delete the customer 
+        :param client:
+        """
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -727,7 +787,16 @@ class Test_GoOutSafeForm:
 
 
     def test_unmark_positive_email(self, client):
-
+        """
+        This test cases test the use case where the health authority 
+        try to mark as healed a positive person using the email.
+        The work flow is the following:
+        - register a new customer 
+        - the health authority marks the customer as positive
+        - the health authority unmarks te customer using only the email
+        - delete the customer 
+        :param client:
+        """
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -765,7 +834,16 @@ class Test_GoOutSafeForm:
 
 
     def test_unmark_positive_ok_phone(self, client):
-
+        """
+        This test cases test the use case where the health authority 
+        try to mark as healed a positive person using the phone number.
+        The work flow is the following:
+        - register a new customer 
+        - the health authority marks the customer as positive
+        - the health authority unmarks te customer using only the phone number
+        - delete the customer 
+        :param client:
+        """
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -803,6 +881,15 @@ class Test_GoOutSafeForm:
 
 
     def test_search_contacts_with_positive_ko(self, client):
+        """
+        This test cases test the use case where the health authority 
+        try to search contacts of a not positive person.
+        The work flow is the following:
+        - register a new customer 
+        - the health authority tries to search the contacts of this customer
+        - delete the customer 
+        :param client:
+        """
         user = UserForm()
         user.email = "joe@gmail.com"
         user.firstname = "joe"
@@ -827,6 +914,14 @@ class Test_GoOutSafeForm:
 
 
     def test_search_contacts_with_user_not_registered(self, client):
+        """
+        This test cases test the use case where the health authority 
+        try to search contacts of a not registered person.
+        The work flow is the following:
+        - the health authority tries to search the contacts of a customer
+          who is not registered
+        :param client:
+        """
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
 
@@ -1260,6 +1355,15 @@ class Test_GoOutSafeForm:
 
     def test_search_contacts_with_user_not_registered(self, client):
 
+    def test_search_contacts_with_no_data(self, client):
+        """
+        This test cases test the use case where the health authority 
+        try to search contacts using no data for the search.
+        The work flow is the following:
+        - the health authority tries to search the contacts of a customer
+          using no data for the search
+        :param client:
+        """
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
 
@@ -1271,23 +1375,22 @@ class Test_GoOutSafeForm:
         assert "search_contacts_no_data" in response.data.decode("utf-8")
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def test_search_contacts_ok(self, client):
-
+        """
+        This test cases test the use case where the health authority 
+        try to search contacts of a positive person.
+        The work flow is the following:
+        - register a new owner of a restaurant
+        - register a new restaurant
+        - register a new customer (customer 1)
+        - register a new booking for this customer at the restaurant
+        - register a new customer (customer 2)
+        - register a new booking for this customer at the restaurant 
+        - the health authority mark the customer 1 as positive
+        - the health authority search the contacts of customer 1
+        - delete new customers, owner, restaurant and bookings
+        :param client:
+        """
         #a new owner of a restaurant
         owner = UserForm()
         owner.email = "nick@mail.com"
@@ -1392,11 +1495,22 @@ class Test_GoOutSafeForm:
         assert q_restaurant is None
 
 
-
-
-
     def test_search_contacts_ok_email(self, client):
-
+        """
+        This test cases test the use case where the health authority 
+        try to search contacts of a positive person using email.
+        The work flow is the following:
+        - register a new owner of a restaurant
+        - register a new restaurant
+        - register a new customer (customer 1)
+        - register a new booking for this customer at the restaurant
+        - register a new customer (customer 2)
+        - register a new booking for this customer at the restaurant 
+        - the health authority mark the customer 1 as positive
+        - the health authority search the contacts of customer 1 using the email
+        - delete new customers, owner, restaurant and bookings
+        :param client:
+        """
         #a new owner of a restaurant
         owner = UserForm()
         owner.email = "nick@mail.com"
@@ -1501,9 +1615,23 @@ class Test_GoOutSafeForm:
         assert q_restaurant is None
 
 
-
     def test_search_contacts_ok_phone(self, client):
-
+        """
+        This test cases test the use case where the health authority 
+        try to search contacts of a positive person using phone number.
+        The work flow is the following:
+        - register a new owner of a restaurant
+        - register a new restaurant
+        - register a new customer (customer 1)
+        - register a new booking for this customer at the restaurant
+        - register a new customer (customer 2)
+        - register a new booking for this customer at the restaurant 
+        - the health authority mark the customer 1 as positive
+        - the health authority search the contacts of customer 1 using 
+          the phone number
+        - delete new customers, owner, restaurant and bookings
+        :param client:
+        """
         #a new owner of a restaurant
         owner = UserForm()
         owner.email = "nick@mail.com"
@@ -1591,6 +1719,7 @@ class Test_GoOutSafeForm:
         response = search_contact_positive_covid19(client, mark)
         assert response.status_code == 200
         assert "list_page" in response.data.decode("utf-8")
+        #assert "john.doe@email.com"  in response.data.decode("utf-8")
 
         db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
@@ -1600,6 +1729,108 @@ class Test_GoOutSafeForm:
         delete_positive_with_user_id(q_user.id)
         del_user_on_db(q_user.id)
         del_user_on_db(q_user2.id)
+        del_user_on_db(q_owner.id)
+        db.session.query(Restaurant).filter(Restaurant.id==q_restaurant.id).delete()
+        db.session.commit()
+
+        q_restaurant = db.session.query(Restaurant).filter(Restaurant.name==restaurant.name).first()        
+        assert q_restaurant is None
+
+
+    def test_search_contacts_ok_no_contacts(self, client):
+        """
+        This test cases test the use case where the health authority 
+        try to search contacts of a positive person using phone number.
+        The work flow is the following:
+        - register a new owner of a restaurant
+        - register a new restaurant
+        - register a new customer 
+        - register a new booking for this customer at the restaurant
+        - the health authority mark the customer as positive
+        - the health authority search the contacts of the customer using 
+          the phone number
+        - delete new customers, owner, restaurant and bookings
+        :param client:
+        """
+        #a new owner of a restaurant
+        owner = UserForm()
+        owner.email = "nick@mail.com"
+        owner.firstname = "Nick"
+        owner.lastname = "Julius"
+        owner.password = "nick"
+        owner.phone = "53685464"
+        owner.dateofbirth = "26/12/1995"
+        register_operator(client, owner)
+
+        q_owner = get_user_with_email(owner.email)
+
+        restaurant = RestaurantForm()
+        restaurant.name = "Pepperwood"
+        restaurant.phone = "06902153"
+        restaurant.lat = 16
+        restaurant.lon = 20
+        restaurant.n_tables = 30
+        restaurant.covid_measures = "Stay safe!"
+        restaurant.cuisine = ["Italian food"]
+        restaurant.open_days = ["0", "1", "2", "3", "4", "5", "6"]
+        restaurant.open_lunch = "00:00"
+        restaurant.close_lunch = "15:00"
+        restaurant.open_dinner = "15:00"
+        restaurant.close_dinner = "23:59"
+        response = register_restaurant(client, restaurant)
+
+        q_restaurant = db.session.query(Restaurant).filter(Restaurant.name==restaurant.name).first()
+        
+        assert q_restaurant is not None
+        response = logout(client)
+        assert response.status_code == 200
+
+        #a new client
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        #this user books in the restaurant
+
+        q_user = get_user_with_email(user.email)
+        date_booking_1 = datetime.today()+ timedelta(minutes=1)
+        book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
+        
+        assert book1[0] == True
+
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        #an user become covid19 positive
+        mark = SearchUserForm()
+        mark.email = ""
+        mark.phone = user.phone
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is not None
+
+        response = search_contact_positive_covid19(client, mark)
+        assert response.status_code == 200
+        assert "list_page" in response.data.decode("utf-8")
+        #assert "No data" in response.data.decode("utf-8")
+
+        db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
+        db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
+        db.session.query(Reservation).filter_by(reservation_date=date_booking_1).delete()
+        db.session.query(RestaurantTable).filter(RestaurantTable.restaurant_id==q_restaurant.id).delete()
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
         del_user_on_db(q_owner.id)
         db.session.query(Restaurant).filter(Restaurant.id==q_restaurant.id).delete()
         db.session.commit()
