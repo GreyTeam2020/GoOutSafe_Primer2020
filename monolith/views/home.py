@@ -10,7 +10,7 @@ home = Blueprint("home", __name__)
 
 @home.route("/")
 def index():
-    restaurants = db.session.query(Restaurant)
+    restaurants = db.session.query(Restaurant).all()
     if current_user is None:
         _test = "anonymous_test"
     else:
@@ -36,7 +36,6 @@ def index():
             )
         elif session["ROLE"] == "CUSTOMER":
             form = ReservationForm()
-            print(current_user.id)
             is_positive = UserService.is_positive(current_user.id)
             return render_template(
                 "index_customer.html",

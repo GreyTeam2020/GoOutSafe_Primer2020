@@ -164,7 +164,9 @@ class PhotoGallery(db.Model):
 
 
 class OpeningHours(db.Model):
-    # opening hours
+    """
+    opening hours
+    """
     __tablename__ = "opening_hours"
     restaurant_id = db.Column(
         db.Integer, db.ForeignKey("restaurant.id"), primary_key=True
@@ -212,9 +214,12 @@ class MenuPhotoGallery(db.Model):
     menu = relationship("Menu", foreign_keys="MenuPhotoGallery.menu_id")
 
 
-## Pysql doesnt't support the floating point and we need to support it
-## to avoid the warning during the tests
+
 class SqliteNumeric(types.TypeDecorator):
+    """
+     Pysql doesn't support the floating point and we need to support it
+     to avoid the warning during the tests
+    """
     impl = types.String
 
     def load_dialect_impl(self, dialect):

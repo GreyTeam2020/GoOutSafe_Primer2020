@@ -277,12 +277,13 @@ def search_restaurant(name_rest):
     current_app.logger.debug(
         "An user want search a restaurant with name {}".format(name_rest)
     )
-    if name_rest is None or len(name_rest) is 0:
-        message = "Message not specified"
-        return render_template(
-            "index.html", _test="rest_error_search_test", error=message
-        )
+
+    file = "index.html"
+    if "ROLE" in session and session["ROLE"] == "CUSTOMER":
+        file = "index_customer.html"
+
+    form = ReservationForm()
     filter_by_name = RestaurantServices.get_restaurants_by_keyword(name=name_rest)
     return render_template(
-        "index.html", _test="rest_search_test", restaurants=filter_by_name
+        file, _test="rest_search_test", restaurants=filter_by_name, search=name_rest, form=form
     )

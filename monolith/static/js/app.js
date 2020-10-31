@@ -93,6 +93,17 @@ $(document).ready(function() {
         });
     }
 
+    $("#searchSubmit").click(function(){
+        let search = $("#searchbar").val();
+        console.log(search)
+        if (search){
+            window.location = "/restaurant/search/"+search;
+        } else {
+            window.location = "/"
+        }
+
+    })
+
     $(".deleteBooking").click(deleteDialog);
     // $("#restaurantID").val($(this).data("id"));
     function deleteDialog() {

@@ -13,13 +13,15 @@
     </div>
 
     <div class="navbar-collapse collapse order-3 dual-collapse2">
-    <ul class="navbar-nav mr-auto ml-auto">
+        <ul class="navbar-nav mr-auto ml-auto">
             <li class="nav-item">
                 <div class="justify-content-md-center">
-                    <form class="form-inline my-2 my-lg-0 my-lg-0">
-                        <input class="form-control mr-sm-2" type="text" placeholder="Search..." aria-label="Search" style="width: 600px;">
-                        <button class="btn btn-secondary my-2 my-sm-0" type="submit"><i class="material-icons">search</i></button>
-                    </form>
+                    {% if session["ROLE"] != "HEALTH" and session["ROLE"] != "OPERATOR" %}
+                    <div class="form-inline my-2 my-lg-0 my-lg-0">
+                        <input class="form-control mr-sm-2" id="searchbar" type="text" placeholder="Search..." aria-label="Search" style="width: 600px;">
+                        <button class="btn btn-secondary my-2 my-sm-0" id="searchSubmit"><i class="material-icons">search</i></button>
+                    </div>
+                    {% endif %}
                 </div>
             </li>
         </ul>
