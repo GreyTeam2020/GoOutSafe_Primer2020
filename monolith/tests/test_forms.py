@@ -740,3 +740,21 @@ class Test_GoOutSafeForm:
         response = create_new_reservation(client, form)
         assert response.status_code == 200
         assert "closed" in response.data.decode("utf-8")
+
+    def test_create_new_reservation_unauthorized(self, client):
+        """
+        not logged client can not book.
+        :param client:
+        :return:
+        """
+
+        restaurant = (
+            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
+        )
+        form = ReservationForm()
+        form.restaurant_id = restaurant.id
+        form.reservation_date = "23/11/2020 12:00"
+        form.people_number = 2
+
+        response = create_new_reservation(client, form)
+        assert response.status_code == 401
