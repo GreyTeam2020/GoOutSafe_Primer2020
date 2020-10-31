@@ -112,6 +112,5 @@ class UserService:
             .filter_by(customer_id=customer_id) \
             .delete()
         db.session.commit()
-        return True if effected_rows > 0 else False
 
 

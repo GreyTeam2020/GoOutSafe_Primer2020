@@ -24,7 +24,6 @@ $(document).ready(function() {
     if($("#reservation_date").length) {
         $('#reservation_date').datetimepicker({
             inline: true,
-            format: 'd/m/Y H:i'
         });
         $("#newBook").click(function () {
             $("#bookTableForm").submit();
@@ -32,6 +31,22 @@ $(document).ready(function() {
         $(".showBooking").click(function () {
             $("#restaurant_id").val($(this).data("id"));
             $("#bookTable").modal("show");
+        });
+
+
+        $(".showUpdateBooking").click(function () {
+            $("#id").val($(this).data("id"));
+            $("#restaurant_id").val($(this).data("rest_id"));
+            // 28/10/2020 12:00:00
+            // $('#reservation_date').val('11/02/1977 10:45');
+            $('#reservation_date').val('12/01/2006');
+            $('#reservation_date').datetimepicker('reset');
+
+
+           /* $("#reservation_date").val($(this).data("reservation_date"));
+            $("#reservation_date").val($(this).data("reservation_date"));*/
+            $("#people_number").val($(this).data("people_number"));
+            $("#bookUpdateTable").modal("show");
         });
     }
 
@@ -138,7 +153,6 @@ $(document).ready(function() {
     })
 
     $(".deleteBooking").click(deleteDialog);
-    // $("#restaurantID").val($(this).data("id"));
     function deleteDialog() {
         var resId = $(this).data("id");
         Swal.fire({
@@ -150,6 +164,22 @@ $(document).ready(function() {
         }).then((result) => {
           if (result.isConfirmed) {
             location.href = '/customer/deletereservations/' + resId;
+          }
+        })
+    }
+
+    $(".checkIn").click(checkinDialog);
+    function checkinDialog() {
+        var resId = $(this).data("id");
+        Swal.fire({
+          title: 'Checkin?',
+          showDenyButton: true,
+          showDenyButton: true,
+          confirmButtonText: `Yes`,
+          denyButtonText: `No`
+        }).then((result) => {
+          if (result.isConfirmed) {
+            location.href = '/restaurant/checkinreservations/' + resId;
           }
         })
     }

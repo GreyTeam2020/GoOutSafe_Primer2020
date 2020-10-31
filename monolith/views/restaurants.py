@@ -133,7 +133,8 @@ def my_reservations():
         _test="restaurant_reservations_test",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
-        reservations_n=RestaurantServices.get_restaurant_people(restaurant_id),
+      #  reservations_n=RestaurantServices.get_restaurant_people(restaurant_id),
+        reservations_n=0
     )
 
 
@@ -285,3 +286,12 @@ def search_restaurant(name_rest):
     return render_template(
         file, _test="rest_search_test", restaurants=filter_by_name, search=name_rest, form=form
     )
+
+
+@restaurants.route("/restaurant/checkinreservations/<reservation_id>")
+@login_required
+@roles_allowed(roles=["OPERATOR"])
+def checkin_reservations(reservation_id):
+    RestaurantServices.checkin_reservations(reservation_id)
+    return redirect("/restaurant/reservations")
+

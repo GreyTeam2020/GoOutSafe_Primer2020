@@ -1,8 +1,7 @@
 from flask import Blueprint, redirect, render_template, request, current_app, session
 from monolith.database import db, User, Like, Role
 from monolith.forms import UserForm, UserEditForm
-from monolith.utils import send_mail
-from flask_login import login_user, current_user
+from monolith.forms import ReservationForm
 from monolith.utils.dispaccer_events import DispatcherMessage
 from monolith.app_constant import REGISTRATION_EMAIL
 from monolith.services.user_service import UserService
@@ -109,30 +108,32 @@ def myreservation():
     toDate = request.args.get("toDate", type=str)
 
     reservations_as_list = UserService.get_customer_reservation(fromDate, toDate, current_user.id)
-
+    form = ReservationForm()
     return render_template(
         "user_reservations.html",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
+        form=form,
     )
 
 
 @users.route("/customer/deletereservations/<reservation_id>", methods=["GET", "POST"])
-def delete_reservations(reservation_id):
+def delete_reservation(reservation_id):
 
-    deleted = UserService.delete_reservation(reservation_id, current_user.id)
+    UserService.delete_reservation(reservation_id, current_user.id)
 
     reservations_as_list = UserService.get_customer_reservation(None, None, current_user.id)
-
+    form = ReservationForm()
     return render_template(
         "user_reservations.html",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
-        deleted=deleted,
+        form=form,
     )
 
+
 @users.route("/customer/edit_reservation/<reservation_id>", methods=["GET", "POST"])
-def delete_reservations(reservation_id):
+def edit_reservation(reservation_id):
 
     deleted = UserService.delete_reservation(reservation_id, current_user.id)
 
