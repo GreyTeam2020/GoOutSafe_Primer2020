@@ -85,7 +85,7 @@ def search_contacts():
                         form.email.data
                     ),
                 )
-            print("start searching")
+            
             contacts = HealthyServices.search_contacts(q_user.first().id)
 
             return render_template("/list_contacts.html", _test="list_page", contacts=contacts)

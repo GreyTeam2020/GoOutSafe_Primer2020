@@ -26,7 +26,8 @@ def send_possible_positive_contact(
     body = (
         "Hi {toName},<br>"
         'you had a possible COVID-19 contact at restaurant "{restaurantName}" in date {datePossibleContact}.<br> '
-        "<br>Please contact authority at 911.<br> "
+        "<br>Please contact authority at 911 and follow regulations at the following link:<br> "
+        "http://www.salute.gov.it/portale/nuovocoronavirus/homeNuovoCoronavirus.jsp<br> "
     )
     body = body.replace("{toName}", to_name)
     body = body.replace("{restaurantName}", restaurant_name)

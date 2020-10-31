@@ -11,6 +11,7 @@ from utils import (
     register_restaurant,
     get_rest_with_name,
     get_rest_with_name_and_phone,
+    register_operator
 )
 from monolith.database import db, User, Restaurant, Positive, Review, Reservation, RestaurantTable, OpeningHours
 from monolith.forms import (
@@ -39,6 +40,8 @@ from monolith.tests.utils import (
     create_new_reservation, create_new_user_with_form, create_new_restaurant_with_form, create_new_table,
     create_new_photo,
 )
+from monolith.services import BookingServices
+from datetime import datetime, timedelta
 
 import datetime
 
@@ -1268,4 +1271,338 @@ class Test_GoOutSafeForm:
         assert "search_contacts_no_data" in response.data.decode("utf-8")
 
 
-        #_test="list_page" continuare
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    def test_search_contacts_ok(self, client):
+
+        #a new owner of a restaurant
+        owner = UserForm()
+        owner.email = "nick@mail.com"
+        owner.firstname = "Nick"
+        owner.lastname = "Julius"
+        owner.password = "nick"
+        owner.phone = "53685464"
+        owner.dateofbirth = "26/12/1995"
+        register_operator(client, owner)
+
+        q_owner = get_user_with_email(owner.email)
+
+        restaurant = RestaurantForm()
+        restaurant.name = "Pepperwood"
+        restaurant.phone = "06902153"
+        restaurant.lat = 16
+        restaurant.lon = 20
+        restaurant.n_tables = 30
+        restaurant.covid_measures = "Stay safe!"
+        restaurant.cuisine = ["Italian food"]
+        restaurant.open_days = ["0", "1", "2", "3", "4", "5", "6"]
+        restaurant.open_lunch = "00:00"
+        restaurant.close_lunch = "15:00"
+        restaurant.open_dinner = "15:00"
+        restaurant.close_dinner = "23:59"
+        response = register_restaurant(client, restaurant)
+
+        q_restaurant = db.session.query(Restaurant).filter(Restaurant.name==restaurant.name).first()
+        
+        assert q_restaurant is not None
+        response = logout(client)
+        assert response.status_code == 200
+
+        #a new client
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        #this user books in the restaurant
+
+        q_user = get_user_with_email(user.email)
+        date_booking_1 = datetime.today()+ timedelta(minutes=1)
+        book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
+        
+        assert book1[0] == True
+
+        #a new user that books in the same restaurant of the previous one
+
+        user2 = UserForm()
+        user2.email = "bobby@gmail.com"
+        user2.firstname = "bobby"
+        user2.lastname = "singer"
+        user2.password = "bobbyb"
+        user2.phone = "12345678"
+        user2.dateofbirth = "17/04/1977"
+        register_user(client, user2)
+
+        q_user2 = get_user_with_email(user2.email)
+
+        date_booking_2 = datetime.today() + timedelta(minutes=1)
+        book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
+        assert book2[0] == True
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        #an user become covid19 positive
+        mark = SearchUserForm()
+        mark.email = user.email
+        mark.phone = user.phone
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is not None
+
+        response = search_contact_positive_covid19(client, mark)
+        assert response.status_code == 200
+        assert "list_page" in response.data.decode("utf-8")
+
+        db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
+        db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
+        db.session.query(Reservation).filter_by(reservation_date=date_booking_1).delete()
+        db.session.query(Reservation).filter_by(reservation_date=date_booking_2).delete()
+        db.session.query(RestaurantTable).filter(RestaurantTable.restaurant_id==q_restaurant.id).delete()
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
+        del_user_on_db(q_user2.id)
+        del_user_on_db(q_owner.id)
+        db.session.query(Restaurant).filter(Restaurant.id==q_restaurant.id).delete()
+        db.session.commit()
+
+        q_restaurant = db.session.query(Restaurant).filter(Restaurant.name==restaurant.name).first()        
+        assert q_restaurant is None
+
+
+
+
+
+    def test_search_contacts_ok_email(self, client):
+
+        #a new owner of a restaurant
+        owner = UserForm()
+        owner.email = "nick@mail.com"
+        owner.firstname = "Nick"
+        owner.lastname = "Julius"
+        owner.password = "nick"
+        owner.phone = "53685464"
+        owner.dateofbirth = "26/12/1995"
+        register_operator(client, owner)
+
+        q_owner = get_user_with_email(owner.email)
+
+        restaurant = RestaurantForm()
+        restaurant.name = "Pepperwood"
+        restaurant.phone = "06902153"
+        restaurant.lat = 16
+        restaurant.lon = 20
+        restaurant.n_tables = 30
+        restaurant.covid_measures = "Stay safe!"
+        restaurant.cuisine = ["Italian food"]
+        restaurant.open_days = ["0", "1", "2", "3", "4", "5", "6"]
+        restaurant.open_lunch = "00:00"
+        restaurant.close_lunch = "15:00"
+        restaurant.open_dinner = "15:00"
+        restaurant.close_dinner = "23:59"
+        response = register_restaurant(client, restaurant)
+
+        q_restaurant = db.session.query(Restaurant).filter(Restaurant.name==restaurant.name).first()
+        
+        assert q_restaurant is not None
+        response = logout(client)
+        assert response.status_code == 200
+
+        #a new client
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        #this user books in the restaurant
+
+        q_user = get_user_with_email(user.email)
+        date_booking_1 = datetime.today()+ timedelta(minutes=1)
+        book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
+        
+        assert book1[0] == True
+
+        #a new user that books in the same restaurant of the previous one
+
+        user2 = UserForm()
+        user2.email = "bobby@gmail.com"
+        user2.firstname = "bobby"
+        user2.lastname = "singer"
+        user2.password = "bobbyb"
+        user2.phone = "12345678"
+        user2.dateofbirth = "17/04/1977"
+        register_user(client, user2)
+
+        q_user2 = get_user_with_email(user2.email)
+
+        date_booking_2 = datetime.today() + timedelta(minutes=1)
+        book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
+        assert book2[0] == True
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        #an user become covid19 positive
+        mark = SearchUserForm()
+        mark.email = user.email
+        mark.phone = ""
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is not None
+
+        response = search_contact_positive_covid19(client, mark)
+        assert response.status_code == 200
+        assert "list_page" in response.data.decode("utf-8")
+
+        db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
+        db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
+        db.session.query(Reservation).filter_by(reservation_date=date_booking_1).delete()
+        db.session.query(Reservation).filter_by(reservation_date=date_booking_2).delete()
+        db.session.query(RestaurantTable).filter(RestaurantTable.restaurant_id==q_restaurant.id).delete()
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
+        del_user_on_db(q_user2.id)
+        del_user_on_db(q_owner.id)
+        db.session.query(Restaurant).filter(Restaurant.id==q_restaurant.id).delete()
+        db.session.commit()
+
+        q_restaurant = db.session.query(Restaurant).filter(Restaurant.name==restaurant.name).first()        
+        assert q_restaurant is None
+
+
+
+    def test_search_contacts_ok_phone(self, client):
+
+        #a new owner of a restaurant
+        owner = UserForm()
+        owner.email = "nick@mail.com"
+        owner.firstname = "Nick"
+        owner.lastname = "Julius"
+        owner.password = "nick"
+        owner.phone = "53685464"
+        owner.dateofbirth = "26/12/1995"
+        register_operator(client, owner)
+
+        q_owner = get_user_with_email(owner.email)
+
+        restaurant = RestaurantForm()
+        restaurant.name = "Pepperwood"
+        restaurant.phone = "06902153"
+        restaurant.lat = 16
+        restaurant.lon = 20
+        restaurant.n_tables = 30
+        restaurant.covid_measures = "Stay safe!"
+        restaurant.cuisine = ["Italian food"]
+        restaurant.open_days = ["0", "1", "2", "3", "4", "5", "6"]
+        restaurant.open_lunch = "00:00"
+        restaurant.close_lunch = "15:00"
+        restaurant.open_dinner = "15:00"
+        restaurant.close_dinner = "23:59"
+        response = register_restaurant(client, restaurant)
+
+        q_restaurant = db.session.query(Restaurant).filter(Restaurant.name==restaurant.name).first()
+        
+        assert q_restaurant is not None
+        response = logout(client)
+        assert response.status_code == 200
+
+        #a new client
+
+        user = UserForm()
+        user.email = "joe@gmail.com"
+        user.firstname = "joe"
+        user.lastname = "joe"
+        user.password = "joejoe"
+        user.phone = "324545"
+        user.dateofbirth = "24/10/1987"
+        register_user(client, user)
+
+        #this user books in the restaurant
+
+        q_user = get_user_with_email(user.email)
+        date_booking_1 = datetime.today()+ timedelta(minutes=1)
+        book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
+        
+        assert book1[0] == True
+
+        #a new user that books in the same restaurant of the previous one
+
+        user2 = UserForm()
+        user2.email = "bobby@gmail.com"
+        user2.firstname = "bobby"
+        user2.lastname = "singer"
+        user2.password = "bobbyb"
+        user2.phone = "12345678"
+        user2.dateofbirth = "17/04/1977"
+        register_user(client, user2)
+
+        q_user2 = get_user_with_email(user2.email)
+
+        date_booking_2 = datetime.today() + timedelta(minutes=1)
+        book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
+        assert book2[0] == True
+
+        response = login(client, "health_authority@gov.com", "nocovid")
+        assert response.status_code == 200
+
+        #an user become covid19 positive
+        mark = SearchUserForm()
+        mark.email = ""
+        mark.phone = user.phone
+        response = mark_people_for_covid19(client, mark)
+        assert response.status_code == 200
+
+        q_already_positive = (
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
+        )
+        assert q_already_positive is not None
+
+        response = search_contact_positive_covid19(client, mark)
+        assert response.status_code == 200
+        assert "list_page" in response.data.decode("utf-8")
+
+        db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
+        db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
+        db.session.query(Reservation).filter_by(reservation_date=date_booking_1).delete()
+        db.session.query(Reservation).filter_by(reservation_date=date_booking_2).delete()
+        db.session.query(RestaurantTable).filter(RestaurantTable.restaurant_id==q_restaurant.id).delete()
+        delete_positive_with_user_id(q_user.id)
+        del_user_on_db(q_user.id)
+        del_user_on_db(q_user2.id)
+        del_user_on_db(q_owner.id)
+        db.session.query(Restaurant).filter(Restaurant.id==q_restaurant.id).delete()
+        db.session.commit()
+
+        q_restaurant = db.session.query(Restaurant).filter(Restaurant.name==restaurant.name).first()        
+        assert q_restaurant is None
