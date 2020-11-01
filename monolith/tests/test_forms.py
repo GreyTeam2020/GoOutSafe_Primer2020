@@ -1732,7 +1732,7 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "list_page" in response.data.decode("utf-8")
         assert "bobby@gmail.com" in response.data.decode("utf-8")  
-        #assert "john.doe@email.com" not in response.data.decode("utf-8")   
+        assert "john.doe@email.com" not in response.data.decode("utf-8")   
 
         db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
