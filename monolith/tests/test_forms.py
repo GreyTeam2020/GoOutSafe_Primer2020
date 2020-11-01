@@ -42,6 +42,7 @@ from monolith.tests.utils import (
 )
 from monolith.services import BookingServices
 from datetime import datetime, timedelta
+import time
 
 import datetime
 
@@ -1438,7 +1439,7 @@ class Test_GoOutSafeForm:
         #this user books in the restaurant
 
         q_user = get_user_with_email(user.email)
-        date_booking_1 = datetime.today()+ timedelta(minutes=1)
+        date_booking_1 = datetime.today()+ timedelta(seconds=1)
         book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
         
         assert book1[0] == True
@@ -1456,9 +1457,11 @@ class Test_GoOutSafeForm:
 
         q_user2 = get_user_with_email(user2.email)
 
-        date_booking_2 = datetime.today() + timedelta(minutes=1)
+        date_booking_2 = datetime.today() + timedelta(seconds=1)
         book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
         assert book2[0] == True
+
+        time.sleep(1) #sleep for 1 second
 
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
@@ -1478,6 +1481,7 @@ class Test_GoOutSafeForm:
         response = search_contact_positive_covid19(client, mark)
         assert response.status_code == 200
         assert "list_page" in response.data.decode("utf-8")
+        assert "bobby@gmail.com" in response.data.decode("utf-8")
 
         db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
@@ -1558,7 +1562,7 @@ class Test_GoOutSafeForm:
         #this user books in the restaurant
 
         q_user = get_user_with_email(user.email)
-        date_booking_1 = datetime.today()+ timedelta(minutes=1)
+        date_booking_1 = datetime.today()+ timedelta(seconds=1)
         book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
         
         assert book1[0] == True
@@ -1576,9 +1580,11 @@ class Test_GoOutSafeForm:
 
         q_user2 = get_user_with_email(user2.email)
 
-        date_booking_2 = datetime.today() + timedelta(minutes=1)
+        date_booking_2 = datetime.today() + timedelta(seconds=1)
         book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
         assert book2[0] == True
+
+        time.sleep(1) #sleep for 1 second
 
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
@@ -1598,6 +1604,7 @@ class Test_GoOutSafeForm:
         response = search_contact_positive_covid19(client, mark)
         assert response.status_code == 200
         assert "list_page" in response.data.decode("utf-8")
+        assert "bobby@gmail.com" in response.data.decode("utf-8")
 
         db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
@@ -1679,7 +1686,9 @@ class Test_GoOutSafeForm:
         #this user books in the restaurant
 
         q_user = get_user_with_email(user.email)
-        date_booking_1 = datetime.today()+ timedelta(minutes=1)
+
+        date_booking_1 = datetime.today() + timedelta(seconds=1)
+
         book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
         
         assert book1[0] == True
@@ -1697,9 +1706,12 @@ class Test_GoOutSafeForm:
 
         q_user2 = get_user_with_email(user2.email)
 
-        date_booking_2 = datetime.today() + timedelta(minutes=1)
+        date_booking_2 = datetime.today() + timedelta(seconds=1)
+        
         book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
         assert book2[0] == True
+
+        time.sleep(1) 
 
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
@@ -1719,7 +1731,7 @@ class Test_GoOutSafeForm:
         response = search_contact_positive_covid19(client, mark)
         assert response.status_code == 200
         assert "list_page" in response.data.decode("utf-8")
-        #assert "john.doe@email.com"  in response.data.decode("utf-8")
+        assert "bobby@gmail.com" in response.data.decode("utf-8")    
 
         db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
@@ -1799,11 +1811,12 @@ class Test_GoOutSafeForm:
         #this user books in the restaurant
 
         q_user = get_user_with_email(user.email)
-        date_booking_1 = datetime.today()+ timedelta(minutes=1)
+        date_booking_1 = datetime.today()+ timedelta(seconds=1)
         book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
         
         assert book1[0] == True
 
+        time.sleep(1)
 
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
@@ -1823,7 +1836,7 @@ class Test_GoOutSafeForm:
         response = search_contact_positive_covid19(client, mark)
         assert response.status_code == 200
         assert "list_page" in response.data.decode("utf-8")
-        #assert "No data" in response.data.decode("utf-8")
+        assert "No data" in response.data.decode("utf-8")
 
         db.session.query(Menu).filter(Menu.restaurant_id==q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(OpeningHours.restaurant_id==q_restaurant.id).delete()
@@ -1837,3 +1850,6 @@ class Test_GoOutSafeForm:
 
         q_restaurant = db.session.query(Restaurant).filter(Restaurant.name==restaurant.name).first()        
         assert q_restaurant is None
+
+
+       
