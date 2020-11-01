@@ -14,12 +14,6 @@ from flask_login import current_user, login_user, login_required
 users = Blueprint("users", __name__)
 
 
-@users.route("/users")
-def _users():
-    users = db.session.query(User)
-    return render_template("users.html", users=users)
-
-
 @users.route("/user/create_operator", methods=["GET", "POST"])
 def create_operator():
     form = UserForm()

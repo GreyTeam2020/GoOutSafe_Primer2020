@@ -12,13 +12,14 @@ from utils import (
     get_rest_with_name,
     get_rest_with_name_and_phone,
 )
-from monolith.database import db, User, Restaurant, Positive, Review
+from monolith.database import db, User, Restaurant, Positive, Review, Reservation, RestaurantTable, OpeningHours
 from monolith.forms import (
     UserForm,
     RestaurantForm,
     SearchUserForm,
     ReviewForm,
     DishForm,
+    ReservationForm, PhotoGalleryForm,
 )
 from monolith.tests.utils import (
     visit_restaurant,
@@ -31,7 +32,11 @@ from monolith.tests.utils import (
     unmark_people_for_covid19,
     search_contact_positive_covid19,
     create_new_menu,
+    create_new_reservation, create_new_user_with_form, create_new_restaurant_with_form, create_new_table,
+    create_new_photo,
 )
+
+import datetime
 
 
 @pytest.mark.usefixtures("client")
@@ -111,9 +116,6 @@ class Test_GoOutSafeForm:
 
         db.session.query(User).filter_by(id=user_query.id).delete()
         db.session.commit()
-
-    def test_delete_user(self, client):
-        pass
 
     def test_modify_user(self, client):
         pass
@@ -652,6 +654,10 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
 
+        #GET
+        response = client.get("/restaurant/menu")
+        assert response.status_code is 200
+
         rest = db.session.query(Restaurant).all()[0]
         form = DishForm()
         form.name = "Pasta"
@@ -661,7 +667,7 @@ class Test_GoOutSafeForm:
         response = create_new_menu(client, form)
         assert response.status_code is 200
         assert "menu_ok_test" in response.data.decode("utf-8")
-        
+
         logout(client)
 
     def test_create_new_menu_restaurant_ko(self, client):
@@ -679,3 +685,286 @@ class Test_GoOutSafeForm:
             session["RESTAURANT_ID"] = rest.id
         response = create_new_menu(client, form)
         assert response.status_code is not 403
+
+    def test_create_new_reservation_ok(self, client):
+        """
+        This test case perform the request in order to create
+        a new reservation for user john doe
+        :param client:
+        :return:
+        """
+
+        email = "john.doe@email.com"
+        pazz = "customer"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        restaurant = (
+            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
+        )
+        form = ReservationForm()
+        form.restaurant_id = restaurant.id
+        form.reservation_date = "23/11/2020 12:00"
+        form.people_number = 2
+
+        response = create_new_reservation(client, form)
+        assert response.status_code == 200
+
+        # delete data from db
+        d1 = datetime.datetime(year=2020, month=11, day=23, hour=12)
+        db.session.query(Reservation).filter_by(reservation_date=d1).delete()
+        db.session.commit()
+
+    def test_create_new_reservation_ko(self, client):
+        """
+        This test case perform the request in order to create
+        a new reservation for user john doe THAT HAVE TO FAIL
+        RESTAURANT IS CLOSED AT 10:00
+        :param client:
+        :return:
+        """
+
+        email = "john.doe@email.com"
+        pazz = "customer"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        restaurant = (
+            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
+        )
+        form = ReservationForm()
+        form.restaurant_id = restaurant.id
+        form.reservation_date = "23/11/2020 10:00"
+        form.people_number = 2
+
+        response = create_new_reservation(client, form)
+        assert response.status_code == 200
+        assert "closed" in response.data.decode("utf-8")
+
+    def test_create_new_reservation_unauthorized(self, client):
+        """
+        not logged client can not book.
+        :param client:
+        :return:
+        """
+
+        restaurant = (
+            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
+        )
+        form = ReservationForm()
+        form.restaurant_id = restaurant.id
+        form.reservation_date = "23/11/2020 12:00"
+        form.people_number = 2
+
+        response = create_new_reservation(client, form)
+        assert response.status_code == 401
+
+    def test_create_operator(self, client):
+        """
+        test to create an operator
+        """
+        #view page
+        client.get("/create_operator")
+
+        #POST
+        user = UserForm()
+        user.firstname = "Steve"
+        user.lastname = "Jobs"
+        user.email = "steve@apple.com"
+        response = create_new_user_with_form(client, user, "operator")
+
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+    def test_create_operator_already(self, client):
+        """
+        test to create an operator with pre-existing email
+        """
+        user = UserForm()
+        user.firstname = "Steve"
+        user.lastname = "Jobs"
+        user.email = "steve@apple.com"
+        response = create_new_user_with_form(client, user, "operator")
+
+        assert response.status_code == 200
+        assert "logged_test" not in response.data.decode("utf-8")
+
+    def test_edit_user_data(self, client):
+        """
+        test edit of user info
+        """
+        email = "steve@apple.com"
+        password = "12345678"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        # view page
+        client.get("/user/data")
+
+        # POST
+        response = client.post(
+            "/user/data",
+            data=dict(
+                email=email,
+                firstname="Stefano",
+                lastname="Lavori",
+                dateofbirth="22/03/1998",
+                headers={"Content-type": "application/x-www-form-urlencoded"},
+            ),
+            follow_redirects=True,
+        )
+
+        assert response.status_code == 200
+        assert "Hi Stefano" in response.data.decode("utf-8")
+
+    def test_delete_user(self, client):
+        """
+        test delete user url
+        """
+        email = "steve@apple.com"
+        password = "12345678"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        response = client.get("/user/delete")
+        assert response.status_code == 302
+
+    def test_get_user_reservations(self, client):
+        """
+        test reservation page of customer
+        """
+        email = "john.doe@email.com"
+        password = "customer"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        response = client.get("/customer/reservations")
+        assert response.status_code == 200
+
+    def test_create_restaurant_form(self, client):
+        """
+        test to create a restaurant
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        # view page
+        response = client.get("/restaurant/create")
+        assert response.status_code == 200
+
+        # POST
+        restaurant = RestaurantForm()
+        restaurant.name = "Krusty Krab"
+        restaurant.phone = "0451245152"
+        restaurant.lat = "1"
+        restaurant.lon = "1"
+        restaurant.n_tables = "1"
+        restaurant.cuisine = "Italian food"
+        restaurant.open_days = "0"
+        restaurant.open_lunch = "11:00"
+        restaurant.close_lunch = "12:00"
+        restaurant.open_dinner = "20:00"
+        restaurant.close_dinner = "21:00"
+        restaurant.covid_measures = "masks"
+        response = create_new_restaurant_with_form(client, restaurant)
+        assert response.status_code == 200
+        assert "Register your Restaurant" not in response.data.decode("utf-8")
+
+    def test_create_restaurant_already_form(self, client):
+        """
+        test to create a restaurant already existent
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        # POST
+        restaurant = RestaurantForm()
+        restaurant.name = "Krusty Krab"
+        restaurant.phone = "0451245152"
+        restaurant.lat = "1"
+        restaurant.lon = "1"
+        restaurant.n_tables = "1"
+        restaurant.cuisine = "Italian food"
+        restaurant.open_days = "0"
+        restaurant.open_lunch = "11:00"
+        restaurant.close_lunch = "12:00"
+        restaurant.open_dinner = "20:00"
+        restaurant.close_dinner = "21:00"
+        restaurant.covid_measures = "masks"
+        response = create_new_restaurant_with_form(client, restaurant)
+        assert response.status_code == 200
+        assert "Register your Restaurant" in response.data.decode("utf-8")
+
+        db.session.query(Restaurant).filter_by(name=restaurant.name).delete()
+        db.session.query(OpeningHours).delete()
+        db.session.commit()
+
+    def test_edit_restaurant_data(self, client):
+        """
+        test edit of restaurant info
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        # view page
+        response = client.get("/restaurant/data")
+        assert response.status_code == 200
+
+        # POST
+        # TODO: still miss the logic there
+
+    def test_create_and_delete_table(self, client):
+        """
+        test to create a table and then destroy it
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        table = RestaurantTable()
+        table.restaurant_id = "1"
+        table.max_seats = "4"
+        table.name = "TestTable123"
+        response = create_new_table(client, table)
+        assert response.status_code == 200
+        assert table.name in response.data.decode("utf-8")
+
+        table = db.session.query(RestaurantTable).filter_by(name="TestTable123").first()
+        assert table is not None
+
+        response = client.get("/restaurant/tables?id="+str(table.id))
+        assert response.status_code == 302
+
+    def test_add_photo(self, client):
+        """
+        test to create a photo
+        """
+        email = "ham.burger@email.com"
+        password = "operator"
+        response = login(client, email, password)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        photo = PhotoGalleryForm()
+        photo.caption = "photo"
+        photo.url = "https://www.google.com/pic.jpg"
+        response = create_new_photo(client, photo)
+        assert response.status_code == 200
+        assert photo.caption in response.data.decode("utf-8")
+

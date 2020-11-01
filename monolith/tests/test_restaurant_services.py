@@ -170,14 +170,14 @@ class Test_RestaurantServices:
         assert "logged_test" in response.data.decode("utf-8")
 
         dish = MenuDish()
-        dish.name="Pearà"
-        dish.price=5.50
-        dish.restaurant_id=1
+        dish.name = "Pearà"
+        dish.price = 5.50
+        dish.restaurant_id = 1
         db.session.add(dish)
         db.session.commit()
         assert dish is not None
 
-        client.get("/restaurant/menu/delete/"+str(dish.id))
+        client.get("/restaurant/menu/delete/" + str(dish.id))
 
         dish = db.session.query(MenuDish).filter_by(name="Pearà").first()
         assert dish is None
