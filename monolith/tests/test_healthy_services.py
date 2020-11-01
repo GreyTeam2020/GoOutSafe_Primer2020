@@ -201,4 +201,23 @@ class Test_HealthyServices:
         del_user_on_db(user.id)
 
 
-        #aggiungere search contacts
+    def test_search_contacts_new_user(self):
+        """
+        :return:
+        """
+        user = create_user_on_db()
+        assert user is not None
+        assert user.role_id is 3
+        positive = positive_with_user_id(user.id)
+        assert positive is None
+        message = HealthyServices.mark_positive("", user.phone)
+        assert len(message) is 0
+
+        contacts = HealthyServices.search_contacts(user.id)
+        assert len(contacts) is 0
+
+        message = HealthyServices.unmark_positive("", user.phone)
+        assert len(message) is 0
+
+        delete_was_positive_with_user_id(user.id)
+        del_user_on_db(user.id)
