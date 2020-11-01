@@ -18,9 +18,9 @@
                 {% for reservation in reservations_as_list %}
                     <tr>
                         <td><a class="showUpdateBooking" href="#"
-                               data-id="{{ reservation.id }}"
+                               data-reservation_id="{{ reservation.id }}"
                                data-rest_id="{{ reservation.rest_id }}"
-                               data-date="{{ my_date_formatter(reservation.reservation_date) }}"
+                               data-reservation_date="{{ my_date_formatter(reservation.reservation_date) }}"
                                data-people_number="{{ reservation.people_number }}"
                         >{{ reservation.id }}</a></td>
                         <td>{{ my_date_formatter(reservation.reservation_date) }}</td>
@@ -72,5 +72,34 @@
         </div>
       </div>
     </div>
+
+<script>
+    {% if deleted %}
+        Swal.fire({
+            position: 'center',
+            icon: 'success',
+            title: 'Your reservation has been canceled',
+            showConfirmButton: false,
+            timer: 1500
+        });
+    {% endif %}
+
+    {% if new_book %}
+        Swal.fire({
+            position: 'center',
+            {% if new_book[0] %}
+                icon: 'success',
+                title: 'Your reservation has been updated',
+            {% endif %}
+            {% if not new_book[0] %}
+                icon: 'error',
+                title: 'Cannot place your booking: {{ new_book[1] }}',
+            {% endif %}
+            showConfirmButton: false,
+            timer: 1500
+        });
+    {% endif %}
+
+</script>
 
 {% include 'footer.html' %}

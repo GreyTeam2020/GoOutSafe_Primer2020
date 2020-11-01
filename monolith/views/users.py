@@ -5,7 +5,7 @@ from monolith.forms import ReservationForm
 from monolith.utils.dispaccer_events import DispatcherMessage
 from monolith.app_constant import REGISTRATION_EMAIL
 from monolith.services.user_service import UserService
-from monolith.utils import send_mail
+from monolith.services.booking_services import BookingServices
 from monolith.auth import roles_allowed
 from monolith.utils.formatter import my_date_formatter
 from flask_login import current_user, login_user, login_required
@@ -118,9 +118,11 @@ def myreservation():
 
 
 @users.route("/customer/deletereservations/<reservation_id>", methods=["GET", "POST"])
+@login_required
+@roles_allowed(roles=["CUSTOMER"])
 def delete_reservation(reservation_id):
 
-    UserService.delete_reservation(reservation_id, current_user.id)
+    deleted = BookingServices.delete_book(reservation_id, current_user.id)
 
     reservations_as_list = UserService.get_customer_reservation(None, None, current_user.id)
     form = ReservationForm()
@@ -128,39 +130,11 @@ def delete_reservation(reservation_id):
         "user_reservations.html",
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
+        deleted=deleted,
         form=form,
     )
 
 
-@users.route("/customer/edit_reservation/<reservation_id>", methods=["GET", "POST"])
-def edit_reservation(reservation_id):
 
-    deleted = UserService.delete_reservation(reservation_id, current_user.id)
 
-    reservations_as_list = UserService.get_customer_reservation(None, None, current_user.id)
 
-    return render_template(
-        "user_reservations.html",
-        reservations_as_list=reservations_as_list,
-        my_date_formatter=my_date_formatter,
-        deleted=deleted,
-    )
-
-@users.route("/testsendemail")
-def _testsendemail():
-    # ------------------------
-    testEmail = "PUTYOUREMAIL"  # PUT YOUR EMAIL FOR TEST and click to /login
-    send_mail.send_possible_positive_contact(
-        testEmail, "John Doe", "01/01/2020 21:30", "Il Paninaro"
-    )
-    send_mail.send_reservation_confirm(
-        testEmail, "John Doe", "01/01/2020 21:30", "Il Paninaro", 10
-    )
-    send_mail.send_registration_confirm(
-        testEmail, "John Doe", "qwertyuiopasdfghjklzxcvbnm"
-    )
-    send_mail.send_reservation_notification(
-        testEmail, "John Doe", "Il Paninaro", "Richard Smith", "01/01/2020 21:30", 12, 8
-    )
-    # ------------------------
-    return render_template("sendemailok.html", testEmail=testEmail)

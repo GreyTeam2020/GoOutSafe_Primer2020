@@ -24,6 +24,7 @@ $(document).ready(function() {
     if($("#reservation_date").length) {
         $('#reservation_date').datetimepicker({
             inline: true,
+            format: 'd/m/Y H:i'
         });
         $("#newBook").click(function () {
             $("#bookTableForm").submit();
@@ -35,16 +36,9 @@ $(document).ready(function() {
 
 
         $(".showUpdateBooking").click(function () {
-            $("#id").val($(this).data("id"));
+            $("#reservation_id").val($(this).data("reservation_id"));
             $("#restaurant_id").val($(this).data("rest_id"));
-            // 28/10/2020 12:00:00
-            // $('#reservation_date').val('11/02/1977 10:45');
-            $('#reservation_date').val('12/01/2006');
-            $('#reservation_date').datetimepicker('reset');
-
-
-           /* $("#reservation_date").val($(this).data("reservation_date"));
-            $("#reservation_date").val($(this).data("reservation_date"));*/
+            $("#reservation_date").val($(this).data("reservation_date"));
             $("#people_number").val($(this).data("people_number"));
             $("#bookUpdateTable").modal("show");
         });

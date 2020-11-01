@@ -104,13 +104,3 @@ class UserService:
         reservations_as_list = result.fetchall()
         return reservations_as_list
 
-
-    @staticmethod
-    def delete_reservation(id_reservation: str, customer_id: str):
-        effected_rows = db.session.query(Reservation)\
-            .filter_by(id=id_reservation) \
-            .filter_by(customer_id=customer_id) \
-            .delete()
-        db.session.commit()
-
-

@@ -163,3 +163,36 @@ class BookingServices:
             return (True, restaurant_name, table_name)
         else:
             return (False, "no tables available")
+
+
+    @staticmethod
+    def delete_book(reservation_id: str, customer_id: str):
+        effected_rows = db.session.query(Reservation) \
+            .filter_by(id=reservation_id) \
+            .filter_by(customer_id=customer_id) \
+            .delete()
+        db.session.commit()
+        return True if effected_rows > 0 else False
+
+
+    @staticmethod
+    def update_book(reservation_id, current_user, py_datetime, people_number):
+
+        reservation = db.session.query(Reservation) \
+            .filter_by(id=reservation_id) \
+            .filter_by(customer_id=current_user.id).first() \
+
+        if reservation is None:
+            print("Reservation not found")
+            return False, "Reservation not found"
+
+        table = db.session.query(RestaurantTable).filter_by(id=reservation.table_id).first()
+
+        if table is None:
+            print("Table not found")
+            return False, "Table not found"
+
+        book = BookingServices.book(table.restaurant_id, current_user, py_datetime, people_number)
+        if book[0] == True:
+            BookingServices.delete_book(reservation_id, current_user.id)
+        return book
