@@ -9,15 +9,14 @@ from monolith.services import HealthyServices, RestaurantServices
 health = Blueprint("health", __name__)
 
 
-@health.route("/health/allrestaurants")
-def allrestaurants():
-    restaurants = RestaurantServices.get_all_restaurants()
-    return render_template("all_restaurants.html", restaurants=restaurants)
-
-
 @health.route("/health/report_positive")
 def report_positive():
-    users = db.session.query(User)
+    users = db.session.query(User).filter( 
+        User.email != "admin@gooutsafe.com", 
+        User.email != "health_authority@gov.com",
+        User.id == Positive.user_id,
+        Positive.marked == True
+    ).all()
     return render_template("report_positive.html", users=users)
 
 

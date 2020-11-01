@@ -7,6 +7,7 @@ from monolith.tests.utils import (
     positive_with_user_id,
     delete_positive_with_user_id,
     delete_was_positive_with_user_id,
+    get_user_with_email
 )
 
 
@@ -201,7 +202,7 @@ class Test_HealthyServices:
         del_user_on_db(user.id)
 
 
-    def test_search_contacts_new_user(self):
+    def test_search_contacts_user_with_no_booking(self):
         """
         :return:
         """
@@ -221,3 +222,24 @@ class Test_HealthyServices:
 
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
+
+    
+    def test_search_contacts_user_with_booking(self):
+        """
+        :return:
+        """
+        
+        user = get_user_with_email("john.doe@email.com")
+        
+        positive = positive_with_user_id(user.id)
+        assert positive is None
+        message = HealthyServices.mark_positive("", user.phone)
+        assert len(message) is 0
+
+        contacts = HealthyServices.search_contacts(user.id)
+        assert len(contacts) is 0
+
+        message = HealthyServices.unmark_positive("", user.phone)
+        assert len(message) is 0
+
+        delete_was_positive_with_user_id(user.id)
