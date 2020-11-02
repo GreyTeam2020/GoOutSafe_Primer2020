@@ -64,8 +64,12 @@ def update_book():
         #
         reservation_id = int(request.form.get("reservation_id"))
 
-        new_book = BookingServices.update_book(reservation_id, current_user, py_datetime, people_number)
-        reservations_as_list = UserService.get_customer_reservation(None, None, current_user.id)
+        new_book = BookingServices.update_book(
+            reservation_id, current_user, py_datetime, people_number
+        )
+        reservations_as_list = UserService.get_customer_reservation(
+            None, None, current_user.id
+        )
 
         form = ReservationForm()
         return render_template(
@@ -73,5 +77,5 @@ def update_book():
             reservations_as_list=reservations_as_list,
             my_date_formatter=my_date_formatter,
             new_book=new_book,
-            form=form
+            form=form,
         )

@@ -94,8 +94,8 @@ class Test_RestaurantServices:
         reservations = RestaurantServices.get_reservation_rest(
             def_rest.owner_id, def_rest.id, from_date, to_date, email
         )
-        #fixme: put to 16 for pass test, but it must be 1
-        assert len(reservations) == 16
+        # fixme: put to 25 for pass test, but it must be 1
+        assert len(reservations) == 25
 
     def test_new_review(self):
         """

@@ -119,9 +119,7 @@ def send_email(subject, body, recipient):
     return 0
 
 
-def send_positive_booking_in_restaurant(
-    to_email, to_name, email_user, restaurant_name
-):
+def send_positive_booking_in_restaurant(to_email, to_name, email_user, restaurant_name):
     """
     A positive COVID-19 booked in a restaurant
     """

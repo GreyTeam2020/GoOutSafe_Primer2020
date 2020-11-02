@@ -1,13 +1,21 @@
 import json
 from datetime import datetime
-from monolith.database import db, User, Restaurant, Positive, OpeningHours, RestaurantTable
+from monolith.database import (
+    db,
+    User,
+    Restaurant,
+    Positive,
+    OpeningHours,
+    RestaurantTable,
+)
 from monolith.forms import (
     UserForm,
     RestaurantForm,
     SearchUserForm,
     ReviewForm,
     DishForm,
-    ReservationForm, PhotoGalleryForm,
+    ReservationForm,
+    PhotoGalleryForm,
 )
 from monolith.services import UserService, RestaurantServices
 
@@ -183,7 +191,7 @@ def create_new_user_with_form(client, form: UserForm, type):
     :return:
     """
     return client.post(
-        "/user/create_"+type,
+        "/user/create_" + type,
         data=dict(
             email=form.email,
             firstname=form.firstname,
@@ -410,6 +418,7 @@ def create_new_table(client, form: RestaurantTable):
         follow_redirects=True,
     )
 
+
 def create_new_photo(client, form: PhotoGalleryForm):
     """
     This util have the code to perform the request with flask client
@@ -427,6 +436,7 @@ def create_new_photo(client, form: PhotoGalleryForm):
         ),
         follow_redirects=True,
     )
+
 
 def register_operator(client, user: UserForm):
     """

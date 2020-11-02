@@ -248,5 +248,3 @@ class RestaurantServices:
             reservation.update({Reservation.checkin: True})
             db.session.commit()
             db.session.flush()
-
-

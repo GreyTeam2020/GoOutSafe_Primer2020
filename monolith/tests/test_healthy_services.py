@@ -7,7 +7,7 @@ from monolith.tests.utils import (
     positive_with_user_id,
     delete_positive_with_user_id,
     delete_was_positive_with_user_id,
-    get_user_with_email
+    get_user_with_email,
 )
 
 
@@ -28,10 +28,9 @@ class Test_HealthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-
     def test_mark_positive_ok(self):
         """
-        It tests that a user is correctly marked as covid-19 positive by 
+        It tests that a user is correctly marked as covid-19 positive by
         health authority
         """
         # an operator
@@ -44,7 +43,6 @@ class Test_HealthyServices:
         assert len(message) is 0
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
-
 
     def test_mark_positive_already_covid(self):
         """
@@ -65,7 +63,6 @@ class Test_HealthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-
     def test_mark_positive_user_not_exist(self):
         """
         It tests that health authority can't mark as covid-19 positive
@@ -76,7 +73,6 @@ class Test_HealthyServices:
         )
         assert message == "The user is not registered"
 
-
     def test_mark_positive_nan_proprieties(self):
         """
         It tests that health authority, to mark someone as covid-19
@@ -84,7 +80,6 @@ class Test_HealthyServices:
         """
         message = HealthyServices.mark_positive("", "")
         assert message == "Insert an email or a phone number"
-
 
     def test_mark_positive_user_by_email(self):
         """
@@ -102,7 +97,6 @@ class Test_HealthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-
     def test_mark_positive_user_by_phone(self):
         """
         It tests that health authority can mark a customer as covid-19
@@ -117,10 +111,9 @@ class Test_HealthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-
     def test_unmark_positive_ok(self):
         """
-        It tests that health authority can mark a customer as healed 
+        It tests that health authority can mark a customer as healed
         using customer's email and phone number
         """
         user = create_user_on_db()
@@ -137,10 +130,9 @@ class Test_HealthyServices:
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-
     def test_unmark_user_not_positive(self):
         """
-        It tests that health authority cannot mark a customer as healed 
+        It tests that health authority cannot mark a customer as healed
         if the customer is not covid-19 positive
         """
         user = create_user_on_db()
@@ -155,28 +147,25 @@ class Test_HealthyServices:
         delete_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-
     def test_unmark_user_not_in_app(self):
         """
-        It tests that health authority cannot mark a customer as healed 
+        It tests that health authority cannot mark a customer as healed
         if the customer is not registered
         """
         message = HealthyServices.unmark_positive("alibaba@alibaba.com", "")
         assert message == "The user is not registered"
 
-
     def test_unmark_positive_nan_proprieties(self):
         """
-        It tests that health authority cannot mark a customer as healed 
+        It tests that health authority cannot mark a customer as healed
         without insert neither customer's email nor customer's phone number
         """
         message = HealthyServices.mark_positive("", "")
         assert message == "Insert an email or a phone number"
 
-
     def test_unmark_positive_user_by_email(self):
         """
-        It tests that health authority can mark a customer as healed 
+        It tests that health authority can mark a customer as healed
         using only customer's email
         """
         user = create_user_on_db()
@@ -193,10 +182,9 @@ class Test_HealthyServices:
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-
     def test_mark_positive_user_by_phone(self):
         """
-        It tests that health authority can mark a customer as healed 
+        It tests that health authority can mark a customer as healed
         using only customer's phone number
         """
         user = create_user_on_db()
@@ -212,7 +200,6 @@ class Test_HealthyServices:
 
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
-
 
     def test_search_contacts_user_with_no_booking(self):
         """
@@ -236,15 +223,14 @@ class Test_HealthyServices:
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-    
     def test_search_contacts_user_with_booking(self):
         """
         Searching for list of contacts of a covid-19 positive
         customer with bookings
         """
-        
+
         user = get_user_with_email("john.doe@email.com")
-        
+
         positive = positive_with_user_id(user.id)
         assert positive is None
         message = HealthyServices.mark_positive("", user.phone)
