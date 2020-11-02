@@ -190,6 +190,7 @@ def create_new_user_with_form(client, form: UserForm, type):
             lastname=form.lastname,
             password="12345678",
             dateofbirth="22/03/1998",
+            phone="123452345",
             headers={"Content-type": "application/x-www-form-urlencoded"},
         ),
         follow_redirects=True,

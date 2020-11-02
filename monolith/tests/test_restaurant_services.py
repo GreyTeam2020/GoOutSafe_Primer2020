@@ -1,5 +1,3 @@
-import os
-
 import pytest
 from monolith.database import db, User, Restaurant, Review, MenuDish, Reservation
 from monolith.forms import RestaurantForm

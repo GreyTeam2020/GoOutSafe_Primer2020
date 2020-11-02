@@ -13,7 +13,7 @@ from utils import (
     get_rest_with_name_and_phone,
     register_operator
 )
-from monolith.database import db, User, Restaurant, Positive, Review, Reservation, RestaurantTable, OpeningHours
+from monolith.database import db, User, Restaurant, Positive, Review, Reservation, RestaurantTable, OpeningHours, Menu
 from monolith.forms import (
     UserForm,
     RestaurantForm,
@@ -43,8 +43,6 @@ from monolith.tests.utils import (
 from monolith.services import BookingServices
 from datetime import datetime, timedelta
 import time
-
-import datetime
 
 
 @pytest.mark.usefixtures("client")
@@ -1004,7 +1002,7 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
 
         # delete data from db
-        d1 = datetime.datetime(year=2020, month=11, day=23, hour=12)
+        d1 = datetime(year=2020, month=11, day=23, hour=12)
         db.session.query(Reservation).filter_by(reservation_date=d1).delete()
         db.session.commit()
 
