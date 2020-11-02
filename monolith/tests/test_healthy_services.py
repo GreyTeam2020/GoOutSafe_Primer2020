@@ -17,7 +17,7 @@ class Test_HealthyServices:
 
     def test_mark_positive_user_precondition(self):
         """
-        :return:
+        It tests that a new user is not positive
         """
         # an operator
         user = create_user_on_db()
@@ -31,7 +31,8 @@ class Test_HealthyServices:
 
     def test_mark_positive_ok(self):
         """
-        :return:
+        It tests that a user is correctly marked as covid-19 positive by 
+        health authority
         """
         # an operator
         user = create_user_on_db()
@@ -47,7 +48,8 @@ class Test_HealthyServices:
 
     def test_mark_positive_already_covid(self):
         """
-        :return:
+        It tests that a customer can't be marked as covid-19 positive if
+        he is already covid-19 positive
         """
         user = create_user_on_db()
         assert user is not None
@@ -66,7 +68,8 @@ class Test_HealthyServices:
 
     def test_mark_positive_user_not_exist(self):
         """
-        :return:
+        It tests that health authority can't mark as covid-19 positive
+        someone that is not registered
         """
         message = HealthyServices.mark_positive(
             user_email="alibaba@alibaba.com", user_phone="1234555"
@@ -76,7 +79,8 @@ class Test_HealthyServices:
 
     def test_mark_positive_nan_proprieties(self):
         """
-        :return:
+        It tests that health authority, to mark someone as covid-19
+        positive, have to insert an email or a phone number
         """
         message = HealthyServices.mark_positive("", "")
         assert message == "Insert an email or a phone number"
@@ -84,7 +88,8 @@ class Test_HealthyServices:
 
     def test_mark_positive_user_by_email(self):
         """
-        :return:
+        It tests that health authority can mark a customer as covid-19
+        positive using only the customer's email
         """
         user = create_user_on_db()
         assert user is not None
@@ -100,7 +105,8 @@ class Test_HealthyServices:
 
     def test_mark_positive_user_by_phone(self):
         """
-        :return:
+        It tests that health authority can mark a customer as covid-19
+        positive using only the customer's phone number
         """
         user = create_user_on_db()
         assert user is not None
@@ -114,7 +120,8 @@ class Test_HealthyServices:
 
     def test_unmark_positive_ok(self):
         """
-        :return:
+        It tests that health authority can mark a customer as healed 
+        using customer's email and phone number
         """
         user = create_user_on_db()
         assert user is not None
@@ -133,7 +140,8 @@ class Test_HealthyServices:
 
     def test_unmark_user_not_positive(self):
         """
-        :return:
+        It tests that health authority cannot mark a customer as healed 
+        if the customer is not covid-19 positive
         """
         user = create_user_on_db()
         assert user is not None
@@ -150,7 +158,8 @@ class Test_HealthyServices:
 
     def test_unmark_user_not_in_app(self):
         """
-        :return:
+        It tests that health authority cannot mark a customer as healed 
+        if the customer is not registered
         """
         message = HealthyServices.unmark_positive("alibaba@alibaba.com", "")
         assert message == "The user is not registered"
@@ -158,7 +167,8 @@ class Test_HealthyServices:
 
     def test_unmark_positive_nan_proprieties(self):
         """
-        :return:
+        It tests that health authority cannot mark a customer as healed 
+        without insert neither customer's email nor customer's phone number
         """
         message = HealthyServices.mark_positive("", "")
         assert message == "Insert an email or a phone number"
@@ -166,7 +176,8 @@ class Test_HealthyServices:
 
     def test_unmark_positive_user_by_email(self):
         """
-        :return:
+        It tests that health authority can mark a customer as healed 
+        using only customer's email
         """
         user = create_user_on_db()
         assert user is not None
@@ -185,7 +196,8 @@ class Test_HealthyServices:
 
     def test_mark_positive_user_by_phone(self):
         """
-        :return:
+        It tests that health authority can mark a customer as healed 
+        using only customer's phone number
         """
         user = create_user_on_db()
         assert user is not None
@@ -204,7 +216,8 @@ class Test_HealthyServices:
 
     def test_search_contacts_user_with_no_booking(self):
         """
-        :return:
+        Searching for list of contacts of a covid-19 positive
+        customer with no bookings
         """
         user = create_user_on_db()
         assert user is not None
@@ -226,7 +239,8 @@ class Test_HealthyServices:
     
     def test_search_contacts_user_with_booking(self):
         """
-        :return:
+        Searching for list of contacts of a covid-19 positive
+        customer with bookings
         """
         
         user = get_user_with_email("john.doe@email.com")

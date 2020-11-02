@@ -193,15 +193,19 @@ class HealthyServices:
             .all()
         )
         for reservation in all_reservations:
-            table = (
-                db.session.query(RestaurantTable)
-                .filter_by(id=reservation.table_id)
+            restaurant = (
+                db.session.query(Restaurant)
+                .filter(
+                    Restaurant.id == RestaurantTable.restaurant_id,
+                    RestaurantTable.id == reservation.table_id
+                )
                 .first()
             )
+
             opening = (
                 db.session.query(OpeningHours)
                 .filter(
-                    OpeningHours.restaurant_id == table.restaurant_id,
+                    OpeningHours.restaurant_id == restaurant.id,
                     OpeningHours.week_day == reservation.reservation_date.weekday(),
                 )
                 .first()
@@ -225,6 +229,9 @@ class HealthyServices:
                     >= extract("hour", period[0]),
                     extract("hour", Reservation.reservation_date)
                     <= extract("hour", period[1]),
+
+                    restaurant.id == RestaurantTable.restaurant_id,
+                    RestaurantTable.id == Reservation.table_id
                 )
                 .all()
             )
