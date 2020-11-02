@@ -62,6 +62,43 @@ class HealthyServices:
             db.session.commit()
 
             # start notification zone
+
+            # to notify restaurants with a booking of the positive customer
+            restaurant_notified = []
+            all_reservations = (
+                db.session.query(Reservation)
+                .filter(
+                    Reservation.reservation_date >= datetime.today(),
+                    Reservation.customer_id == new_positive.user_id,
+                )
+                .all()
+            )
+            for reservation in all_reservations:
+                restaurant = (
+                    db.session.query(Restaurant)
+                    .filter(
+                        reservation.table_id == RestaurantTable.id,
+                        RestaurantTable.restaurant_id == Restaurant.id,
+                    )
+                    .first()
+                )
+
+                if restaurant.id not in restaurant_notified:
+                    restaurant_notified.append(restaurant.id)
+
+                    q_owner = (
+                        db.session.query(User)
+                        .filter(User.id == restaurant.owner_id)
+                        .first()
+                    )
+
+                    """
+                    Send the email!
+
+                    send_positive_booking_in_restaurant(q_owner.email, q_owner.firstname, q_user.first().email, restaurant.name)
+                    """
+
+            # to notify contacts with a positive customer to restaurants and customers
             restaurant_notified = []
             user_notified = []
             all_reservations = (
@@ -98,7 +135,7 @@ class HealthyServices:
                     .first()
                 )
 
-                # Notify Restaurant
+                # Notify Restaurant for a positive that where inside
                 if restaurant.id not in restaurant_notified:
                     restaurant_notified.append(restaurant.id)
                     owner = db.session.query(User).filter_by(id=restaurant.owner_id)
@@ -150,19 +187,24 @@ class HealthyServices:
             .filter(
                 Reservation.reservation_date >= (datetime.today() - timedelta(days=14)),
                 Reservation.reservation_date < datetime.today(),
+                Reservation.customer_id == id_user,
             )
             .all()
         )
         for reservation in all_reservations:
-            table = (
-                db.session.query(RestaurantTable)
-                .filter_by(id=reservation.table_id)
+            restaurant = (
+                db.session.query(Restaurant)
+                .filter(
+                    Restaurant.id == RestaurantTable.restaurant_id,
+                    RestaurantTable.id == reservation.table_id,
+                )
                 .first()
             )
+
             opening = (
                 db.session.query(OpeningHours)
                 .filter(
-                    OpeningHours.restaurant_id == table.restaurant_id,
+                    OpeningHours.restaurant_id == restaurant.id,
                     OpeningHours.week_day == reservation.reservation_date.weekday(),
                 )
                 .first()
@@ -186,6 +228,8 @@ class HealthyServices:
                     >= extract("hour", period[0]),
                     extract("hour", Reservation.reservation_date)
                     <= extract("hour", period[1]),
+                    restaurant.id == RestaurantTable.restaurant_id,
+                    RestaurantTable.id == Reservation.table_id,
                 )
                 .all()
             )

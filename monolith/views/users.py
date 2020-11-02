@@ -107,7 +107,9 @@ def myreservation():
     fromDate = request.args.get("fromDate", type=str)
     toDate = request.args.get("toDate", type=str)
 
-    reservations_as_list = UserService.get_customer_reservation(fromDate, toDate, current_user.id)
+    reservations_as_list = UserService.get_customer_reservation(
+        fromDate, toDate, current_user.id
+    )
     form = ReservationForm()
     return render_template(
         "user_reservations.html",
@@ -124,7 +126,9 @@ def delete_reservation(reservation_id):
 
     deleted = BookingServices.delete_book(reservation_id, current_user.id)
 
-    reservations_as_list = UserService.get_customer_reservation(None, None, current_user.id)
+    reservations_as_list = UserService.get_customer_reservation(
+        None, None, current_user.id
+    )
     form = ReservationForm()
     return render_template(
         "user_reservations.html",
@@ -133,8 +137,3 @@ def delete_reservation(reservation_id):
         deleted=deleted,
         form=form,
     )
-
-
-
-
-

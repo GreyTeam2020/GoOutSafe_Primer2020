@@ -103,4 +103,3 @@ class UserService:
         result = db.engine.execute(stmt, params)
         reservations_as_list = result.fetchall()
         return reservations_as_list
-

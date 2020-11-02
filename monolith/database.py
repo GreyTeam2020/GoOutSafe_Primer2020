@@ -152,6 +152,7 @@ class Reservation(db.Model):
     people_number = db.Column(db.Integer)  # number of people in this reservation
     checkin = db.Column(db.Boolean, default=False)
 
+
 class PhotoGallery(db.Model):
     __tablename__ = "photo_gallery"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -166,6 +167,7 @@ class OpeningHours(db.Model):
     """
     opening hours
     """
+
     __tablename__ = "opening_hours"
     restaurant_id = db.Column(
         db.Integer, db.ForeignKey("restaurant.id"), primary_key=True
@@ -213,12 +215,12 @@ class MenuPhotoGallery(db.Model):
     menu = relationship("Menu", foreign_keys="MenuPhotoGallery.menu_id")
 
 
-
 class SqliteNumeric(types.TypeDecorator):
     """
-     Pysql doesn't support the floating point and we need to support it
-     to avoid the warning during the tests
+    Pysql doesn't support the floating point and we need to support it
+    to avoid the warning during the tests
     """
+
     impl = types.String
 
     def load_dialect_impl(self, dialect):

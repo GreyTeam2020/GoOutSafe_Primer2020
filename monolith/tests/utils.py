@@ -1,13 +1,21 @@
 import json
 from datetime import datetime
-from monolith.database import db, User, Restaurant, Positive, OpeningHours, RestaurantTable
+from monolith.database import (
+    db,
+    User,
+    Restaurant,
+    Positive,
+    OpeningHours,
+    RestaurantTable,
+)
 from monolith.forms import (
     UserForm,
     RestaurantForm,
     SearchUserForm,
     ReviewForm,
     DishForm,
-    ReservationForm, PhotoGalleryForm,
+    ReservationForm,
+    PhotoGalleryForm,
 )
 from monolith.services import UserService, RestaurantServices
 
@@ -42,6 +50,7 @@ def register_user(client, user: UserForm):
         lastname=user.lastname,
         password=user.password,
         dateofbirth=user.dateofbirth,
+        phone=user.phone,
         submit=True,
         headers={"Content-type": "application/x-www-form-urlencoded"},
     )
@@ -182,13 +191,14 @@ def create_new_user_with_form(client, form: UserForm, type):
     :return:
     """
     return client.post(
-        "/user/create_"+type,
+        "/user/create_" + type,
         data=dict(
             email=form.email,
             firstname=form.firstname,
             lastname=form.lastname,
             password="12345678",
             dateofbirth="22/03/1998",
+            phone="123452345",
             headers={"Content-type": "application/x-www-form-urlencoded"},
         ),
         follow_redirects=True,
@@ -408,6 +418,7 @@ def create_new_table(client, form: RestaurantTable):
         follow_redirects=True,
     )
 
+
 def create_new_photo(client, form: PhotoGalleryForm):
     """
     This util have the code to perform the request with flask client
@@ -425,3 +436,24 @@ def create_new_photo(client, form: PhotoGalleryForm):
         ),
         follow_redirects=True,
     )
+
+
+def register_operator(client, user: UserForm):
+    """
+    This method perform the request to register a new user
+    :param client: Is a flask app created inside the fixtures
+    :param user: Is the User form populate with the mock data
+    :return: response from URL "/user/create_user"
+    """
+    client.get("/user/create_operator", follow_redirects=True)
+    data = dict(
+        email=user.email,
+        firstname=user.firstname,
+        lastname=user.lastname,
+        password=user.password,
+        dateofbirth=user.dateofbirth,
+        phone=user.phone,
+        submit=True,
+        headers={"Content-type": "application/x-www-form-urlencoded"},
+    )
+    return client.post("/user/create_operator", data=data, follow_redirects=True)

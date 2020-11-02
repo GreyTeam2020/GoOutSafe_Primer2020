@@ -26,7 +26,8 @@ def send_possible_positive_contact(
     body = (
         "Hi {toName},<br>"
         'you had a possible COVID-19 contact at restaurant "{restaurantName}" in date {datePossibleContact}.<br> '
-        "<br>Please contact authority at 911.<br> "
+        "<br>Please contact authority at 911 and follow regulations at the following link:<br> "
+        "http://www.salute.gov.it/portale/nuovocoronavirus/homeNuovoCoronavirus.jsp<br> "
     )
     body = body.replace("{toName}", to_name)
     body = body.replace("{restaurantName}", restaurant_name)
@@ -116,3 +117,18 @@ def send_email(subject, body, recipient):
     )
     mail.send(msg)
     return 0
+
+
+def send_positive_booking_in_restaurant(to_email, to_name, email_user, restaurant_name):
+    """
+    A positive COVID-19 booked in a restaurant
+    """
+    subject = "A COVID-19 positive person has a booking in your restaurant"
+    body = (
+        "Hi {toName},<br>"
+        'we inform you that the user with email {emalUser}, who is Covid19 positive, has a booking in your restaurant "{restaurantName}"<br>'
+    )
+    body = body.replace("{toName}", to_name)
+    body = body.replace("{restaurantName}", restaurant_name)
+    body = body.replace("{emalUser}", email_user)
+    send_email(subject, body, to_email)

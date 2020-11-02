@@ -150,7 +150,9 @@ class Test_BookServices:
         reservation = db.session.query(Reservation).first()
         assert reservation is not None
         BookingServices.delete_book(reservation.id, user.id)
-        reservation_not_present = db.session.query(Reservation).filter_by(id=reservation.id).first()
+        reservation_not_present = (
+            db.session.query(Reservation).filter_by(id=reservation.id).first()
+        )
         assert reservation_not_present is None
 
     def test_update_booking(self):

@@ -1,7 +1,15 @@
 from flask import Blueprint, render_template, session, redirect
 from flask_login import current_user
 
-from monolith.database import db, Restaurant, Positive, OpeningHours, Menu, PhotoGallery, MenuDish
+from monolith.database import (
+    db,
+    Restaurant,
+    Positive,
+    OpeningHours,
+    Menu,
+    PhotoGallery,
+    MenuDish,
+)
 from monolith.forms import ReservationForm
 from monolith.services import UserService, RestaurantServices
 
@@ -31,9 +39,13 @@ def index():
                 n_healed=n_healed,
             )
         elif session["ROLE"] == "OPERATOR":
-            if ("RESTAURANT_ID" in session):
+            if "RESTAURANT_ID" in session:
                 restaurant_id = session["RESTAURANT_ID"]
-                record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).first()
+                record = (
+                    db.session.query(Restaurant)
+                    .filter_by(id=int(restaurant_id))
+                    .first()
+                )
                 weekDaysLabel = [
                     "Monday",
                     "Tuesday",
@@ -44,11 +56,23 @@ def index():
                     "Sunday",
                 ]
                 q_hours = (
-                    db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
+                    db.session.query(OpeningHours)
+                    .filter_by(restaurant_id=int(restaurant_id))
+                    .all()
                 )
-                q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
-                photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
-                dishes = db.session.query(MenuDish).filter_by(restaurant_id=restaurant_id).all()
+                q_cuisine = (
+                    db.session.query(Menu)
+                    .filter_by(restaurant_id=int(restaurant_id))
+                    .all()
+                )
+                photos = PhotoGallery.query.filter_by(
+                    restaurant_id=int(restaurant_id)
+                ).all()
+                dishes = (
+                    db.session.query(MenuDish)
+                    .filter_by(restaurant_id=restaurant_id)
+                    .all()
+                )
 
                 return render_template(
                     "restaurantsheet.html",
@@ -64,13 +88,10 @@ def index():
                     photos=photos,
                     reviews=RestaurantServices.get_three_reviews(restaurant_id),
                     dishes=dishes,
-                    _test=_test
+                    _test=_test,
                 )
             else:
-                return render_template(
-                    "norestaurant.html",
-                    _test=_test
-                )
+                return render_template("norestaurant.html", _test=_test)
         elif session["ROLE"] == "CUSTOMER":
             form = ReservationForm()
             is_positive = UserService.is_positive(current_user.id)
