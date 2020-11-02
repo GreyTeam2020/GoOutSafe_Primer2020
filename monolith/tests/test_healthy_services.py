@@ -13,7 +13,10 @@ from monolith.tests.utils import (
 
 @pytest.mark.usefixtures("client")
 class Test_HealthyServices:
-    """"""
+    """
+    This test suite test the services about healthy autority use case.
+    All the code tested inside this class is inside the services/test_healthy_services.py
+    """
 
     def test_mark_positive_user_precondition(self):
         """

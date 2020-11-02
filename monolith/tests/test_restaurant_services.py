@@ -17,8 +17,8 @@ from monolith.tests.utils import (
 @pytest.mark.usefixtures("client")
 class Test_RestaurantServices:
     """
-    This test suit coverage all test over Restaurant service
-    @author Vincenzo Palazzo v.palazzo1@studenti.it
+    This test suite test the services about restaurant use case.
+    All the code tested inside this class is inside the services/test_restaurant_services.py
     """
 
     def test_create_restaurant(self):

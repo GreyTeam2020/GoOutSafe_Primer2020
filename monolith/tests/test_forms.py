@@ -61,6 +61,16 @@ import time
 
 @pytest.mark.usefixtures("client")
 class Test_GoOutSafeForm:
+    """
+    This test suite tested the application behavior about the flask client
+    In this case we are testing the flask response and not the UI workflow.
+    In other words, we are not testing the click on link that perform an action but we are
+    testing the flask response with a correct url and correct app status.
+
+    The response from flask is tested with an hidden tak returned from flask method.
+    If possible see this hidden tak inside the method render_template with the name _tests.
+    """
+
     def test_login_form_ok(self, client):
         """
         This test suit test the operation that we can do
