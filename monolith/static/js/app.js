@@ -33,6 +33,48 @@ $(document).ready(function() {
             $("#restaurant_id").val($(this).data("id"));
             $("#bookTable").modal("show");
         });
+
+
+        $(".showUpdateBooking").click(function () {
+            $("#reservation_id").val($(this).data("reservation_id"));
+            $("#restaurant_id").val($(this).data("rest_id"));
+            $("#reservation_date").val($(this).data("reservation_date"));
+            $("#people_number").val($(this).data("people_number"));
+            $("#bookUpdateTable").modal("show");
+        });
+    }
+
+    let ratingItems = $(".ratingStats");
+    if (ratingItems.length){
+        ratingItems.each(function(index, e){
+            let rating = parseFloat($(e).data("rating"));
+			$(e).html("")
+            for (let i=1; i<6; i++){
+                if (rating >= 1){
+                    $(e).append("<span class=\"material-icons\"> star </span>");
+                } else if (rating > 0.5){
+                    console.log(rating);
+                    $(e).append("<span class=\"material-icons\"> star_half </span>");
+                } else {
+                    $(e).append("<span class=\"material-icons\"> star_border </span>");
+                }
+                rating--;
+            }
+        })
+    }
+
+    if($("#reservation_date").length) {
+        $('#reservation_date').datetimepicker({
+            inline: true,
+            format: 'd/m/Y H:m'
+        });
+        $("#newBook").click(function () {
+            $("#bookTableForm").submit();
+        });
+        $(".showBooking").click(function () {
+            $("#restaurant_id").val($(this).data("id"));
+            $("#bookTable").modal("show");
+        });
     }
 
     let ratingItems = $(".ratingStats");
@@ -105,22 +147,37 @@ $(document).ready(function() {
     })
 
     $(".deleteBooking").click(deleteDialog);
-    // $("#restaurantID").val($(this).data("id"));
     function deleteDialog() {
+        var resId = $(this).data("id");
         Swal.fire({
-          title: 'Do you want to save the changes?',
+          title: 'Do you want to cancel the reservation?',
           showDenyButton: true,
-          showCancelButton: true,
-          confirmButtonText: `Save`,
-          denyButtonText: `Don't save`,
+          showDenyButton: true,
+          confirmButtonText: `Yes`,
+          denyButtonText: `No`
         }).then((result) => {
-          /* Read more about isConfirmed, isDenied below */
           if (result.isConfirmed) {
-            Swal.fire('Saved!', '', 'success')
-          } else if (result.isDenied) {
-            Swal.fire('Changes are not saved', '', 'info')
+            location.href = '/customer/deletereservations/' + resId;
           }
         })
     }
+
+    $(".checkIn").click(checkinDialog);
+    function checkinDialog() {
+        var resId = $(this).data("id");
+        Swal.fire({
+          title: 'Checkin?',
+          showDenyButton: true,
+          showDenyButton: true,
+          confirmButtonText: `Yes`,
+          denyButtonText: `No`
+        }).then((result) => {
+          if (result.isConfirmed) {
+            location.href = '/restaurant/checkinreservations/' + resId;
+          }
+        })
+    }
+
+
 
 });

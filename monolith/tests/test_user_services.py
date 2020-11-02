@@ -1,7 +1,7 @@
 import os
 
 import pytest
-from monolith.database import db, User
+from monolith.database import db, User, Reservation
 from monolith.forms import UserForm
 from monolith.services.user_service import UserService
 from monolith.tests.utils import get_user_with_email, login
@@ -151,3 +151,13 @@ class Test_UserServices:
         UserService.delete_user(user_id=user.id)
         user = db.session.query(User).filter_by(id=user.id).first()
         assert user is None
+
+    def test_reservation_as_list(self, client):
+        """
+        Test get reservation customer list
+        """
+        user = db.session.query(User).filter_by(email="john.doe@email.com").first()
+        raw_list = db.session.query(Reservation).filter_by(customer_id=user.id).all()
+        reservations_as_list = UserService.get_customer_reservation(None, None, user.id)
+
+        assert len(raw_list) == len(reservations_as_list)

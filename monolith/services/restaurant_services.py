@@ -91,7 +91,7 @@ class RestaurantServices:
         """
 
         queryString = (
-            "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone from reservation reserv "
+            "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, cust.firstname, cust.lastname, cust.email, cust.phone, reserv.checkin from reservation reserv "
             "join user cust on cust.id = reserv.customer_id "
             "join restaurant_table tab on reserv.table_id = tab.id "
             "join restaurant rest on rest.id = tab.restaurant_id "
@@ -121,7 +121,8 @@ class RestaurantServices:
 
         # execute and retrive results...
         result = db.engine.execute(stmt, params)
-        return result.fetchall()
+        list_reservation = result.fetchall()
+        return list_reservation
 
     @staticmethod
     def review_restaurant(restaurant_id, reviewer_id, stars, review):
@@ -239,3 +240,13 @@ class RestaurantServices:
         )
 
         return [len(reservations_l), len(reservations_d)]
+
+    @staticmethod
+    def checkin_reservations(reservation_id: int):
+        reservation = db.session.query(Reservation).filter_by(id=reservation_id)
+        if reservation:
+            reservation.update({Reservation.checkin: True})
+            db.session.commit()
+            db.session.flush()
+
+

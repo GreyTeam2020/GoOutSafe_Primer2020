@@ -1,6 +1,6 @@
 from flask_login import current_user
 
-from monolith.database import db, User, Positive
+from monolith.database import db, User, Positive, Reservation
 from monolith.forms import UserForm
 
 
@@ -78,3 +78,29 @@ class UserService:
         if check is None:
             return False
         return True
+
+    @staticmethod
+    def get_customer_reservation(fromDate: str, toDate: str, customer_id: str):
+        queryString = (
+            "select reserv.id, reserv.reservation_date, reserv.people_number, tab.id as id_table, rest.name, rest.id as rest_id "
+            "from reservation reserv "
+            "join user cust on cust.id = reserv.customer_id "
+            "join restaurant_table tab on reserv.table_id = tab.id "
+            "join restaurant rest on rest.id = tab.restaurant_id "
+            "where cust.id = :customer_id"
+        )
+
+        stmt = db.text(queryString)
+
+        # bind filter params...
+        params = {"customer_id": customer_id}
+        if fromDate:
+            params["fromDate"] = fromDate + " 00:00:00.000"
+        if toDate:
+            params["toDate"] = toDate + " 23:59:59.999"
+
+        # execute and retrive results...
+        result = db.engine.execute(stmt, params)
+        reservations_as_list = result.fetchall()
+        return reservations_as_list
+
