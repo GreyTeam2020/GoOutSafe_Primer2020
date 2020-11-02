@@ -44,8 +44,6 @@ def restaurant_sheet(restaurant_id):
     )
     q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
     photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
-    ## FIXME(vincenzopalazzo): This is only a test to try to fix
-    session["RESTAURANT_ID"] = restaurant_id
 
     review_form = ReviewForm()
     book_form = ReservationForm()
