@@ -74,6 +74,35 @@ $(document).ready(function() {
         });
     }
 
+    if ($("#registerRestaurantSubmit").length){
+        $('#open_lunch').datetimepicker({
+          datepicker:false,
+          format:'H:i'
+        });
+        $('#close_lunch').datetimepicker({
+          datepicker:false,
+          format:'H:i'
+        });
+        $('#open_dinner').datetimepicker({
+          datepicker:false,
+          format:'H:i'
+        });
+        $('#close_dinner').datetimepicker({
+          datepicker:false,
+          format:'H:i'
+        });
+    }
+
+    $("#searchSubmit").click(function(){
+        let search = $("#searchbar").val();
+        console.log(search)
+        if (search){
+            window.location = "/restaurant/search/"+search;
+        } else {
+            window.location = "/"
+        }
+
+    })
 
     $(".deleteBooking").click(deleteDialog);
     // $("#restaurantID").val($(this).data("id"));
