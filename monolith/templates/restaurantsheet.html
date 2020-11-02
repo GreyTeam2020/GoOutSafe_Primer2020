@@ -116,23 +116,23 @@
               
               {% else %}
               <div class="row justify-content-center">
-                <h5>There is no reviews for this resturant..</h5>
+                <h5>There are no reviews for this restaurant.</h5>
               </div>
                 
               {% endif %}
               </div>
-
+              {% if session["ROLE"] == "CUSTOMER" %}
               <div class="py-4 px-4">
                 <div class="row justify-content-center">
                   <button class="btn btn-primary" data-toggle="modal" data-target="#reviewRestaurant">Review this restaurant</button>
                 </div>
               </div>
-
+              {% endif %}
           </div>
         </div>
     </div>
 </div>
-
+  {% if book_form %}
   <!-- Booking Content -->
    <div class="modal" tabindex="-1" role="dialog" id="bookTable">
       <div class="modal-dialog" role="document">
@@ -172,9 +172,9 @@
         </div>
       </div>
     </div>
+    {% endif %}
 
-
-
+    {% if review_form %}
     <div class="modal" tabindex="-1" role="dialog" id="reviewRestaurant">
         <div class="modal-dialog" role="document">
           <div class="modal-content">
@@ -211,7 +211,7 @@
           </div>
         </div>
       </div>
-
+    {% endif %}
     <script>
         var map = L.map('map').setView([{{ lat }}, {{ lon }}], 17);;
         L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', { attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'}).addTo(map);
