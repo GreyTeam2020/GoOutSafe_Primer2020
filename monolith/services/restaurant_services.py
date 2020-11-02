@@ -121,7 +121,8 @@ class RestaurantServices:
 
         # execute and retrive results...
         result = db.engine.execute(stmt, params)
-        return result.fetchall()
+        list_reservation = result.fetchall()
+        return list_reservation
 
     @staticmethod
     def review_restaurant(restaurant_id, reviewer_id, stars, review):
