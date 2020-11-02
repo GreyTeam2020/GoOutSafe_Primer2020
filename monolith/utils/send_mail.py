@@ -79,13 +79,13 @@ def send_reservation_notification(
         "</ul>"
         "See you soon! "
     )
-    body = body.replace("{toName}", toName)
-    body = body.replace("{restaurantName}", restaurantName)
-    body = body.replace("{customerName}", customerName)
-    body = body.replace("{numberSeat}", str(numberSeat))
-    body = body.replace("{dateReservation}", dateReservation)
-    body = body.replace("{tableNumber}", str(tableNumber))
-    sendmail(subject, body, toEmail)
+    body = body.replace("{toName}", to_name)
+    body = body.replace("{restaurantName}", restaurant_name)
+    body = body.replace("{customerName}", customer_name)
+    #body = body.replace("{numberSeat}", str(numberSeat))
+    body = body.replace("{dateReservation}", date_reservation)
+    body = body.replace("{tableNumber}", str(table_number))
+    send_email(subject, body, number_seat)
 
 
 def send_registration_confirm(to_email, to_name, token):
