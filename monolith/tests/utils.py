@@ -1,6 +1,6 @@
 import json
 from datetime import datetime
-from monolith.database import db, User, Restaurant, Positive, OpeningHours
+from monolith.database import db, User, Restaurant, Positive, OpeningHours, RestaurantTable
 from monolith.forms import (
     UserForm,
     RestaurantForm,
