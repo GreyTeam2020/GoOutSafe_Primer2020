@@ -5,6 +5,7 @@ branches:
     - main
 env:
   - TOX_ENV=py36,p37,p38
+  - COVERALLS_REPO_TOKEN=hVv4j4wCTY8Q29Hbjmvb74lLd7GZkKbXk
 install:
   - pip install -r requirements.txt
   - pip install pytest-cov
