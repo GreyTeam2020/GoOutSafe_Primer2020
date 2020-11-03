@@ -132,3 +132,21 @@ def send_positive_booking_in_restaurant(to_email, to_name, email_user, restauran
     body = body.replace("{restaurantName}", restaurant_name)
     body = body.replace("{emalUser}", email_user)
     send_email(subject, body, to_email)
+
+
+def send_possible_positive_contact_to_friend(
+    to_email, date_possible_contact, restaurant_name
+):
+    """
+    Compose positive COVID-19 contact notification email template and sends to customer
+    """
+    subject = "Possible COVID-19 contact"
+    body = (
+        "Hi,<br>"
+        'you had a possible COVID-19 contact at restaurant "{restaurantName}" in date {datePossibleContact}.<br> '
+        "<br>Please contact authority at 911 and follow regulations at the following link:<br> "
+        "http://www.salute.gov.it/portale/nuovocoronavirus/homeNuovoCoronavirus.jsp<br> "
+    )
+    body = body.replace("{restaurantName}", restaurant_name)
+    body = body.replace("{datePossibleContact}", date_possible_contact)
+    send_email(subject, body, to_email)
