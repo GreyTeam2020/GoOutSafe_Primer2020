@@ -7,6 +7,8 @@ import datetime
 
 from flask_login import login_required
 
+from monolith.auth import roles_allowed
+
 from monolith.services import BookingServices
 
 book = Blueprint("book", __name__)
@@ -14,6 +16,7 @@ book = Blueprint("book", __name__)
 
 @book.route("/restaurant/book", methods=["GET", "POST"])
 @login_required
+@roles_allowed(roles=["CUSTOMER"])
 def index():
     if current_user is not None and hasattr(current_user, "id"):
         # the date and time come as string, so I have to parse them and transform them in python datetime
