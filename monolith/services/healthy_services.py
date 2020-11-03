@@ -100,7 +100,12 @@ class HealthyServices:
                     """
                     Send the email!
 
-                    send_positive_booking_in_restaurant(q_owner.email, q_owner.firstname, q_user.first().email, restaurant.name)
+                    send_positive_booking_in_restaurant(
+                        q_owner.email, 
+                        q_owner.firstname, 
+                        q_user.first().email, 
+                        restaurant.name
+                    )
                     """
 
             # to notify the restaurants for a possible positive inside the restaurant
@@ -149,7 +154,12 @@ class HealthyServices:
                     """
                     Send the email!
 
-                    sendPossibilePositiveContact(owner.email, owner.firstname, reservation.reservation_date, restaurant.name)
+                    sendPossibilePositiveContact(
+                        owner.email, 
+                        owner.firstname, 
+                        reservation.reservation_date, 
+                        restaurant.name
+                    )
                     """
 
                 #notify friends of the positive customer
@@ -200,7 +210,12 @@ class HealthyServices:
                             """
                             Send the email!
 
-                            sendPossibilePositiveContact(thisuser.email, thisuser.firstname, contact.reservation_date, restaurant.name)
+                            sendPossibilePositiveContact(
+                                thisuser.email, 
+                                thisuser.firstname, 
+                                contact.reservation_date, 
+                                restaurant.name
+                            )
                             """
 
                         friends_email =  db.session.query(Friend.email).filter(
