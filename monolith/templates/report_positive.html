@@ -14,12 +14,12 @@
               </tr>
             </thead>
             <tbody>
-                {% for user in users %}
+                {% for i in n %}
                     <tr>
-                        <td>{{ user.id }}</td>
-                        <td>{{ user.firstname }} {{ user.lastname }}</td>
-                        <td>{{ user.email }}</td>
-                        <td>{{ user.phone }}</td>
+                        <td>{{ i+1 }}</td>
+                        <td>{{ users[i].firstname }} {{ users[i].lastname }}</td>
+                        <td>{{ users[i].email }}</td>
+                        <td>{{ users[i].phone }}</td>
                     </tr>
                 {% endfor %}
             </tbody>

@@ -8,6 +8,7 @@ from monolith.database import (
     RestaurantTable,
     Reservation,
     Restaurant,
+    Friend,
 )
 from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
@@ -35,16 +36,16 @@ class HealthyServices:
             return "Insert an email or a phone number"
 
         if user_email != "":
-            q_user = db.session.query(User).filter_by(
-                email=user_email,
+            q_user = db.session.query(User).filter(
+                User.email == user_email, User.role_id == 3
             )
         else:
-            q_user = db.session.query(User).filter_by(
-                phone=user_phone,
+            q_user = db.session.query(User).filter(
+                User.phone == user_phone, User.role_id == 3
             )
 
         if q_user.first() is None:
-            return "The user is not registered"
+            return "The customer is not registered"
 
         q_already_positive = (
             db.session.query(Positive)
@@ -63,7 +64,7 @@ class HealthyServices:
 
             # start notification zone
 
-            # to notify restaurants with a booking of the positive customer
+            # to notify restaurants with a future booking of the positive customer
             restaurant_notified = []
             all_reservations = (
                 db.session.query(Reservation)
@@ -73,6 +74,8 @@ class HealthyServices:
                 )
                 .all()
             )
+
+            # for each future booking
             for reservation in all_reservations:
                 restaurant = (
                     db.session.query(Restaurant)
@@ -95,31 +98,43 @@ class HealthyServices:
                     """
                     Send the email!
 
-                    send_positive_booking_in_restaurant(q_owner.email, q_owner.firstname, q_user.first().email, restaurant.name)
+                    send_positive_booking_in_restaurant(
+                        q_owner.email, 
+                        q_owner.firstname, 
+                        q_user.first().email, 
+                        restaurant.name
+                    )
                     """
 
-            # to notify contacts with a positive customer to restaurants and customers
+            # to notify the restaurants for a possible positive inside the restaurant
             restaurant_notified = []
             user_notified = []
+
             all_reservations = (
                 db.session.query(Reservation)
                 .filter(
                     Reservation.reservation_date
                     >= (datetime.today() - timedelta(days=14)),
                     Reservation.reservation_date < datetime.today(),
+                    Reservation.customer_id == q_user.first().id,
                 )
                 .all()
             )
             for reservation in all_reservations:
-                table = (
-                    db.session.query(RestaurantTable)
-                    .filter_by(id=reservation.table_id)
+
+                restaurant = (
+                    db.session.query(Restaurant)
+                    .filter(
+                        Restaurant.id == RestaurantTable.restaurant_id,
+                        RestaurantTable.id == reservation.table_id,
+                    )
                     .first()
                 )
+
                 opening = (
                     db.session.query(OpeningHours)
                     .filter(
-                        OpeningHours.restaurant_id == table.restaurant_id,
+                        OpeningHours.restaurant_id == restaurant.id,
                         OpeningHours.week_day == reservation.reservation_date.weekday(),
                     )
                     .first()
@@ -129,22 +144,41 @@ class HealthyServices:
                     if (opening.open_dinner <= reservation.reservation_date.time())
                     else [opening.open_lunch, opening.close_lunch]
                 )
-                restaurant = (
-                    db.session.query(Restaurant)
-                    .filter_by(id=table.restaurant_id)
-                    .first()
-                )
 
-                # Notify Restaurant for a positive that where inside
+                # Notify Restaurant for a positive that were inside
                 if restaurant.id not in restaurant_notified:
                     restaurant_notified.append(restaurant.id)
                     owner = db.session.query(User).filter_by(id=restaurant.owner_id)
                     """
                     Send the email!
 
-                    sendPossibilePositiveContact(owner.email, owner.firstname, reservation.reservation_date, restaurant.name)
+                    sendPossibilePositiveContact(
+                        owner.email, 
+                        owner.firstname, 
+                        reservation.reservation_date, 
+                        restaurant.name
+                    )
                     """
 
+                # notify friends of the positive customer
+                friends_email = (
+                    db.session.query(Friend.email)
+                    .filter(Friend.reservation_id == reservation.id)
+                    .all()
+                )
+
+                """
+                Mail to friends of the positive person
+                
+                for friend in friends_email:
+                    send_possible_positive_contact_to_friend(
+                        friend
+                        reservation.reservation_date, 
+                        restaurant.name
+                    )
+                    """
+
+                # send mail to contact
                 all_contacts = (
                     db.session.query(Reservation)
                     .filter(
@@ -158,6 +192,8 @@ class HealthyServices:
                         >= extract("hour", period[0]),
                         extract("hour", Reservation.reservation_date)
                         <= extract("hour", period[1]),
+                        restaurant.id == RestaurantTable.restaurant_id,
+                        RestaurantTable.id == Reservation.table_id,
                     )
                     .all()
                 )
@@ -173,8 +209,31 @@ class HealthyServices:
                             """
                             Send the email!
 
-                            sendPossibilePositiveContact(thisuser.email, thisuser.firstname, contact.reservation_date, restaurant.name)
+                            sendPossibilePositiveContact(
+                                thisuser.email, 
+                                thisuser.firstname, 
+                                contact.reservation_date, 
+                                restaurant.name
+                            )
                             """
+
+                        friends_email = (
+                            db.session.query(Friend.email)
+                            .filter(Friend.reservation_id == contact.id)
+                            .all()
+                        )
+
+                        """
+                        Mail to friends of people with a reservation
+                        
+                        for friend in friends_email:
+                            send_possible_positive_contact_to_friend(
+                                friend
+                                contact.reservation_date, 
+                                restaurant.name
+                            )
+                            """
+
             return ""
         else:
             return "User with email {} already Covid-19 positive".format(user_email)
@@ -265,16 +324,16 @@ class HealthyServices:
             return "Insert an email or a phone number"
 
         if user_email != "":
-            q_user = db.session.query(User).filter_by(
-                email=user_email,
+            q_user = db.session.query(User).filter(
+                User.email == user_email, User.role_id == 3
             )
         else:
-            q_user = db.session.query(User).filter_by(
-                phone=user_phone,
+            q_user = db.session.query(User).filter(
+                User.phone == user_phone, User.role_id == 3
             )
 
         if q_user.first() is None:
-            return "The user is not registered"
+            return "The customer is not registered"
 
         q_already_positive = (
             db.session.query(Positive)

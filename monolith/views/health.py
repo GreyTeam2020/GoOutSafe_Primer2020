@@ -21,7 +21,8 @@ def report_positive():
         )
         .all()
     )
-    return render_template("report_positive.html", users=users)
+    n = list(range(len(users)))
+    return render_template("report_positive.html", n=n, users=users)
 
 
 @health.route("/mark_positive", methods=["POST", "GET"])
@@ -33,7 +34,7 @@ def mark_positive():
             email = form.email.data
             phone = form.phone.data
             message = HealthyServices.mark_positive(email, phone)
-            if message is None:
+            if message == "":
                 return redirect("/")
             return render_template(
                 "mark_positive.html",
@@ -63,13 +64,9 @@ def search_contacts():
 
             # filtering by email
             if form.email.data != "":
-                q_user = db.session.query(User).filter_by(
-                    email=form.email.data,
-                )
+                q_user = db.session.query(User).filter_by(email=form.email.data)
             else:
-                q_user = db.session.query(User).filter_by(
-                    phone=form.phone.data,
-                )
+                q_user = db.session.query(User).filter_by(phone=form.phone.data)
 
             if q_user.first() is None:
                 return render_template(
@@ -111,7 +108,7 @@ def unmark_positive():
             email = form.email.data
             phone = form.phone.data
             message = HealthyServices.unmark_positive(email, phone)
-            if message is None:
+            if message == "":
                 return redirect("/")
             return render_template(
                 "unmark_positive.html",
