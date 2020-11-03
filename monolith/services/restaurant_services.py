@@ -248,7 +248,9 @@ class RestaurantServices:
             .all()
         )
 
-        return [len(reservations_l), len(reservations_d)]
+        reservations_now = db.session.query(Reservation).filter(Reservation.checkin is True, Reservation.reservation_date <= datetime.now(), Reservation.reservation_end >= datetime.now()).all()
+
+        return [len(reservations_l), len(reservations_d), len(reservations_now)]
 
     @staticmethod
     def checkin_reservations(reservation_id: int):

@@ -144,7 +144,7 @@ def my_reservations():
     reservations_as_list = RestaurantServices.get_reservation_rest(
         owner_id, restaurant_id, fromDate, toDate, email
     )
-
+    print(RestaurantServices.get_restaurant_people(restaurant_id))
     return render_template(
         "reservations.html",
         _test="restaurant_reservations_test",
