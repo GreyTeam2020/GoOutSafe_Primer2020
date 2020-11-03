@@ -8,7 +8,7 @@ from monolith.database import (
     RestaurantTable,
     Reservation,
     Restaurant,
-    Friend
+    Friend,
 )
 from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
@@ -37,13 +37,11 @@ class HealthyServices:
 
         if user_email != "":
             q_user = db.session.query(User).filter(
-                User.email == user_email,
-                User.role_id == 3
+                User.email == user_email, User.role_id == 3
             )
         else:
             q_user = db.session.query(User).filter(
-                User.phone == user_phone,
-                User.role_id == 3
+                User.phone == user_phone, User.role_id == 3
             )
 
         if q_user.first() is None:
@@ -72,12 +70,12 @@ class HealthyServices:
                 db.session.query(Reservation)
                 .filter(
                     Reservation.reservation_date >= datetime.today(),
-                    Reservation.customer_id == new_positive.user_id
+                    Reservation.customer_id == new_positive.user_id,
                 )
                 .all()
             )
 
-            #for each future booking
+            # for each future booking
             for reservation in all_reservations:
                 restaurant = (
                     db.session.query(Restaurant)
@@ -118,7 +116,7 @@ class HealthyServices:
                     Reservation.reservation_date
                     >= (datetime.today() - timedelta(days=14)),
                     Reservation.reservation_date < datetime.today(),
-                    Reservation.customer_id == q_user.first().id
+                    Reservation.customer_id == q_user.first().id,
                 )
                 .all()
             )
@@ -128,7 +126,7 @@ class HealthyServices:
                     db.session.query(Restaurant)
                     .filter(
                         Restaurant.id == RestaurantTable.restaurant_id,
-                        RestaurantTable.id == reservation.table_id
+                        RestaurantTable.id == reservation.table_id,
                     )
                     .first()
                 )
@@ -146,7 +144,7 @@ class HealthyServices:
                     if (opening.open_dinner <= reservation.reservation_date.time())
                     else [opening.open_lunch, opening.close_lunch]
                 )
-     
+
                 # Notify Restaurant for a positive that were inside
                 if restaurant.id not in restaurant_notified:
                     restaurant_notified.append(restaurant.id)
@@ -162,10 +160,12 @@ class HealthyServices:
                     )
                     """
 
-                #notify friends of the positive customer
-                friends_email =  db.session.query(Friend.email).filter(
-                    Friend.reservation_id == reservation.id
-                    ).all()
+                # notify friends of the positive customer
+                friends_email = (
+                    db.session.query(Friend.email)
+                    .filter(Friend.reservation_id == reservation.id)
+                    .all()
+                )
 
                 """
                 Mail to friends of the positive person
@@ -178,7 +178,7 @@ class HealthyServices:
                     )
                     """
 
-                #send mail to contact
+                # send mail to contact
                 all_contacts = (
                     db.session.query(Reservation)
                     .filter(
@@ -192,9 +192,8 @@ class HealthyServices:
                         >= extract("hour", period[0]),
                         extract("hour", Reservation.reservation_date)
                         <= extract("hour", period[1]),
-
                         restaurant.id == RestaurantTable.restaurant_id,
-                        RestaurantTable.id == Reservation.table_id
+                        RestaurantTable.id == Reservation.table_id,
                     )
                     .all()
                 )
@@ -218,9 +217,11 @@ class HealthyServices:
                             )
                             """
 
-                        friends_email =  db.session.query(Friend.email).filter(
-                            Friend.reservation_id == contact.id
-                            ).all()
+                        friends_email = (
+                            db.session.query(Friend.email)
+                            .filter(Friend.reservation_id == contact.id)
+                            .all()
+                        )
 
                         """
                         Mail to friends of people with a reservation
@@ -236,7 +237,6 @@ class HealthyServices:
             return ""
         else:
             return "User with email {} already Covid-19 positive".format(user_email)
-
 
     @staticmethod
     def search_contacts(id_user):
@@ -312,7 +312,6 @@ class HealthyServices:
 
         return contact_users
 
-
     @staticmethod
     def unmark_positive(user_email: str, user_phone: str) -> str:
         """
@@ -326,13 +325,11 @@ class HealthyServices:
 
         if user_email != "":
             q_user = db.session.query(User).filter(
-                User.email == user_email,
-                User.role_id == 3
+                User.email == user_email, User.role_id == 3
             )
         else:
             q_user = db.session.query(User).filter(
-                User.phone == user_phone,
-                User.role_id == 3
+                User.phone == user_phone, User.role_id == 3
             )
 
         if q_user.first() is None:

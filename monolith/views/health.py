@@ -64,13 +64,9 @@ def search_contacts():
 
             # filtering by email
             if form.email.data != "":
-                q_user = db.session.query(User).filter_by(
-                    email=form.email.data,
-                )
+                q_user = db.session.query(User).filter_by(email=form.email.data)
             else:
-                q_user = db.session.query(User).filter_by(
-                    phone=form.phone.data,
-                )
+                q_user = db.session.query(User).filter_by(phone=form.phone.data)
 
             if q_user.first() is None:
                 return render_template(

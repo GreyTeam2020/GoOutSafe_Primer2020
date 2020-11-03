@@ -82,7 +82,7 @@ def send_reservation_notification(
     body = body.replace("{toName}", to_name)
     body = body.replace("{restaurantName}", restaurant_name)
     body = body.replace("{customerName}", customer_name)
-    #body = body.replace("{numberSeat}", str(numberSeat))
+    # body = body.replace("{numberSeat}", str(numberSeat))
     body = body.replace("{dateReservation}", date_reservation)
     body = body.replace("{tableNumber}", str(table_number))
     send_email(subject, body, number_seat)

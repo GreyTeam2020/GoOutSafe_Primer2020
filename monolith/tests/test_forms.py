@@ -1505,9 +1505,7 @@ class Test_GoOutSafeForm:
         assert "list_page" in response.data.decode("utf-8")
         assert "bobby@gmail.com" in response.data.decode("utf-8")
 
-        db.session.query(Menu).filter(
-            Menu.restaurant_id == q_restaurant.id
-        ).delete()
+        db.session.query(Menu).filter(Menu.restaurant_id == q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(
             OpeningHours.restaurant_id == q_restaurant.id
         ).delete()
@@ -1524,9 +1522,7 @@ class Test_GoOutSafeForm:
         del_user_on_db(q_user.id)
         del_user_on_db(q_user2.id)
         del_user_on_db(q_owner.id)
-        db.session.query(Restaurant).filter(
-            Restaurant.id == q_restaurant.id
-        ).delete()
+        db.session.query(Restaurant).filter(Restaurant.id == q_restaurant.id).delete()
         db.session.commit()
 
         q_restaurant = (
@@ -1647,9 +1643,7 @@ class Test_GoOutSafeForm:
         assert "list_page" in response.data.decode("utf-8")
         assert "bobby@gmail.com" in response.data.decode("utf-8")
 
-        db.session.query(Menu).filter(
-            Menu.restaurant_id == q_restaurant.id
-        ).delete()
+        db.session.query(Menu).filter(Menu.restaurant_id == q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(
             OpeningHours.restaurant_id == q_restaurant.id
         ).delete()
@@ -1666,9 +1660,7 @@ class Test_GoOutSafeForm:
         del_user_on_db(q_user.id)
         del_user_on_db(q_user2.id)
         del_user_on_db(q_owner.id)
-        db.session.query(Restaurant).filter(
-            Restaurant.id == q_restaurant.id
-        ).delete()
+        db.session.query(Restaurant).filter(Restaurant.id == q_restaurant.id).delete()
         db.session.commit()
 
         q_restaurant = (
@@ -1794,9 +1786,7 @@ class Test_GoOutSafeForm:
         assert "bobby@gmail.com" in response.data.decode("utf-8")
         assert "john.doe@email.com" not in response.data.decode("utf-8")
 
-        db.session.query(Menu).filter(
-            Menu.restaurant_id == q_restaurant.id
-        ).delete()
+        db.session.query(Menu).filter(Menu.restaurant_id == q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(
             OpeningHours.restaurant_id == q_restaurant.id
         ).delete()
@@ -1813,9 +1803,7 @@ class Test_GoOutSafeForm:
         del_user_on_db(q_user.id)
         del_user_on_db(q_user2.id)
         del_user_on_db(q_owner.id)
-        db.session.query(Restaurant).filter(
-            Restaurant.id == q_restaurant.id
-        ).delete()
+        db.session.query(Restaurant).filter(Restaurant.id == q_restaurant.id).delete()
         db.session.commit()
 
         q_restaurant = (
@@ -1917,9 +1905,7 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "list_page" in response.data.decode("utf-8")
 
-        db.session.query(Menu).filter(
-            Menu.restaurant_id == q_restaurant.id
-        ).delete()
+        db.session.query(Menu).filter(Menu.restaurant_id == q_restaurant.id).delete()
         db.session.query(OpeningHours).filter(
             OpeningHours.restaurant_id == q_restaurant.id
         ).delete()
@@ -1932,9 +1918,7 @@ class Test_GoOutSafeForm:
         delete_positive_with_user_id(q_user.id)
         del_user_on_db(q_user.id)
         del_user_on_db(q_owner.id)
-        db.session.query(Restaurant).filter(
-            Restaurant.id == q_restaurant.id
-        ).delete()
+        db.session.query(Restaurant).filter(Restaurant.id == q_restaurant.id).delete()
         db.session.commit()
 
         q_restaurant = (
@@ -2123,12 +2107,8 @@ class Test_GoOutSafeForm:
         assert "john.doe@email.com" not in response.data.decode("utf-8")
         assert "trav@gmail.com" not in response.data.decode("utf-8")
 
-        db.session.query(Menu).filter(
-            Menu.restaurant_id == q_restaurant.id
-        ).delete()
-        db.session.query(Menu).filter(
-            Menu.restaurant_id == q_restaurant2.id
-        ).delete()
+        db.session.query(Menu).filter(Menu.restaurant_id == q_restaurant.id).delete()
+        db.session.query(Menu).filter(Menu.restaurant_id == q_restaurant2.id).delete()
         db.session.query(OpeningHours).filter(
             OpeningHours.restaurant_id == q_restaurant.id
         ).delete()
@@ -2156,12 +2136,8 @@ class Test_GoOutSafeForm:
         del_user_on_db(q_user3.id)
         del_user_on_db(q_owner.id)
         del_user_on_db(q_owner2.id)
-        db.session.query(Restaurant).filter(
-            Restaurant.id == q_restaurant.id
-        ).delete()
-        db.session.query(Restaurant).filter(
-            Restaurant.id == q_restaurant2.id
-        ).delete()
+        db.session.query(Restaurant).filter(Restaurant.id == q_restaurant.id).delete()
+        db.session.query(Restaurant).filter(Restaurant.id == q_restaurant2.id).delete()
         db.session.commit()
 
         q_restaurant = (
