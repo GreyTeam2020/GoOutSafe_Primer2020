@@ -35,16 +35,18 @@ class HealthyServices:
             return "Insert an email or a phone number"
 
         if user_email != "":
-            q_user = db.session.query(User).filter_by(
-                email=user_email,
+            q_user = db.session.query(User).filter(
+                User.email == user_email,
+                User.role_id == 3
             )
         else:
-            q_user = db.session.query(User).filter_by(
-                phone=user_phone,
+            q_user = db.session.query(User).filter(
+                User.phone == user_phone,
+                User.role_id == 3
             )
 
         if q_user.first() is None:
-            return "The user is not registered"
+            return "The customer is not registered"
 
         q_already_positive = (
             db.session.query(Positive)
@@ -265,16 +267,18 @@ class HealthyServices:
             return "Insert an email or a phone number"
 
         if user_email != "":
-            q_user = db.session.query(User).filter_by(
-                email=user_email,
+            q_user = db.session.query(User).filter(
+                User.email == user_email,
+                User.role_id == 3
             )
         else:
-            q_user = db.session.query(User).filter_by(
-                phone=user_phone,
+            q_user = db.session.query(User).filter(
+                User.phone == user_phone,
+                User.role_id == 3
             )
 
         if q_user.first() is None:
-            return "The user is not registered"
+            return "The customer is not registered"
 
         q_already_positive = (
             db.session.query(Positive)

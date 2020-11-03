@@ -66,12 +66,12 @@ class Test_HealthyServices:
     def test_mark_positive_user_not_exist(self):
         """
         It tests that health authority can't mark as covid-19 positive
-        someone that is not registered
+        someone that is not registered as customer
         """
         message = HealthyServices.mark_positive(
             user_email="alibaba@alibaba.com", user_phone="1234555"
         )
-        assert message == "The user is not registered"
+        assert message == "The customer is not registered"
 
     def test_mark_positive_nan_proprieties(self):
         """
@@ -150,10 +150,10 @@ class Test_HealthyServices:
     def test_unmark_user_not_in_app(self):
         """
         It tests that health authority cannot mark a customer as healed
-        if the customer is not registered
+        if the customer is not registered as customer
         """
         message = HealthyServices.unmark_positive("alibaba@alibaba.com", "")
-        assert message == "The user is not registered"
+        assert message == "The customer is not registered"
 
     def test_unmark_positive_nan_proprieties(self):
         """
