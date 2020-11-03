@@ -102,7 +102,7 @@ def create_restaurant():
                     "create_restaurant.html",
                     _test="anonymus_user_test",
                     form=form,
-                    message="User not logged"
+                    message="User not logged",
                 )
 
             # set the owner
@@ -111,8 +111,9 @@ def create_restaurant():
             )
             session["RESTAURANT_ID"] = newrestaurant.id
             return redirect("/")
-    return render_template("create_restaurant.html",
-                    _test="create_rest_test", form=form)
+    return render_template(
+        "create_restaurant.html", _test="create_rest_test", form=form
+    )
 
 
 @restaurants.route("/restaurant/reservations")

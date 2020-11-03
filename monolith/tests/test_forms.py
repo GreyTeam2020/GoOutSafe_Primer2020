@@ -136,25 +136,29 @@ class Test_GoOutSafeForm:
         password = "operator"
         response = login(client, email, password)
         assert "logged_test" in response.data.decode("utf-8")
+
         restaurant_form = RestaurantForm()
-        restaurant_form.name.data = "Gino Sorbillo"
-        restaurant_form.phone = "1234"
-        restaurant_form.lat = 183
-        restaurant_form.lon = 134
+        restaurant_form.name = "Gino Sorbillo"
+        restaurant_form.phone = "096321343"
+        restaurant_form.lat = 12
+        restaurant_form.lon = 12
         restaurant_form.n_tables = 50
         restaurant_form.covid_measures = "We can survive"
         restaurant_form.cuisine = ["Italian food"]
         restaurant_form.open_days = ["0"]
-        restaurant_form.open_lunch = datetime.time(datetime(2020, 7, 1, 12, 12))
-        restaurant_form.close_lunch = datetime.time(datetime(2020, 7, 1, 15, 12))
-        restaurant_form.open_dinner = datetime.time(datetime(2020, 7, 1, 18, 23))
-        restaurant_form.close_dinner = datetime.time(datetime(2020, 6, 1, 22, 32))
+        restaurant_form.open_lunch = "12:00"
+        restaurant_form.close_lunch = "15:00"
+        restaurant_form.open_dinner = "18:00"
+        restaurant_form.close_dinner = "00:00"
         response = register_restaurant(client, restaurant_form)
+        assert response.status_code == 200  ## Regirect to /
+        # assert restaurant_form.name in response.data.decode("utf-8")
+        assert "logged_test" in response.data.decode("utf-8")
         # test if the db is clean
         list_rest = db.session.query(Restaurant).all()
         assert len(list_rest) == 2
-        assert response.status_code == 200
-        assert "logged_test" in response.data.decode("utf-8")
+        # assert response.status_code == 200
+        # assert "create_rest_test" not in response.data.decode("utf-8")
 
         rest = get_rest_with_name(restaurant_form.name)
         assert rest is not None
