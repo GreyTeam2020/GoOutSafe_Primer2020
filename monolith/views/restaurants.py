@@ -271,7 +271,7 @@ def my_photogallery():
 
 @restaurants.route("/restaurant/review/<restaurant_id>", methods=["GET", "POST"])
 @login_required
-@roles_allowed(roles=["OPERATOR", "CUSTOMER"])
+@roles_allowed(roles=["CUSTOMER"])
 def restaurant_review(restaurant_id):
     if request.method == "POST":
         form = ReviewForm()
@@ -280,7 +280,6 @@ def restaurant_review(restaurant_id):
         )
         if review is not None:
             print("Review inserted!")
-            ##FIXME @giacomofrigo
             return render_template(
                 "review.html",
                 _test="review_done_test",
