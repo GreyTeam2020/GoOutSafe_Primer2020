@@ -3,57 +3,13 @@ This test case covered all simple action that we can do from the UI
 """
 
 import pytest
-from utils import (
-    login,
-    logout,
-    register_user,
-    get_user_with_email,
-    register_restaurant,
-    get_rest_with_name,
-    get_rest_with_name_and_phone,
-    register_operator,
-)
 from monolith.database import (
-    db,
-    User,
-    Restaurant,
-    Positive,
     Review,
     Reservation,
-    RestaurantTable,
-    OpeningHours,
     Menu,
 )
-from monolith.forms import (
-    UserForm,
-    RestaurantForm,
-    SearchUserForm,
-    ReviewForm,
-    DishForm,
-    ReservationForm,
-    PhotoGalleryForm,
-)
-from monolith.tests.utils import (
-    visit_restaurant,
-    visit_photo_gallery,
-    mark_people_for_covid19,
-    visit_reservation,
-    make_revew,
-    delete_positive_with_user_id,
-    del_user_on_db,
-    unmark_people_for_covid19,
-    search_contact_positive_covid19,
-    del_restaurant_on_db,
-    create_user_on_db,
-    create_restaurants_on_db,
-    research_restaurant,
-    create_new_menu,
-    create_new_reservation,
-    create_new_user_with_form,
-    create_new_restaurant_with_form,
-    create_new_table,
-    create_new_photo,
-)
+
+from monolith.tests.utils import *
 from monolith.services import BookingServices
 from datetime import datetime, timedelta
 import time
@@ -147,17 +103,30 @@ class Test_GoOutSafeForm:
         db.session.query(User).filter_by(id=user_query.id).delete()
         db.session.commit()
 
-    def test_modify_user(self, client):
+    def test_delete_user(self, client):
+        """
+        TODO implement this action
+        :param client:
+        :return:
+        """
         pass
 
-    def test_register_new_restaurant_ko(self, client):
+    def test_modify_user(self, client):
+        """
+        TODO implement this action
+        :param client:
+        :return:
+        """
+        pass
+
+    def test_register_new_restaurant_ok(self, client):
         """
         This test test the use case to create a new restaurant
         and this test have the follow described below
 
         - Login like a operator (user the standard account)
         - Register a new restaurant
-        - Look inside the db  to see if the restaurant exist
+        - Look inside the db to see if the restaurant exist
         - Log out user
         - See if the restaurant is present on home screen.
 
@@ -165,30 +134,42 @@ class Test_GoOutSafeForm:
         """
         email = "ham.burger@email.com"
         password = "operator"
-        login(client, email, password)
+        response = login(client, email, password)
+        assert "logged_test" in response.data.decode("utf-8")
         restaurant_form = RestaurantForm()
-        restaurant_form.name = "Gino Sorbillo"
-        restaurant_form.phone = "096321343"
-        restaurant_form.lat = 12
-        restaurant_form.lon = 12
+        restaurant_form.name.data = "Gino Sorbillo"
+        restaurant_form.phone = "1234"
+        restaurant_form.lat = 183
+        restaurant_form.lon = 134
         restaurant_form.n_tables = 50
         restaurant_form.covid_measures = "We can survive"
-        restaurant_form.cuisine = "0"
-        restaurant_form.open_days = "0"
-        restaurant_form.open_lunch = "12:00"
-        restaurant_form.close_lunch = "15:00"
-        restaurant_form.open_dinner = "18:00"
-        restaurant_form.close_dinner = "00:00"
+        restaurant_form.cuisine = ["Italian food"]
+        restaurant_form.open_days = ["0"]
+        restaurant_form.open_lunch = datetime.time(datetime(2020, 7, 1, 12, 12))
+        restaurant_form.close_lunch = datetime.time(datetime(2020, 7, 1, 15, 12))
+        restaurant_form.open_dinner = datetime.time(datetime(2020, 7, 1, 18, 23))
+        restaurant_form.close_dinner = datetime.time(datetime(2020, 6, 1, 22, 32))
         response = register_restaurant(client, restaurant_form)
-        assert response.status_code == 200  ## Regirect to /
-        assert restaurant_form.name in response.data.decode("utf-8")
+        # test if the db is clean
+        list_rest = db.session.query(Restaurant).all()
+        assert len(list_rest) == 2
+        assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
+
         rest = get_rest_with_name(restaurant_form.name)
         assert rest is not None
+
         response = logout(client)
         assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
+
         response = client.get("/")  ## get index
         assert restaurant_form.name in response.data.decode("utf-8")
+
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
+
         rest = get_rest_with_name(restaurant_form.name)
         del_restaurant_on_db(rest.id)
 
@@ -239,9 +220,19 @@ class Test_GoOutSafeForm:
         assert response.status_code == 401
         rest = get_rest_with_name(restaurant_form.name)
         assert rest is None
+
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
+
         del_user_on_db(user.id)
 
     def test_modify_new_restaurant(self, client):
+        """
+        TODO implement this action
+        :param client:
+        :return:
+        """
         pass
 
     def test_research_restaurant_by_name(self, client):
@@ -262,6 +253,10 @@ class Test_GoOutSafeForm:
         response = research_restaurant(client, rest.name)
         assert response.status_code is 200
         assert "rest_search_test" in response.data.decode("utf-8")
+
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
 
         del_restaurant_on_db(rest.id)
 
@@ -311,8 +306,11 @@ class Test_GoOutSafeForm:
         ## the user is a customer and not a operator
         assert response.status_code == 401
 
-        db.session.query(User).filter_by(id=user_stored.id).delete()
-        db.session.commit()
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
+
+        del_user_on_db(id=user_stored.id)
 
     def test_mark_positive_ko(self, client):
         """
@@ -348,6 +346,10 @@ class Test_GoOutSafeForm:
         )
 
         assert q_already_positive is None
+
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
 
         delete_positive_with_user_id(q_user.id)
         del_user_on_db(q_user.id)
@@ -386,12 +388,22 @@ class Test_GoOutSafeForm:
         )
         assert q_already_positive is not None
 
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
+
         delete_positive_with_user_id(q_user.id)
         del_user_on_db(q_user.id)
 
     def test_see_reservation_ko(self, client):
         """
-        This test test the
+        This test unit test the reservation with a unauthorize user
+
+        the test flow is
+        - Login as health authority
+        - visit the reservation
+        - receive the error status
+        - logout
         """
         email = "health_authority@gov.com"
         pazz = "nocovid"
@@ -404,9 +416,13 @@ class Test_GoOutSafeForm:
         )
         assert response.status_code == 401
 
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
+
     def test_see_reservation_ok(self, client):
         """
-        This test test the use case to perform the request to access from reservation
+        This test unit, tests the use case to perform the request to access from reservation
         as customer
         """
         email = "ham.burger@email.com"
@@ -421,9 +437,14 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "restaurant_reservations_test" in response.data.decode("utf-8")
 
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
+
     def test_make_review_ko(self, client):
         """
-        TODO
+        This test unit, tests the use case to perform the request to make a new review
+        with error as customer
         """
         email = "health_authority@gov.com"
         pazz = "nocovid"
@@ -438,9 +459,18 @@ class Test_GoOutSafeForm:
         response = make_revew(client, trial_rest.id, form)
         assert response.status_code == 401
 
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
+
     def test_make_review_ok(self, client):
         """
-        TODO
+        This test unit, tests the use case to perform the request to make a new review
+        with success.
+        The test flow is the follow:
+        - Login as an operator
+        - this operator make a review for an restaurants
+        - logout
         """
         email = "ham.burger@email.com"
         pazz = "operator"
@@ -456,6 +486,9 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "review_done_test" in response.data.decode("utf-8")
 
+        response = logout(client)
+        assert response.status_code == 200
+        assert "not_logged_test" not in response.data.decode("utf-8")
         db.session.query(Review).filter_by(review=form.review).delete()
         db.session.commit()
 

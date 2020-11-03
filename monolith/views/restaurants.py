@@ -75,7 +75,8 @@ def restaurant_sheet(restaurant_id):
 @roles_allowed(roles=["OPERATOR"])
 def create_restaurant():
     """
-    TODO user restaurant services
+    This flask method give the possibility with a POST request to create a new
+    restaurant inside the system
     """
     form = RestaurantForm()
     if request.method == "POST":
@@ -90,6 +91,7 @@ def create_restaurant():
                 return render_template(
                     "create_restaurant.html",
                     form=form,
+                    _test="rest_already_here_test",
                     message="Restaurant {} in {}:{} already existed".format(
                         form.name.data, form.lat.data, form.lon.data
                     ),
@@ -97,7 +99,10 @@ def create_restaurant():
             q_user = db.session.query(User).filter_by(id=current_user.id).first()
             if q_user is None:
                 return render_template(
-                    "create_restaurant.html", form=form, message="User not logged"
+                    "create_restaurant.html",
+                    _test="anonymus_user_test",
+                    form=form,
+                    message="User not logged"
                 )
 
             # set the owner
@@ -106,7 +111,8 @@ def create_restaurant():
             )
             session["RESTAURANT_ID"] = newrestaurant.id
             return redirect("/")
-    return render_template("create_restaurant.html", form=form)
+    return render_template("create_restaurant.html",
+                    _test="create_rest_test", form=form)
 
 
 @restaurants.route("/restaurant/reservations")
