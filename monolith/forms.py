@@ -111,7 +111,9 @@ class ReservationForm(FlaskForm):
     reservation_id = f.HiddenField("")  # for update
     reservation_date = f.DateTimeField("Date", validators=[DataRequired()])
     people_number = f.IntegerField("N. of People", validators=[DataRequired()])
-    friends = f.TextAreaField("Friend's mails (separated by semicolon)", validators=[DataRequired()])
+    friends = f.TextAreaField(
+        "Friend's mails (separated by semicolon)", validators=[DataRequired()]
+    )
     restaurant_id = f.HiddenField("")
     display = [
         "reservation_id",

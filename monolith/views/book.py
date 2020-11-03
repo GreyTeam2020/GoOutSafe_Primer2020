@@ -20,7 +20,59 @@ book = Blueprint("book", __name__)
 def index():
     if current_user is not None and hasattr(current_user, "id"):
 
-        book = BookingServices.book(request, current_user)
+        # check on the inputs
+        if (
+            request.form.get("reservation_date") is None
+            or request.form.get("reservation_date") == ""
+        ):
+            return render_template(
+                "booking.html",
+                success=False,
+                error="You have to specify a reservation date",
+            )
+        # the date and time come as string, so I have to parse them and transform them in python datetime
+        #
+        py_datetime = datetime.datetime.strptime(
+            request.form.get("reservation_date"), "%d/%m/%Y %H:%M"
+        )
+
+        # check on people number
+        if (
+            request.form.get("people_number") is None
+            or request.form.get("people_number") == ""
+        ):
+            return render_template(
+                "booking.html", success=False, error="You have to specify people number"
+            )
+        people_number = int(request.form.get("people_number"))
+
+        # check on friends mail
+        if request.form.get("friends") is None or request.form.get("friends") == "":
+            return render_template(
+                "booking.html",
+                success=False,
+                error="You have to specify your friends emails",
+            )
+
+        # check on restaurant_id (hidden field)
+        if (
+            request.form.get("restaurant_id") is None
+            or request.form.get("restaurant_id") == ""
+        ):
+            return render_template(
+                "booking.html",
+                success=False,
+                error="An error occured during the insertion your reservation. Please try later.",
+            )
+
+        # CALL TO BOOK SERVICE
+        book = BookingServices.book(
+            request.form.get("restaurant_id"),
+            current_user,
+            py_datetime,
+            people_number,
+            request.form.get("friends"),
+        )
 
         if book[0] == False:
             return render_template("booking.html", success=False, error=book[1])
