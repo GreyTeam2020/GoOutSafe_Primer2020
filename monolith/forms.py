@@ -103,7 +103,7 @@ class PhotoGalleryForm(FlaskForm):
 
 class ReviewForm(FlaskForm):
     stars = f.FloatField("stars", validators=[DataRequired()])
-    review = f.StringField("review")
+    review = f.StringField("review", validators=[DataRequired()])
     display = ["stars", "review"]
 
 

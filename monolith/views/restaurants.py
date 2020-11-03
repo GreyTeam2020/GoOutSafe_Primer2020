@@ -288,7 +288,11 @@ def restaurant_review(restaurant_id):
                 review=review,
             )
 
-    return redirect("review.html")
+    return render_template(
+                "review.html",
+                _test="review_done_test",
+                error = "An error occur inserting the review. Try again later.",
+            )
 
 
 @restaurants.route("/restaurant/search/<name_rest>", methods=["GET"])
