@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from flask import current_app
+
 from monolith.database import (
     db,
     Positive,
@@ -16,6 +18,8 @@ from sqlalchemy import cast, Date, extract
 
 from monolith.services import UserService
 from monolith.utils import send_mail
+from monolith.utils.dispaccer_events import DispatcherMessage
+from monolith.app_constant import *
 
 
 class HealthyServices:
@@ -95,16 +99,16 @@ class HealthyServices:
                         .first()
                     )
 
-                    """
-                    Send the email!
-
-                    send_positive_booking_in_restaurant(
-                        q_owner.email, 
-                        q_owner.firstname, 
-                        q_user.first().email, 
-                        restaurant.name
+                    # Send the email!
+                    DispatcherMessage.send_message(
+                        NEW_COVID_TO_RESTAURANT_BOOKING,
+                        [
+                            q_owner.email,
+                            q_owner.firstname,
+                            q_user.first().email,
+                            restaurant.name,
+                        ],
                     )
-                    """
 
             # to notify the restaurants for a possible positive inside the restaurant
             restaurant_notified = []
@@ -148,17 +152,21 @@ class HealthyServices:
                 # Notify Restaurant for a positive that were inside
                 if restaurant.id not in restaurant_notified:
                     restaurant_notified.append(restaurant.id)
-                    owner = db.session.query(User).filter_by(id=restaurant.owner_id)
-                    """
-                    Send the email!
+                    owner = db.session.query(User).filter_by(id=restaurant.owner_id).first()
 
-                    sendPossibilePositiveContact(
-                        owner.email, 
-                        owner.firstname, 
-                        reservation.reservation_date, 
-                        restaurant.name
-                    )
-                    """
+                    if owner is not None:
+                        # Send the email!
+                        DispatcherMessage.send_message(
+                            NEW_POSITIVE_WAS_IN_RESTAURANT,
+                            [
+                                owner.email,
+                                owner.firstname,
+                                str(reservation.reservation_date),
+                                restaurant.name,
+                            ],
+                        )
+                    else:
+                        current_app.logger.debug("owner for restaurant {} not present".format(restaurant.owner_id))
 
                 # notify friends of the positive customer
                 friends_email = (
@@ -167,16 +175,13 @@ class HealthyServices:
                     .all()
                 )
 
-                """
-                Mail to friends of the positive person
-                
+                # Mail to friends of the positive person
+
                 for friend in friends_email:
-                    send_possible_positive_contact_to_friend(
-                        friend
-                        reservation.reservation_date, 
-                        restaurant.name
+                    DispatcherMessage.send_message(
+                        EMAIL_TO_FRIEND,
+                        [friend, str(reservation.reservation_date), restaurant.name],
                     )
-                    """
 
                 # send mail to contact
                 all_contacts = (
@@ -206,16 +211,17 @@ class HealthyServices:
                             .first()
                         )
                         if thisuser is not None:
-                            """
-                            Send the email!
 
-                            sendPossibilePositiveContact(
-                                thisuser.email, 
-                                thisuser.firstname, 
-                                contact.reservation_date, 
-                                restaurant.name
+                            # Send the email to customer!
+                            DispatcherMessage.send_message(
+                                NEW_POSITIVE_CONTACT,
+                                [
+                                    thisuser.email,
+                                    thisuser.firstname,
+                                    contact.reservation_date,
+                                    restaurant.name,
+                                ],
                             )
-                            """
 
                         friends_email = (
                             db.session.query(Friend.email)
@@ -223,16 +229,16 @@ class HealthyServices:
                             .all()
                         )
 
-                        """
-                        Mail to friends of people with a reservation
-                        
+                        # Mail to friends of people with a reservation
                         for friend in friends_email:
-                            send_possible_positive_contact_to_friend(
-                                friend
-                                contact.reservation_date, 
-                                restaurant.name
+                            DispatcherMessage.send_message(
+                                EMAIL_TO_FRIEND,
+                                [
+                                    friend,
+                                    str(contact.reservation_date),
+                                    restaurant.name,
+                                ],
                             )
-                            """
 
             return ""
         else:

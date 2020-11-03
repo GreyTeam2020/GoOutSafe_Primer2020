@@ -9,7 +9,10 @@ from monolith.tests.utils import get_user_with_email, login
 
 @pytest.mark.usefixtures("client")
 class Test_UserServices:
-    """"""
+    """
+    This test suite test the services about user use case.
+    All the code tested inside this class is inside the services/test_user_services.py
+    """
 
     def test_create_user(self):
         """

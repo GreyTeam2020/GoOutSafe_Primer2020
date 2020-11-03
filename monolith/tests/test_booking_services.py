@@ -7,6 +7,11 @@ from monolith.services import BookingServices
 
 @pytest.mark.usefixtures("client")
 class Test_BookServices:
+    """
+    This test suite test the services about booking use case.
+    All the code tested inside this class is inside the services/booking_services.py
+    """
+
     def test_new_booking(self):
         """
         this test insert two reservation that should be ok

@@ -1,8 +1,15 @@
-from flask import Blueprint, redirect, render_template, request, session, current_app
+from flask import (
+    Blueprint,
+    redirect,
+    render_template,
+    request,
+    session,
+    current_app,
+    abort,
+)
 from monolith.database import (
     db,
     Restaurant,
-    Like,
     User,
     RestaurantTable,
     OpeningHours,
@@ -27,9 +34,7 @@ def restaurant_sheet(restaurant_id):
     """
     Missing refactoring to services
     :param restaurant_id:
-    :return:
     """
-    record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()[0]
     weekDaysLabel = [
         "Monday",
         "Tuesday",
@@ -39,33 +44,38 @@ def restaurant_sheet(restaurant_id):
         "Saturday",
         "Sunday",
     ]
-    q_hours = (
-        db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
-    )
-    q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
-    photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
+    # record = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()
+    # if record is not None:
+    #    record = record[0]
+
+    model = RestaurantServices.get_all_restaurants_info(restaurant_id)
+    if model is None:
+        abort(501)
+
+    # q_hours = db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
+    # q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
+    # photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
+    # dishes = db.session.query(MenuDish).filter_by(restaurant_id=restaurant_id).all()
 
     review_form = ReviewForm()
     book_form = ReservationForm()
 
-    dishes = db.session.query(MenuDish).filter_by(restaurant_id=restaurant_id).all()
-
     return render_template(
         "restaurantsheet.html",
-        id=restaurant_id,
-        name=record.name,
-        lat=record.lat,
-        lon=record.lon,
-        phone=record.phone,
-        covid_measures=record.covid_measures,
-        hours=q_hours,
-        cuisine=q_cuisine,
         weekDaysLabel=weekDaysLabel,
-        photos=photos,
+        id=restaurant_id,
+        name=model.name,
+        lat=model.lat,
+        lon=model.lon,
+        phone=model.phone,
+        covid_measures=model.covid_measures,
+        hours=model.opening_hours,
+        cuisine=model.covid_measures,
+        photos=model.photos,
+        dishes=model.dishes,
         review_form=review_form,
         book_form=book_form,
         reviews=RestaurantServices.get_three_reviews(restaurant_id),
-        dishes=dishes,
         _test="visit_rest_test",
     )
 
@@ -75,7 +85,8 @@ def restaurant_sheet(restaurant_id):
 @roles_allowed(roles=["OPERATOR"])
 def create_restaurant():
     """
-    TODO user restaurant services
+    This flask method give the possibility with a POST request to create a new
+    restaurant inside the system
     """
     form = RestaurantForm()
     if request.method == "POST":
@@ -90,6 +101,7 @@ def create_restaurant():
                 return render_template(
                     "create_restaurant.html",
                     form=form,
+                    _test="rest_already_here_test",
                     message="Restaurant {} in {}:{} already existed".format(
                         form.name.data, form.lat.data, form.lon.data
                     ),
@@ -97,7 +109,10 @@ def create_restaurant():
             q_user = db.session.query(User).filter_by(id=current_user.id).first()
             if q_user is None:
                 return render_template(
-                    "create_restaurant.html", form=form, message="User not logged"
+                    "create_restaurant.html",
+                    _test="anonymus_user_test",
+                    form=form,
+                    message="User not logged",
                 )
 
             # set the owner
@@ -106,7 +121,9 @@ def create_restaurant():
             )
             session["RESTAURANT_ID"] = newrestaurant.id
             return redirect("/")
-    return render_template("create_restaurant.html", form=form)
+    return render_template(
+        "create_restaurant.html", _test="create_rest_test", form=form
+    )
 
 
 @restaurants.route("/restaurant/reservations")
@@ -141,6 +158,10 @@ def my_reservations():
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_data():
+    """
+    TODO(vincenzopalazzo) add information
+    This API call give the possibility to the user TODO
+    """
     message = None
     if request.method == "POST":
         # TODO: add logic to update data

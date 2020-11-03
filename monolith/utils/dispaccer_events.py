@@ -1,4 +1,4 @@
-from monolith.background import send_email_to_confirm_registration
+from monolith.background import *
 from monolith.app_constant import *
 
 _CELERY = False
@@ -23,6 +23,15 @@ class DispatcherMessage:
         file app_constant.py and check if there is condition to dispatc the test
         :return: nothings
         """
-        if type_message is REGISTRATION_EMAIL:
-            if _CELERY is True:
-                send_email_to_confirm_registration.apply_async(args=params)
+        if _CELERY is False:
+            return
+        if type_message == REGISTRATION_EMAIL:
+            send_email_to_confirm_registration.apply_async(args=params)
+        elif type_message == NEW_COVID_TO_RESTAURANT_BOOKING:
+            send_alert_new_covid19_about_previous_booking.apply_async(args=params)
+        elif type_message == NEW_POSITIVE_WAS_IN_RESTAURANT:
+            send_positive_in_restaurant.apply_async(args=params)
+        elif type_message == EMAIL_TO_FRIEND:
+            send_possible_positive_contact_to_friend.apply_async(args=params)
+        elif type_message == NEW_POSITIVE_CONTACT:
+            send_possible_positive_contact_celery.apply_async(args=params)
