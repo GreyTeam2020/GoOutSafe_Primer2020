@@ -71,7 +71,7 @@ class Restaurant(db.Model):
 
     covid_measures = db.Column(db.Text(500))
 
-    # THERE IS NO INTERVAL DATA TYPE IN SQL LITE (FUCK)
+    # THERE IS NO INTERVAL DATA TYPE IN SQL LITE
     # avg_time = db.Column(db.Interval())
     # I store the avg time in integer THAT REPRESENTS MINUTES
     avg_time = db.Column(db.Integer, default=30)

@@ -103,22 +103,6 @@ class Test_GoOutSafeForm:
         db.session.query(User).filter_by(id=user_query.id).delete()
         db.session.commit()
 
-    def test_delete_user(self, client):
-        """
-        TODO implement this action
-        :param client:
-        :return:
-        """
-        pass
-
-    def test_modify_user(self, client):
-        """
-        TODO implement this action
-        :param client:
-        :return:
-        """
-        pass
-
     def test_register_new_restaurant_ok(self, client):
         """
         This test test the use case to create a new restaurant
@@ -230,14 +214,6 @@ class Test_GoOutSafeForm:
         assert "not_logged_test" not in response.data.decode("utf-8")
 
         del_user_on_db(user.id)
-
-    def test_modify_new_restaurant(self, client):
-        """
-        TODO implement this action
-        :param client:
-        :return:
-        """
-        pass
 
     def test_research_restaurant_by_name(self, client):
         """
@@ -1258,9 +1234,7 @@ class Test_GoOutSafeForm:
         # view page
         response = client.get("/restaurant/data")
         assert response.status_code == 200
-
-        # POST
-        # TODO: still miss the logic there
+        # TODO miss the code inside this methos
 
     def test_create_and_delete_table(self, client):
         """

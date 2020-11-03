@@ -6,16 +6,21 @@ from monolith.database import (
     OpeningHours,
     RestaurantTable,
     Review,
-    Reservation,
+    Reservation, PhotoGallery, MenuDish,
 )
 from monolith.forms import RestaurantForm
 from monolith.database import db
 
 from sqlalchemy.sql.expression import func, extract
 
+from monolith.model.restaurant_model import RestaurantModel
+
 
 class RestaurantServices:
-    """"""
+    """
+    This services give the possibility to isolate all the operations
+    about the restaurants with the database
+    """
 
     @staticmethod
     def create_new_restaurant(form: RestaurantForm, user_id: int, max_sit: int):
@@ -248,3 +253,34 @@ class RestaurantServices:
             reservation.update({Reservation.checkin: True})
             db.session.commit()
             db.session.flush()
+
+    @staticmethod
+    def get_all_restaurants_info(restaurant_id: int):
+        """
+        This method contains the logic to get all informations about the restaurants.
+        :return: RestaurantsModel
+        """
+        model = RestaurantModel()
+        rest = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()
+        if rest is None:
+            return None
+        rest = rest[0]
+        model.bind_restaurant(rest)
+        q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
+        for cusine in q_cuisine:
+            model.bind_menu(cusine)
+        photos = db.session.query(PhotoGallery).filter_by(restaurant_id=int(restaurant_id)).all()
+        for photo in photos:
+            model.bind_photo(photo)
+
+        dishes = db.session.query(MenuDish).filter_by(restaurant_id=restaurant_id).all()
+        for dish in dishes:
+            model.bind_dish(dish)
+
+        q_hours = db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
+        for hour in q_hours:
+            model.bind_hours(hour)
+
+        return model
+
+
