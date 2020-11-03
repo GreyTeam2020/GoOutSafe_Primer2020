@@ -164,25 +164,39 @@ def my_data():
     """
     message = None
     if request.method == "POST":
-        # TODO: add logic to update data
-        return redirect("/restaurant/data")
+        # update query
+        q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).update(
+            {
+                "name": request.form.get("name"),
+                "lat": request.form.get("lat"),
+                "lon": request.form.get("lon"),
+                "covid_measures": request.form.get("covid_measures"),
+            }
+        )
+        # if no resturant match the update query (session problem probably)
+        if q == 0:
+            message = "Some Errors occurs"
+        else:
+            db.session.commit()
+            message = "Restaurant data has been modified."
+
+    # get the resturant info and fill the form
+    # this part is both for POST and GET requests
+    q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
+    if q is not None:
+        form = RestaurantForm(obj=q)
+        form2 = RestaurantTableForm()
+        tables = RestaurantTable.query.filter_by(restaurant_id=session["RESTAURANT_ID"])
+        return render_template(
+            "restaurant_data.html",
+            form=form,
+            only=["name", "lat", "lon", "covid_measures"],
+            tables=tables,
+            form2=form2,
+            message=message,
+        )
     else:
-        if "RESTAURANT_ID" in session:
-            q = Restaurant.query.filter_by(id=session["RESTAURANT_ID"]).first()
-            if q is not None:
-                form = RestaurantForm(obj=q)
-                form2 = RestaurantTableForm()
-                tables = RestaurantTable.query.filter_by(
-                    restaurant_id=session["RESTAURANT_ID"]
-                )
-                return render_template(
-                    "restaurant_data.html",
-                    form=form,
-                    only=["name", "lat", "lon", "covid_measures"],
-                    tables=tables,
-                    form2=form2,
-                )
-        return redirect("/restaurant/create")
+        return redirect("/create_restaurant")
 
 
 @restaurants.route("/restaurant/tables", methods=["GET", "POST"])

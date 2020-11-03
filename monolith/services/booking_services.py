@@ -75,18 +75,15 @@ class BookingServices:
         if opening_hour.open_lunch is not None and opening_hour.open_dinner is not None:
             # asked for some hours outside the opening hours
             if opening_hour.open_lunch > only_time:
-                print("before lunch")
                 return (False, "The restaurant is closed")
 
             if (
                 opening_hour.open_dinner > only_time
                 and opening_hour.close_lunch < only_time
             ):
-                print("between")
                 return (False, "The restaurant is closed")
 
             if opening_hour.close_dinner < only_time:
-                print("after dinner")
                 return (False, "The restaurant is closed")
             #
 
