@@ -6,7 +6,9 @@ from monolith.database import (
     OpeningHours,
     RestaurantTable,
     Review,
-    Reservation, PhotoGallery, MenuDish,
+    Reservation,
+    PhotoGallery,
+    MenuDish,
 )
 from monolith.forms import RestaurantForm
 from monolith.database import db
@@ -266,10 +268,16 @@ class RestaurantServices:
             return None
         rest = rest[0]
         model.bind_restaurant(rest)
-        q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
+        q_cuisine = (
+            db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
+        )
         for cusine in q_cuisine:
             model.bind_menu(cusine)
-        photos = db.session.query(PhotoGallery).filter_by(restaurant_id=int(restaurant_id)).all()
+        photos = (
+            db.session.query(PhotoGallery)
+            .filter_by(restaurant_id=int(restaurant_id))
+            .all()
+        )
         for photo in photos:
             model.bind_photo(photo)
 
@@ -277,10 +285,12 @@ class RestaurantServices:
         for dish in dishes:
             model.bind_dish(dish)
 
-        q_hours = db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
+        q_hours = (
+            db.session.query(OpeningHours)
+            .filter_by(restaurant_id=int(restaurant_id))
+            .all()
+        )
         for hour in q_hours:
             model.bind_hours(hour)
 
         return model
-
-

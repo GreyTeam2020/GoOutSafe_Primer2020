@@ -1,4 +1,12 @@
-from flask import Blueprint, redirect, render_template, request, session, current_app, abort
+from flask import (
+    Blueprint,
+    redirect,
+    render_template,
+    request,
+    session,
+    current_app,
+    abort,
+)
 from monolith.database import (
     db,
     Restaurant,
@@ -44,14 +52,13 @@ def restaurant_sheet(restaurant_id):
     if model is None:
         abort(501)
 
-    #q_hours = db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
-    #q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
-    #photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
-    #dishes = db.session.query(MenuDish).filter_by(restaurant_id=restaurant_id).all()
+    # q_hours = db.session.query(OpeningHours).filter_by(restaurant_id=int(restaurant_id)).all()
+    # q_cuisine = db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
+    # photos = PhotoGallery.query.filter_by(restaurant_id=int(restaurant_id)).all()
+    # dishes = db.session.query(MenuDish).filter_by(restaurant_id=restaurant_id).all()
 
     review_form = ReviewForm()
     book_form = ReservationForm()
-
 
     return render_template(
         "restaurantsheet.html",
