@@ -22,8 +22,16 @@ class Test_BookServices:
         )
 
         d1 = datetime.datetime(year=2120, month=11, day=25, hour=12)
-        book1 = BookingServices.book(restaurant.id, user, d1, 4)
-        book2 = BookingServices.book(restaurant.id, user, d1, 6)
+        book1 = BookingServices.book(
+            restaurant.id, user, d1, 4, "a@a.com;b@b.com;c@c.com;d@d.com"
+        )
+        book2 = BookingServices.book(
+            restaurant.id,
+            user,
+            d1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
 
         assert book1[0] is True
         assert book2[0] is True
@@ -42,8 +50,20 @@ class Test_BookServices:
         )
         d1 = datetime.datetime(year=2120, month=11, day=25, hour=12)
 
-        book1 = BookingServices.book(restaurant.id, user, d1, 6)
-        book2 = BookingServices.book(restaurant.id, user, d1, 6)
+        book1 = BookingServices.book(
+            restaurant.id,
+            user,
+            d1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
+        book2 = BookingServices.book(
+            restaurant.id,
+            user,
+            d1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
 
         assert book1[0] is True
         assert book2[0] is False
@@ -62,7 +82,13 @@ class Test_BookServices:
 
         d1 = datetime.datetime(year=2120, month=11, day=25, hour=10)
 
-        book1 = BookingServices.book(restaurant.id, user, d1, 6)
+        book1 = BookingServices.book(
+            restaurant.id,
+            user,
+            d1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
 
         assert book1[0] is False
 
@@ -81,9 +107,9 @@ class Test_BookServices:
         d1 = datetime.datetime(year=2120, month=11, day=25, hour=12)
         d2 = datetime.datetime(year=2120, month=11, day=25, hour=12, minute=29)
 
-        book1 = BookingServices.book(restaurant.id, user, d1, 2)
-        book2 = BookingServices.book(restaurant.id, user, d1, 2)
-        book3 = BookingServices.book(restaurant.id, user, d2, 2)
+        book1 = BookingServices.book(restaurant.id, user, d1, 2, "a@a.com;b@b.com")
+        book2 = BookingServices.book(restaurant.id, user, d1, 2, "a@a.com;b@b.com")
+        book3 = BookingServices.book(restaurant.id, user, d2, 2, "a@a.com;b@b.com")
 
         assert book1[0] == True
         assert book2[0] == True
@@ -113,7 +139,13 @@ class Test_BookServices:
             db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
         )
         d1 = datetime.datetime(year=2120, month=11, day=25, hour=10)
-        book = BookingServices.book(restaurant.id, user, d1, 6)
+        book = BookingServices.book(
+            restaurant.id,
+            user,
+            d1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
         assert book[0] is False
 
         db.session.query(Positive).filter_by(user_id=user.id).delete()
@@ -130,7 +162,13 @@ class Test_BookServices:
             db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
         )
         d1 = datetime.datetime(year=1998, month=11, day=23, hour=10)
-        book = BookingServices.book(restaurant.id, user, d1, 6)
+        book = BookingServices.book(
+            restaurant.id,
+            user,
+            d1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
         assert book[0] is False
 
     def test_booking_when_closed(self):
@@ -144,7 +182,13 @@ class Test_BookServices:
             db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
         )
         d1 = datetime.datetime(year=2120, month=11, day=26, hour=10)
-        book = BookingServices.book(restaurant.id, user, d1, 6)
+        book = BookingServices.book(
+            restaurant.id,
+            user,
+            d1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
         assert book[0] is False
 
     def test_delete_booking(self):
@@ -168,7 +212,7 @@ class Test_BookServices:
         reservation = db.session.query(Reservation).first()
 
         d1 = datetime.datetime(year=2120, month=11, day=25, hour=12)
-        book = BookingServices.update_book(reservation.id, user, d1, 1)
+        book = BookingServices.update_book(reservation.id, user, d1, 1, "a@a.com")
         assert book[0] is True
 
         db.session.query(Reservation).filter_by(reservation_date=d1).delete()

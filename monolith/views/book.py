@@ -101,7 +101,11 @@ def update_book():
         reservation_id = int(request.form.get("reservation_id"))
 
         new_book = BookingServices.update_book(
-            reservation_id, current_user, py_datetime, people_number
+            reservation_id,
+            current_user,
+            py_datetime,
+            people_number,
+            request.form.get("friends"),
         )
         reservations_as_list = UserService.get_customer_reservation(
             None, None, current_user.id

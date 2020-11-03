@@ -194,7 +194,9 @@ class BookingServices:
         return True if effected_rows > 0 else False
 
     @staticmethod
-    def update_book(reservation_id, current_user, py_datetime, people_number):
+    def update_book(
+        reservation_id, current_user, py_datetime, people_number, raw_friends
+    ):
 
         reservation = (
             db.session.query(Reservation)
@@ -215,7 +217,7 @@ class BookingServices:
             return False, "Table not found"
 
         book = BookingServices.book(
-            table.restaurant_id, current_user, py_datetime, people_number
+            table.restaurant_id, current_user, py_datetime, people_number, raw_friends
         )
         if book[0] == True:
             BookingServices.delete_book(reservation_id, current_user.id)
