@@ -8,12 +8,22 @@ from monolith.database import (
     Restaurant,
     OpeningHours,
     Positive,
+    Friend,
 )
 
 
 class BookingServices:
     @staticmethod
-    def book(restaurant_id, current_user, py_datetime, people_number):
+    def book(restaurant_id, current_user, py_datetime, people_number, raw_friends):
+
+        # split friends mail and check if the number is correct
+        splitted_friends = raw_friends.split(";")
+        if len(splitted_friends) != people_number:
+            return (False, "You need to specify ONE mail for each person")
+
+        restaurant_id = int(restaurant_id)
+        #
+
         # if user wants to book in the past..
         if py_datetime < datetime.datetime.now():
             return (False, "You can not book in the past!")
@@ -65,18 +75,15 @@ class BookingServices:
         if opening_hour.open_lunch is not None and opening_hour.open_dinner is not None:
             # asked for some hours outside the opening hours
             if opening_hour.open_lunch > only_time:
-                print("before lunch")
                 return (False, "The restaurant is closed")
 
             if (
                 opening_hour.open_dinner > only_time
                 and opening_hour.close_lunch < only_time
             ):
-                print("between")
                 return (False, "The restaurant is closed")
 
             if opening_hour.close_dinner < only_time:
-                print("after dinner")
                 return (False, "The restaurant is closed")
             #
 
@@ -158,8 +165,16 @@ class BookingServices:
             new_reservation.table_id = min_value[0]
             new_reservation.people_number = people_number
             db.session.add(new_reservation)
-            db.session.commit()
+            db.session.flush()
 
+            # register friends
+            for friend_mail in splitted_friends:
+                new_friend = Friend()
+                new_friend.reservation_id = new_reservation.id
+                new_friend.email = friend_mail.strip()
+                db.session.add(new_friend)
+
+            db.session.commit()
             return (True, restaurant_name, table_name)
         else:
             return (False, "no tables available")
@@ -176,7 +191,9 @@ class BookingServices:
         return True if effected_rows > 0 else False
 
     @staticmethod
-    def update_book(reservation_id, current_user, py_datetime, people_number):
+    def update_book(
+        reservation_id, current_user, py_datetime, people_number, raw_friends
+    ):
 
         reservation = (
             db.session.query(Reservation)
@@ -197,7 +214,7 @@ class BookingServices:
             return False, "Table not found"
 
         book = BookingServices.book(
-            table.restaurant_id, current_user, py_datetime, people_number
+            table.restaurant_id, current_user, py_datetime, people_number, raw_friends
         )
         if book[0] == True:
             BookingServices.delete_book(reservation_id, current_user.id)

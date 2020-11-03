@@ -392,6 +392,7 @@ def create_new_reservation(client, form: ReservationForm):
             reservation_date=form.reservation_date,
             people_number=form.people_number,
             restaurant_id=form.restaurant_id,
+            friends=form.friends,
             submit=True,
             headers={"Content-type": "application/x-www-form-urlencoded"},
         ),

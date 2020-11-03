@@ -439,21 +439,29 @@ class Test_GoOutSafeForm:
         response = make_revew(client, trial_rest.id, form)
         assert response.status_code == 401
 
-        response = logout(client)
-        assert response.status_code == 200
-        assert "not_logged_test" not in response.data.decode("utf-8")
-
-    def test_make_review_ok(self, client):
+    def test_make_review_ko_operator(self, client):
         """
-        This test unit, tests the use case to perform the request to make a new review
-        with success.
-        The test flow is the follow:
-        - Login as an operator
-        - this operator make a review for an restaurants
-        - logout
+        operators can't do reviews
         """
         email = "ham.burger@email.com"
         pazz = "operator"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        trial_rest = db.session.query(Restaurant).all()[0]
+        form = ReviewForm()
+        form.stars = 3
+        form.review = "Good food"
+        response = make_revew(client, trial_rest.id, form)
+        assert response.status_code == 401
+
+    def test_make_review_ok(self, client):
+        """
+        operators can't do reviews
+        """
+        email = "john.doe@email.com"
+        pazz = "customer"
         response = login(client, email, pazz)
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
@@ -1018,6 +1026,7 @@ class Test_GoOutSafeForm:
         form.restaurant_id = restaurant.id
         form.reservation_date = "23/11/2020 12:00"
         form.people_number = 2
+        form.friends = "aa@aa.com;bb@bb.com"
 
         response = create_new_reservation(client, form)
         assert response.status_code == 200
@@ -1049,9 +1058,11 @@ class Test_GoOutSafeForm:
         form.restaurant_id = restaurant.id
         form.reservation_date = "23/11/2020 10:00"
         form.people_number = 2
+        form.friends = "a@a.com;b@b.com"
 
         response = create_new_reservation(client, form)
         assert response.status_code == 200
+        print(response.data.decode("utf-8"))
         assert "closed" in response.data.decode("utf-8")
 
     def test_create_new_reservation_unauthorized(self, client):
@@ -1068,6 +1079,7 @@ class Test_GoOutSafeForm:
         form.restaurant_id = restaurant.id
         form.reservation_date = "23/11/2020 12:00"
         form.people_number = 2
+        form.friends = "aa@aa.com;bb@bb.com"
 
         response = create_new_reservation(client, form)
         assert response.status_code == 401
@@ -1357,6 +1369,7 @@ class Test_GoOutSafeForm:
         form.restaurant_id = table.restaurant_id
         form.reservation_date = "29/11/2030 12:00"
         form.people_number = 4
+        form.friends = "a@a.com;b@b.com;c@c.com;d@d.com"
 
         response = client.post(
             "/restaurant/book_update",
@@ -1365,6 +1378,7 @@ class Test_GoOutSafeForm:
                 reservation_date=form.reservation_date,
                 people_number=form.people_number,
                 restaurant_id=form.restaurant_id,
+                friends=form.friends,
                 submit=True,
                 headers={"Content-type": "application/x-www-form-urlencoded"},
             ),
@@ -1483,7 +1497,13 @@ class Test_GoOutSafeForm:
 
         q_user = get_user_with_email(user.email)
         date_booking_1 = datetime.today() + timedelta(seconds=1)
-        book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
+        book1 = BookingServices.book(
+            q_restaurant.id,
+            q_user,
+            date_booking_1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
 
         assert book1[0] == True
 
@@ -1501,7 +1521,13 @@ class Test_GoOutSafeForm:
         q_user2 = get_user_with_email(user2.email)
 
         date_booking_2 = datetime.today() + timedelta(seconds=1)
-        book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
+        book2 = BookingServices.book(
+            q_restaurant.id,
+            q_user2,
+            date_booking_2,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
         assert book2[0] == True
 
         time.sleep(1)  # sleep for 1 second
@@ -1621,7 +1647,13 @@ class Test_GoOutSafeForm:
 
         q_user = get_user_with_email(user.email)
         date_booking_1 = datetime.today() + timedelta(seconds=1)
-        book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
+        book1 = BookingServices.book(
+            q_restaurant.id,
+            q_user,
+            date_booking_1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
 
         assert book1[0] == True
 
@@ -1639,7 +1671,13 @@ class Test_GoOutSafeForm:
         q_user2 = get_user_with_email(user2.email)
 
         date_booking_2 = datetime.today() + timedelta(seconds=1)
-        book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
+        book2 = BookingServices.book(
+            q_restaurant.id,
+            q_user2,
+            date_booking_2,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
         assert book2[0] == True
 
         time.sleep(1)  # sleep for 1 second
@@ -1762,7 +1800,13 @@ class Test_GoOutSafeForm:
 
         date_booking_1 = datetime.today() + timedelta(seconds=1)
 
-        book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
+        book1 = BookingServices.book(
+            q_restaurant.id,
+            q_user,
+            date_booking_1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
 
         assert book1[0] == True
 
@@ -1781,7 +1825,13 @@ class Test_GoOutSafeForm:
 
         date_booking_2 = datetime.today() + timedelta(seconds=1)
 
-        book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
+        book2 = BookingServices.book(
+            q_restaurant.id,
+            q_user2,
+            date_booking_2,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
         assert book2[0] == True
 
         time.sleep(1)
@@ -1901,7 +1951,13 @@ class Test_GoOutSafeForm:
 
         q_user = get_user_with_email(user.email)
         date_booking_1 = datetime.today() + timedelta(seconds=1)
-        book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
+        book1 = BookingServices.book(
+            q_restaurant.id,
+            q_user,
+            date_booking_1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
 
         assert book1[0] == True
 
@@ -2027,7 +2083,13 @@ class Test_GoOutSafeForm:
 
         date_booking_1 = datetime.today() + timedelta(seconds=1)
 
-        book1 = BookingServices.book(q_restaurant.id, q_user, date_booking_1, 6)
+        book1 = BookingServices.book(
+            q_restaurant.id,
+            q_user,
+            date_booking_1,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
 
         assert book1[0] == True
 
@@ -2046,7 +2108,13 @@ class Test_GoOutSafeForm:
 
         date_booking_2 = datetime.today() + timedelta(seconds=1)
 
-        book2 = BookingServices.book(q_restaurant.id, q_user2, date_booking_2, 6)
+        book2 = BookingServices.book(
+            q_restaurant.id,
+            q_user2,
+            date_booking_2,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
         assert book2[0] == True
 
         # a new owner of a restaurant
@@ -2101,7 +2169,13 @@ class Test_GoOutSafeForm:
 
         date_booking_3 = datetime.today() + timedelta(seconds=1)
 
-        book3 = BookingServices.book(q_restaurant2.id, q_user3, date_booking_3, 6)
+        book3 = BookingServices.book(
+            q_restaurant2.id,
+            q_user3,
+            date_booking_3,
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+        )
         assert book3[0] == True
 
         time.sleep(1)

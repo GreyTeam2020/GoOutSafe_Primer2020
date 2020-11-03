@@ -136,6 +136,8 @@ class RestaurantServices:
         """
         This method insert a review to the specified restaurant
         """
+        if stars is None or review is None or review == "":
+            return None
         if stars < 0 or stars > 5:
             return None
 

@@ -152,7 +152,9 @@ class HealthyServices:
                 # Notify Restaurant for a positive that were inside
                 if restaurant.id not in restaurant_notified:
                     restaurant_notified.append(restaurant.id)
-                    owner = db.session.query(User).filter_by(id=restaurant.owner_id).first()
+                    owner = (
+                        db.session.query(User).filter_by(id=restaurant.owner_id).first()
+                    )
 
                     if owner is not None:
                         # Send the email!
@@ -166,7 +168,11 @@ class HealthyServices:
                             ],
                         )
                     else:
-                        current_app.logger.debug("owner for restaurant {} not present".format(restaurant.owner_id))
+                        current_app.logger.debug(
+                            "owner for restaurant {} not present".format(
+                                restaurant.owner_id
+                            )
+                        )
 
                 # notify friends of the positive customer
                 friends_email = (
