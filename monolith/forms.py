@@ -17,6 +17,7 @@ class UserForm(FlaskForm):
     phone = f.StringField("phone", validators=[DataRequired()])
     dateofbirth = f.DateField("dateofbirth", format="%d/%m/%Y")
     display = ["email", "firstname", "lastname", "password", "phone", "dateofbirth"]
+    # TODO fixe the form date for future born people.
 
 
 class UserEditForm(FlaskForm):

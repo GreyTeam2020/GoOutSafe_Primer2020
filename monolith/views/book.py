@@ -1,14 +1,6 @@
 from flask import Blueprint, render_template, request
 from monolith.forms import ReservationForm
 from monolith.auth import current_user
-from monolith.database import (
-    db,
-    RestaurantTable,
-    Reservation,
-    Restaurant,
-    OpeningHours,
-    Positive,
-)
 from monolith.services.user_service import UserService
 from monolith.utils.formatter import my_date_formatter
 import datetime
