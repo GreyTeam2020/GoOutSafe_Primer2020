@@ -248,10 +248,9 @@ class Review(db.Model):
 
 
 class Friend(db.Model):
-    # all covid positives
-    __tablename__ = "friend"
-
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    email = db.Column(db.Unicode(128), nullable=False, unique=True)
+    # reservation
     reservation_id = db.Column(db.Integer, db.ForeignKey("reservation.id"))
     reservation = relationship("Reservation", foreign_keys="Friend.reservation_id")
+    # email
+    email = db.Column(db.Text())

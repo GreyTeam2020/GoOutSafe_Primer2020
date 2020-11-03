@@ -8,12 +8,54 @@ from monolith.database import (
     Restaurant,
     OpeningHours,
     Positive,
+    Friend,
 )
 
 
 class BookingServices:
     @staticmethod
-    def book(restaurant_id, current_user, py_datetime, people_number):
+    def book(request, current_user):
+        # check on the inputs 
+        if (
+            request.form.get("reservation_date") is None
+            or request.form.get("reservation_date") == ""
+        ):
+            return (False, "You have to specify a reservation date")
+
+        # the date and time come as string, so I have to parse them and transform them in python datetime
+        #
+        py_datetime = datetime.datetime.strptime(
+            request.form.get("reservation_date"), "%d/%m/%Y %H:%M"
+        )
+
+        #check on people number
+        if (
+            request.form.get("people_number") is None
+            or request.form.get("people_number") == ""
+        ):
+            return (False, "You have to specify people number")
+
+
+        people_number = int(request.form.get("people_number"))
+        
+        
+        #check on friends mail
+        if request.form.get("friends") is None or request.form.get("friends") == "":
+            return (False, "You have to specify your friends emails")
+
+        #split friends mail and check if the number is correct
+        splitted_friends = request.form.get("friends").split(";")
+        
+        if (len(splitted_friends) != people_number):
+            return (False, "You need to specify ONE mail for each person")
+
+        #check on restaurant_id (hidden field)
+        if (request.form.get("restaurant_id") is None or request.form.get("restaurant_id") == ""):
+            return (False, "An error occured during the insertion your reservation. Please try later.")
+        restaurant_id = int(request.form.get("restaurant_id"))
+        #
+        
+
         # if user wants to book in the past..
         if py_datetime < datetime.datetime.now():
             return (False, "You can not book in the past!")
@@ -158,8 +200,17 @@ class BookingServices:
             new_reservation.table_id = min_value[0]
             new_reservation.people_number = people_number
             db.session.add(new_reservation)
-            db.session.commit()
+            db.session.flush()
+           
+            #register friends
+            for friend_mail in splitted_friends:
+                new_friend = Friend()
+                new_friend.reservation_id = new_reservation.id
+                new_friend.email = friend_mail.strip()
+                db.session.add(new_friend)
 
+
+            db.session.commit()
             return (True, restaurant_name, table_name)
         else:
             return (False, "no tables available")

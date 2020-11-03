@@ -19,27 +19,8 @@ book = Blueprint("book", __name__)
 @roles_allowed(roles=["CUSTOMER"])
 def index():
     if current_user is not None and hasattr(current_user, "id"):
-        
-        #check on the inputs
-        if (request.form.get("reservation_date") is None or request.form.get("reservation_date") == ""):
-            return render_template("booking.html", success=False, error="An error occured inserting your reservation. Please try again later.")
 
-        if (request.form.get("people_number") is None or request.form.get("people_number") == ""):
-            return render_template("booking.html", success=False, error="An error occured inserting your reservation. Please try again later.")
-        
-        # the date and time come as string, so I have to parse them and transform them in python datetime
-        #
-        py_datetime = datetime.datetime.strptime(
-            request.form.get("reservation_date"), "%d/%m/%Y %H:%M"
-        )
-        #
-        restaurant_id = int(request.form.get("restaurant_id"))
-        #
-        people_number = int(request.form.get("people_number"))
-        #
-        book = BookingServices.book(
-            restaurant_id, current_user, py_datetime, people_number
-        )
+        book = BookingServices.book(request, current_user)
 
         if book[0] == False:
             return render_template("booking.html", success=False, error=book[1])

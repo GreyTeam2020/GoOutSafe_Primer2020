@@ -439,21 +439,29 @@ class Test_GoOutSafeForm:
         response = make_revew(client, trial_rest.id, form)
         assert response.status_code == 401
 
-        response = logout(client)
-        assert response.status_code == 200
-        assert "not_logged_test" not in response.data.decode("utf-8")
-
-    def test_make_review_ok(self, client):
+    def test_make_review_ko_operator(self, client):
         """
-        This test unit, tests the use case to perform the request to make a new review
-        with success.
-        The test flow is the follow:
-        - Login as an operator
-        - this operator make a review for an restaurants
-        - logout
+        operators can't do reviews
         """
         email = "ham.burger@email.com"
         pazz = "operator"
+        response = login(client, email, pazz)
+        assert response.status_code == 200
+        assert "logged_test" in response.data.decode("utf-8")
+
+        trial_rest = db.session.query(Restaurant).all()[0]
+        form = ReviewForm()
+        form.stars = 3
+        form.review = "Good food"
+        response = make_revew(client, trial_rest.id, form)
+        assert response.status_code == 401
+
+    def test_make_review_ok(self, client):
+        """
+        operators can't do reviews
+        """
+        email = "john.doe@email.com"
+        pazz = "customer"
         response = login(client, email, pazz)
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
