@@ -49,7 +49,7 @@ def _create_generic_user(role_id: int = 3, name_on_page: str = "customer"):
                 REGISTRATION_EMAIL,
                 [user.email, user.lastname, "112344"],
             )
-            new_role = UserService.get_user_role(user.id)
+            new_role = UserService.get_user_role(role_id)
             if new_role is not None:
                 session["ROLE"] = new_role.value
             return redirect("/")
