@@ -69,7 +69,7 @@ class HealthyServices:
             all_reservations = (
                 db.session.query(Reservation)
                 .filter(
-                    Reservation.reservation_date >= datetime.today(),
+                    Reservation.reservation_date >= datetime.now(),
                     Reservation.customer_id == new_positive.user_id,
                 )
                 .all()
