@@ -12,6 +12,10 @@ from monolith.database import (
 import decimal
 from monolith.views import blueprints
 from monolith.auth import login_manager
+from monolith.utils.dispaccer_events import (
+    DispatcherMessage,
+    CALCULATE_RATING_RESTAURANTS,
+)
 import datetime
 
 
@@ -280,10 +284,11 @@ def create_app(tests=False):
 
             db.session.add(review)
             db.session.commit()
-
+    # CALCULATE_RATING_RESTAURANTS
     return app
 
 
 if __name__ == "__main__":
     app = create_app()
     app.run(host="0.0.0.0", debug=True)
+    DispatcherMessage.send_message(CALCULATE_RATING_RESTAURANTS, [])

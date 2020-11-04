@@ -85,6 +85,7 @@ def send_possible_positive_contact_celery(
         to_email, to_name, date_possible_contact, restaurant_name
     )
 
+
 @celery.on_after_configure.connect
 def calculate_rating_on_background(sender, **kwargs):
     """
@@ -92,4 +93,6 @@ def calculate_rating_on_background(sender, **kwargs):
     this task take the db code and call the RestaurantServices for each restaurants
     """
     # Calls RestaurantServices.calculate_rating_for_all() every 30 seconds
-    sender.add_periodic_task(600.0, RestaurantServices.calculate_rating_for_all(), expires=10)
+    sender.add_periodic_task(
+        600.0, RestaurantServices.calculate_rating_for_all(), expires=10
+    )

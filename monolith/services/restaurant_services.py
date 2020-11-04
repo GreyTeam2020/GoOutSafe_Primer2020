@@ -1,5 +1,5 @@
 from datetime import datetime
-
+from flask import current_app
 from monolith.database import (
     Restaurant,
     Menu,
@@ -12,9 +12,7 @@ from monolith.database import (
 )
 from monolith.forms import RestaurantForm
 from monolith.database import db
-
 from sqlalchemy.sql.expression import func, extract
-
 from monolith.model.restaurant_model import RestaurantModel
 
 
@@ -267,14 +265,12 @@ class RestaurantServices:
         :return: RestaurantsModel
         """
         model = RestaurantModel()
-        rest = db.session.query(Restaurant).filter_by(id=int(restaurant_id)).all()
+        rest = db.session.query(Restaurant).filter_by(id=restaurant_id).all()
         if rest is None:
             return None
         rest = rest[0]
         model.bind_restaurant(rest)
-        q_cuisine = (
-            db.session.query(Menu).filter_by(restaurant_id=int(restaurant_id)).all()
-        )
+        q_cuisine = db.session.query(Menu).filter_by(restaurant_id=restaurant_id).all()
         for cusine in q_cuisine:
             model.bind_menu(cusine)
         photos = (
@@ -309,27 +305,37 @@ class RestaurantServices:
         :return: the rating value, as 0.0 or 5.0
         """
         rating_value = 0.0
-        restaurant = db.session.query_property(Restaurant).filter_by(id=restaurant_id).first()
+        restaurant = (
+            db.session.query_property(Restaurant).filter_by(id=restaurant_id).first()
+        )
         if restaurant is None:
-            raise Exception("Restaurant with id {} don't exist on database".format(restaurant_id))
-        reviews_list = db.session.query(Review).filter_by(restaurant_id=restaurant_id).all()
+            raise Exception(
+                "Restaurant with id {} don't exist on database".format(restaurant_id)
+            )
+        reviews_list = (
+            db.session.query(Review).filter_by(restaurant_id=restaurant_id).all()
+        )
         if (reviews_list is None) or (len(reviews_list) is 0):
             return rating_value
 
         for review in reviews_list:
-            rating_value = rating_value + review.stars
+            rating_value = rating_value + review.stars.data
 
         rating_value = rating_value / len(reviews_list)
+        current_app.logger.debug(
+            "Rating calculate for restaurant with name {} is {}".format(
+                restaurant.name, rating_value
+            )
+        )
         restaurant.rating = rating_value
         db.session.commit()
         return rating_value
 
     @staticmethod
-    def calculate_rating_for_all() -> None:
+    def calculate_rating_for_all():
         """
         This method is used inside celery background task to calculate the rating for each restaurants
         """
         restaurants_list = db.session.query(Restaurant).all()
         for restaurant in restaurants_list:
-            RestaurantServices.get_three_reviews(restaurant.id)
-
+            RestaurantServices.get_rating_restaurant(restaurant.id)

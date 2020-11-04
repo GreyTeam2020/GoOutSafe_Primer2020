@@ -33,7 +33,7 @@
                   <div class="card-body">
                     <img src="https://images.pexels.com/photos/6267/menu-restaurant-vintage-table.jpg?auto=compress&cs=tinysrgb&dpr=1&w=500"
                         class="card-img-top" alt="logo restaurant"/>
-                    <div class="ratingStats" data-rating="4.5"></div>
+                    <div class="ratingStats" data-rating="{{ restaurant.rating  }}"></div>
                     <a href="/restaurant/{{ restaurant.id }}"><button class="btn btn-link">Visit</button></a>&nbsp;
                        {% if not is_positive %}
                             <button class="btn btn-primary showBooking" data-id="{{ restaurant.id }}">Book</button>

@@ -70,7 +70,7 @@ def restaurant_sheet(restaurant_id):
         phone=model.phone,
         covid_measures=model.covid_measures,
         hours=model.opening_hours,
-        cuisine=model.covid_measures,
+        cuisine=model.cusine,
         photos=model.photos,
         dishes=model.dishes,
         review_form=review_form,
@@ -293,14 +293,15 @@ def restaurant_review(restaurant_id):
             restaurant_id, current_user.id, form.data["stars"], form.data["review"]
         )
         if review is not None:
-            print("Review inserted!")
+            current_app.logger.debug("Review inserted!")
             return render_template(
                 "review.html",
                 _test="review_done_test",
                 restaurant_name=RestaurantServices.get_restaurant_name(restaurant_id),
                 review=review,
             )
-
+        rating_value = RestaurantServices.get_rating_restaurant(restaurant_id)
+        current_app.logger.debug("New rating value is: {}".format(rating_value))
     return render_template(
         "review.html",
         _test="review_done_test",

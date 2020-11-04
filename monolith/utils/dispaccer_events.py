@@ -24,6 +24,8 @@ class DispatcherMessage:
         :return: nothings
         """
         if _CELERY is False:
+            if type_message == CALCULATE_RATING_RESTAURANTS:
+                RestaurantServices.calculate_rating_for_all()
             return
         if type_message == REGISTRATION_EMAIL:
             send_email_to_confirm_registration.apply_async(args=params)
