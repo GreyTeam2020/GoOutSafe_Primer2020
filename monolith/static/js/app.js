@@ -44,22 +44,6 @@ $(document).ready(function() {
         });
     }
 
-    if($("#reservation_date").length) {
-        $('#reservation_date').datetimepicker({
-            inline: true,
-            format: 'd/m/Y H:m'
-        });
-        $("#newBook").click(function () {
-            $("#bookTableForm").submit();
-        });
-        $(".showBooking").click(function () {
-            $("#restaurant_id").val($(this).data("id"));
-            $("#bookTable").modal("show");
-        });
-    }
-
-  
-
     var switchView = $("#switchView");
     if (switchView.length){
         console.log("ci sono")
