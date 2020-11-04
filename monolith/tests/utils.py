@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, time
 from monolith.database import (
     db,
     User,
@@ -7,6 +7,8 @@ from monolith.database import (
     Positive,
     OpeningHours,
     RestaurantTable,
+    Reservation,
+    Friend,
 )
 from monolith.forms import (
     UserForm,
@@ -272,52 +274,85 @@ def get_rest_with_name(name):
     return None
 
 
-def create_user_on_db():
+def create_user_on_db(ran=1):
     form = UserForm()
-    form.data["email"] = "alibaba@alibaba.com"
+    form.data["email"] = "alibaba" + str(ran) + "@alibaba.com"
     form.data["password"] = "Alibaba"
     form.firstname = "Vincenzo"
     form.lastname = "Palazzo"
     form.password = "Alibaba"
-    form.phone = "12345"
-    form.dateofbirth = "12/12/2020"
-    form.email.data = "alibaba@alibaba.com"
+    form.phone = "123456"
+    form.dateofbirth = "12/12/2000"
+    form.email.data = "alibaba" + str(ran) + "@alibaba.com"
     user = User()
     form.populate_obj(user)
     return UserService.create_user(user, form.password)
 
 
-def create_restaurants_on_db(name: str = "Gino Sorbillo", user_id: int = None):
+def create_restaurants_on_db(
+    name: str = "Gino Sorbillo", user_id: int = None, tables: int = 50
+):
     form = RestaurantForm()
     form.name.data = name
     form.phone.data = "1234"
     form.lat.data = 183
     form.lon.data = 134
-    form.n_tables.data = 50
+    form.n_tables.data = tables
     form.covid_measures.data = "We can survive"
     form.cuisine.data = ["Italian food"]
     form.open_days.data = ["0"]
-    form.open_lunch.data = datetime.time(datetime(2020, 7, 1, 12, 12))
-    form.close_lunch.data = datetime.time(datetime(2020, 7, 1, 15, 12))
-    form.open_dinner.data = datetime.time(datetime(2020, 7, 1, 18, 23))
-    form.close_dinner.data = datetime.time(datetime(2020, 6, 1, 22, 32))
+    form.open_lunch.data = time(hour=12, minute=00)
+    form.close_lunch.data = time(hour=15, minute=00)
+    form.open_dinner.data = time(hour=19, minute=00)
+    form.close_dinner.data = time(hour=22, minute=00)
     return RestaurantServices.create_new_restaurant(form, user_id, 6)
 
 
 def del_user_on_db(id):
-    db.session.query(User).filter_by(id=id).delete()
+    q = db.session.query(User).filter_by(id=id).delete()
     db.session.commit()
+    return q
 
 
 def del_restaurant_on_db(id):
-    db.session.query(Restaurant).filter_by(id=id).delete()
-    del_time_for_rest(id)
+    db.session.query(RestaurantTable).filter_by(restaurant_id=id).delete()
     db.session.commit()
+    db.session.query(OpeningHours).filter_by(restaurant_id=id).delete()
+    db.session.commit()
+    q = db.session.query(Restaurant).filter_by(id=id).delete()
+    db.session.commit()
+    return q
 
 
 def del_time_for_rest(id):
-    db.session.query(OpeningHours).filter_by(restaurant_id=id).delete()
+    q = db.session.query(OpeningHours).filter_by(restaurant_id=id).delete()
     db.session.commit()
+    return q
+
+
+def del_friends_of_reservation(id):
+    q = db.session.query(Friend).filter_by(reservation_id=id).delete()
+    db.session.commit()
+    return q
+
+
+def del_booking_services(id: int):
+    """
+    code to delete the booking from the databse
+    :param id_restaurants:
+    :return:
+    """
+    db.session.query(Reservation).filter_by(id=id).delete()
+    db.session.commit()
+
+
+def get_last_booking():
+    """
+    return the Reservation with greater id
+    :param :
+    :return Reservation:
+    """
+    return db.session.query(Reservation).order_by(Reservation.id.desc()).first()
 
 
 def positive_with_user_id(user_id: int = None, marked: bool = True):

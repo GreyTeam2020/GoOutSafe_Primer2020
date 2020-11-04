@@ -1024,15 +1024,15 @@ class Test_GoOutSafeForm:
         )
         form = ReservationForm()
         form.restaurant_id = restaurant.id
-        form.reservation_date = "23/11/2020 12:00"
+        form.reservation_date = "25/11/2120 12:00"
         form.people_number = 2
-        form.friends = "aa@aa.com;bb@bb.com"
+        form.friends = "aa@aa.com"
 
         response = create_new_reservation(client, form)
         assert response.status_code == 200
 
         # delete data from db
-        d1 = datetime(year=2020, month=11, day=23, hour=12)
+        d1 = datetime(year=2120, month=11, day=25, hour=12)
         db.session.query(Reservation).filter_by(reservation_date=d1).delete()
         db.session.commit()
 
@@ -1048,22 +1048,24 @@ class Test_GoOutSafeForm:
         email = "john.doe@email.com"
         pazz = "customer"
         response = login(client, email, pazz)
+        user = get_user_with_email(email)
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
 
-        restaurant = (
-            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
-        )
+        restaurant = create_restaurants_on_db(user_id=email)
+
         form = ReservationForm()
         form.restaurant_id = restaurant.id
         form.reservation_date = "23/11/2020 10:00"
         form.people_number = 2
-        form.friends = "a@a.com;b@b.com"
+        form.friends = "a@a.com"
 
         response = create_new_reservation(client, form)
         assert response.status_code == 200
         print(response.data.decode("utf-8"))
         assert "closed" in response.data.decode("utf-8")
+
+        del_restaurant_on_db(restaurant.id)
 
     def test_create_new_reservation_unauthorized(self, client):
         """
@@ -1296,6 +1298,7 @@ class Test_GoOutSafeForm:
         email = "john.doe@email.com"
         password = "customer"
         response = login(client, email, password)
+        user = get_user_with_email(email)
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
 
@@ -1369,7 +1372,7 @@ class Test_GoOutSafeForm:
         form.restaurant_id = table.restaurant_id
         form.reservation_date = "29/11/2030 12:00"
         form.people_number = 4
-        form.friends = "a@a.com;b@b.com;c@c.com;d@d.com"
+        form.friends = "a@a.com;b@b.com;c@c.com"
 
         response = client.post(
             "/restaurant/book_update",
@@ -1502,10 +1505,10 @@ class Test_GoOutSafeForm:
             q_user,
             date_booking_1,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
 
-        assert book1[0] == True
+        assert book1[0] is not None
 
         # a new user that books in the same restaurant of the previous one
 
@@ -1526,9 +1529,9 @@ class Test_GoOutSafeForm:
             q_user2,
             date_booking_2,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
-        assert book2[0] == True
+        assert book2[0] is not None
 
         time.sleep(1)  # sleep for 1 second
 
@@ -1652,10 +1655,10 @@ class Test_GoOutSafeForm:
             q_user,
             date_booking_1,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
 
-        assert book1[0] == True
+        assert book1[0] is not None
 
         # a new user that books in the same restaurant of the previous one
 
@@ -1676,9 +1679,9 @@ class Test_GoOutSafeForm:
             q_user2,
             date_booking_2,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
-        assert book2[0] == True
+        assert book2[0] is not None
 
         time.sleep(1)  # sleep for 1 second
 
@@ -1805,10 +1808,10 @@ class Test_GoOutSafeForm:
             q_user,
             date_booking_1,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
 
-        assert book1[0] == True
+        assert book1[0] is not None
 
         # a new user that books in the same restaurant of the previous one
 
@@ -1830,9 +1833,9 @@ class Test_GoOutSafeForm:
             q_user2,
             date_booking_2,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
-        assert book2[0] == True
+        assert book2[0] is not None
 
         time.sleep(1)
 
@@ -1956,10 +1959,10 @@ class Test_GoOutSafeForm:
             q_user,
             date_booking_1,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
 
-        assert book1[0] == True
+        assert book1[0] is not None
 
         time.sleep(1)
 
@@ -2088,10 +2091,10 @@ class Test_GoOutSafeForm:
             q_user,
             date_booking_1,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
 
-        assert book1[0] == True
+        assert book1[0] is not None
 
         # a new user that books in the same restaurant of the previous one
 
@@ -2113,9 +2116,9 @@ class Test_GoOutSafeForm:
             q_user2,
             date_booking_2,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
-        assert book2[0] == True
+        assert book2[0] is not None
 
         # a new owner of a restaurant
         owner2 = UserForm()
@@ -2174,9 +2177,9 @@ class Test_GoOutSafeForm:
             q_user3,
             date_booking_3,
             6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
-        assert book3[0] == True
+        assert book3[0] is not None
 
         time.sleep(1)
 
