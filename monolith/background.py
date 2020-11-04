@@ -94,5 +94,5 @@ def calculate_rating_on_background(sender, **kwargs):
     """
     # Calls RestaurantServices.calculate_rating_for_all() every 30 seconds
     sender.add_periodic_task(
-        600.0, RestaurantServices.calculate_rating_for_all(), expires=10
+        30.0, RestaurantServices.calculate_rating_for_all(), expires=10
     )

@@ -11,7 +11,12 @@ from monolith.database import (
     MenuDish,
 )
 from monolith.forms import ReservationForm
-from monolith.services import UserService, RestaurantServices
+from monolith.services import (
+    UserService,
+    RestaurantServices,
+    DispatcherMessage,
+    CALCULATE_RATING_RESTAURANTS,
+)
 
 home = Blueprint("home", __name__)
 

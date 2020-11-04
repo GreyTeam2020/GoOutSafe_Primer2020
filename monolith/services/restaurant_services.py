@@ -1,4 +1,6 @@
 from datetime import datetime
+from decimal import Decimal
+
 from flask import current_app
 from monolith.database import (
     Restaurant,
@@ -304,10 +306,8 @@ class RestaurantServices:
         :param restaurant_id: the restaurant id
         :return: the rating value, as 0.0 or 5.0
         """
-        rating_value = 0.0
-        restaurant = (
-            db.session.query_property(Restaurant).filter_by(id=restaurant_id).first()
-        )
+        rating_value = Decimal(0.0)
+        restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).first()
         if restaurant is None:
             raise Exception(
                 "Restaurant with id {} don't exist on database".format(restaurant_id)
@@ -315,13 +315,18 @@ class RestaurantServices:
         reviews_list = (
             db.session.query(Review).filter_by(restaurant_id=restaurant_id).all()
         )
-        if (reviews_list is None) or (len(reviews_list) is 0):
+        if (reviews_list is None) or (len(reviews_list) == 0):
             return rating_value
 
         for review in reviews_list:
-            rating_value = rating_value + review.stars.data
+            rating_value = rating_value + review.stars
 
         rating_value = rating_value / len(reviews_list)
+        print(
+            "Rating calculate for restaurant with name {} is {}".format(
+                restaurant.name, rating_value
+            )
+        )
         current_app.logger.debug(
             "Rating calculate for restaurant with name {} is {}".format(
                 restaurant.name, rating_value
