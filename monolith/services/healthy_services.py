@@ -53,7 +53,7 @@ class HealthyServices:
 
         q_already_positive = (
             db.session.query(Positive)
-            .filter(Positive.user_id == q_user.first().id, Positive.marked == True)
+            .filter(Positive.user_id == q_user.first().id, Positive.marked is True)
             .first()
         )
 
@@ -73,7 +73,7 @@ class HealthyServices:
             all_reservations = (
                 db.session.query(Reservation)
                 .filter(
-                    Reservation.reservation_date >= datetime.today(),
+                    Reservation.reservation_date >= datetime.now(),
                     Reservation.customer_id == new_positive.user_id,
                 )
                 .all()
@@ -119,8 +119,8 @@ class HealthyServices:
                 .filter(
                     Reservation.reservation_date
                     >= (datetime.today() - timedelta(days=14)),
-                    Reservation.reservation_date < datetime.today(),
-                    Reservation.customer_id == q_user.first().id,
+                    Reservation.reservation_date < datetime.now(),
+                    Reservation.checkin is True,
                 )
                 .all()
             )
@@ -257,8 +257,9 @@ class HealthyServices:
             db.session.query(Reservation)
             .filter(
                 Reservation.reservation_date >= (datetime.today() - timedelta(days=14)),
-                Reservation.reservation_date < datetime.today(),
+                Reservation.reservation_date < datetime.now(),
                 Reservation.customer_id == id_user,
+                Reservation.checkin is True
             )
             .all()
         )
