@@ -19,14 +19,14 @@ class BookingServices:
         # split friends mail and check if the number is correct
         splitted_friends = raw_friends.split(";")
         if len(splitted_friends) != (people_number - 1):
-            return (False, "You need to specify ONE mail for each person")
+            return (None, "You need to specify ONE mail for each person")
 
         restaurant_id = int(restaurant_id)
         #
 
         # if user wants to book in the past..
         if py_datetime < datetime.datetime.now():
-            return (False, "You can not book in the past!")
+            return (None, "You can not book in the past!")
         # check if the user is positive
         is_positive = (
             db.session.query(Positive)
@@ -35,7 +35,7 @@ class BookingServices:
             .first()
         )
         if is_positive:
-            return (False, "You are marked as positive!")
+            return (None, "You are marked as positive!")
 
         week_day = py_datetime.weekday()
         only_time = py_datetime.time()
@@ -51,40 +51,40 @@ class BookingServices:
         # the restaurant is closed
         if opening_hour is None:
             print("No Opening hour")
-            return (False, "The restaurant is closed")
+            return (None, "The restaurant is closed")
 
         # strange situation.. but it could be happen
         # opening hour is in db but the resturant is closed both lunch and dinner
         if opening_hour.open_lunch is None and opening_hour.open_dinner is None:
-            return (False, "The restaurant is closed")
+            return (None, "The restaurant is closed")
 
         # if the resturant is open only at lunch or at dinner do some checks..
         if (opening_hour.open_lunch is None or opening_hour.close_lunch is None) and (
             only_time < opening_hour.open_dinner
             or only_time > opening_hour.close_dinner
         ):
-            return (False, "The restaurant is closed")
+            return (None, "The restaurant is closed")
 
         if (opening_hour.open_dinner is None or opening_hour.close_dinner is None) and (
             only_time < opening_hour.open_lunch or only_time > opening_hour.close_lunch
         ):
-            return (False, "The restaurant is closed")
+            return (None, "The restaurant is closed")
         #
 
         # if the resturant is opened both at dinner and lunch
         if opening_hour.open_lunch is not None and opening_hour.open_dinner is not None:
             # asked for some hours outside the opening hours
             if opening_hour.open_lunch > only_time:
-                return (False, "The restaurant is closed")
+                return (None, "The restaurant is closed")
 
             if (
                 opening_hour.open_dinner > only_time
                 and opening_hour.close_lunch < only_time
             ):
-                return (False, "The restaurant is closed")
+                return (None, "The restaurant is closed")
 
             if opening_hour.close_dinner < only_time:
-                return (False, "The restaurant is closed")
+                return (None, "The restaurant is closed")
             #
 
         # now let's see if there is a table
@@ -175,9 +175,9 @@ class BookingServices:
                 db.session.add(new_friend)
 
             db.session.commit()
-            return (True, restaurant_name, table_name)
+            return (new_reservation, restaurant_name, table_name)
         else:
-            return (False, "no tables available")
+            return (None, "no tables available")
 
     @staticmethod
     def delete_book(reservation_id: str, customer_id: str):
@@ -216,6 +216,6 @@ class BookingServices:
         book = BookingServices.book(
             table.restaurant_id, current_user, py_datetime, people_number, raw_friends
         )
-        if book[0] == True:
+        if book[0] is not None:
             BookingServices.delete_book(reservation_id, current_user.id)
         return book

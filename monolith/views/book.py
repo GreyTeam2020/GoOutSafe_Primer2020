@@ -74,7 +74,7 @@ def index():
             request.form.get("friends"),
         )
 
-        if book[0] == False:
+        if book[0] is None:
             return render_template("booking.html", success=False, error=book[1])
         else:
             return render_template(

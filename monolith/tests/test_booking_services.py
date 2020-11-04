@@ -8,7 +8,13 @@ from monolith.tests.utils import (
     create_restaurants_on_db,
     create_user_on_db,
     del_restaurant_on_db,
+    del_user_on_db,
+    get_last_booking,
+    del_friends_of_reservation,
+    del_time_for_rest,
+    del_booking_services,
 )
+from sqlalchemy import func
 
 
 @pytest.mark.usefixtures("client")
@@ -20,205 +26,303 @@ class Test_BookServices:
 
     def test_new_booking(self):
         """
-        this test insert two reservation that should be ok
+        TEST FOR ADDING A RESERVATION
+        test flow
+        1- creo utente
+        2-creo rest owner
+        3-creo ristorante
+        4-test sulla prenotazione (quelli che voglio)
+        6-elimino friends delle prenotazione
+        7-elimino opening hours
+        8-elimino ristorante (quindi anche tables)
+        9-elimino utente
         """
-        user = db.session.query(User).filter_by(email="john.doe@email.com").first()
-        restaurant = (
-            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
-        )
 
-        d1 = datetime.datetime(year=2120, month=11, day=25, hour=12)
-        book1 = BookingServices.book(
-            restaurant.id, user, d1, 4, "a@a.com;b@b.com;c@c.com;d@d.com"
-        )
-        book2 = BookingServices.book(
-            restaurant.id,
-            user,
-            d1,
-            6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
-        )
+        user = create_user_on_db()
+        rest_owner = create_user_on_db(ran=2)
+        restaurant = create_restaurants_on_db(user_id=rest_owner.id)
 
-        assert book1[0] is True
-        assert book2[0] is True
-
-        db.session.query(Reservation).filter_by(reservation_date=d1).delete()
-        db.session.commit()
-
-    def test_new_booking_2(self):
-        """
-        this test insert two reservation and in the second one,
-        there should not be another table capable of 6 people
-        """
-        user = db.session.query(User).filter(User.email == "john.doe@email.com").first()
-        restaurant = (
-            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
-        )
-        d1 = datetime.datetime(year=2120, month=11, day=25, hour=12)
-
-        book1 = BookingServices.book(
-            restaurant.id,
-            user,
-            d1,
-            6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
-        )
-        book2 = BookingServices.book(
-            restaurant.id,
-            user,
-            d1,
-            6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
-        )
-
-        assert book1[0] is True
-        assert book2[0] is False
-
-        db.session.query(Reservation).filter_by(reservation_date=d1).delete()
-        db.session.commit()
-
-    def test_new_booking_3(self):
-        """
-        restaurant closed
-        """
-        user = db.session.query(User).filter_by(email="john.doe@email.com").first()
-        restaurant = (
-            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
-        )
-
-        d1 = datetime.datetime(year=2120, month=11, day=25, hour=10)
-
-        book1 = BookingServices.book(
-            restaurant.id,
-            user,
-            d1,
-            6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
-        )
-
-        assert book1[0] is False
-
-        db.session.query(Reservation).filter_by(reservation_date=d1).delete()
-        db.session.commit()
-
-    def test_new_booking_4(self):
-        """
-        overlapped reservations
-        """
-        user = db.session.query(User).filter_by(email="john.doe@email.com").first()
-        restaurant = (
-            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
-        )
-
-        d1 = datetime.datetime(year=2120, month=11, day=25, hour=12)
-        d2 = datetime.datetime(year=2120, month=11, day=25, hour=12, minute=29)
-
-        book1 = BookingServices.book(restaurant.id, user, d1, 2, "a@a.com;b@b.com")
-        book2 = BookingServices.book(restaurant.id, user, d1, 2, "a@a.com;b@b.com")
-        book3 = BookingServices.book(restaurant.id, user, d2, 2, "a@a.com;b@b.com")
-
-        assert book1[0] == True
-        assert book2[0] == True
-        assert book3[0] == False
-
-        db.session.query(Reservation).filter_by(reservation_date=d1).delete()
-        db.session.query(Reservation).filter_by(reservation_date=d2).delete()
-        db.session.commit()
-
-    def test_booking_positive(self):
-        """
-        mark user as positive
-        check if i can book
-        """
-        user = db.session.query(User).filter_by(email="john.doe@email.com").first()
-        assert user is not None
-
-        new_positive = Positive()
-        new_positive.from_date = datetime.datetime.today()
-        new_positive.marked = True
-        new_positive.user_id = user.id
-
-        db.session.add(new_positive)
-        db.session.commit()
-
-        restaurant = (
-            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
-        )
-        d1 = datetime.datetime(year=2120, month=11, day=25, hour=10)
         book = BookingServices.book(
             restaurant.id,
             user,
-            d1,
-            6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            datetime.datetime(year=2120, month=11, day=25, hour=13),
+            4,
+            "a@a.com;b@b.com;c@c.com",
         )
-        assert book[0] is False
 
-        db.session.query(Positive).filter_by(user_id=user.id).delete()
-        db.session.commit()
+        book2 = BookingServices.book(
+            restaurant.id,
+            user,
+            datetime.datetime(year=2120, month=11, day=25, hour=13),
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
+        )
+
+        assert book[0] is not None
+        assert book2[0] is not None
+
+        # delete friends
+        del_friends_of_reservation(book[0].id)
+        del_friends_of_reservation(book2[0].id)
+
+        # delete opening hours
+        del_time_for_rest(restaurant.id)
+
+        # delete reservations
+        del_booking_services(book[0].id)
+        del_booking_services(book2[0].id)
+
+        # delete restaurants (so also tables)
+        del_restaurant_on_db(restaurant.id)
+
+        # delete users
+        del_user_on_db(user.id)
+        del_user_on_db(rest_owner.id)
+
+        # AT THE END THERE MUST TO BE ONLY ONE RESERVATION
+        q = db.session.query(func.count(Reservation.id)).scalar()
+        assert q == 1
+
+    def test_new_booking_notables(self):
+        """
+        No more tables available
+        """
+        user = create_user_on_db()
+        rest_owner = create_user_on_db(ran=2)
+        restaurant = create_restaurants_on_db(user_id=rest_owner.id, tables=1)
+
+        book = BookingServices.book(
+            restaurant.id,
+            user,
+            datetime.datetime(year=2120, month=11, day=25, hour=13),
+            4,
+            "a@a.com;b@b.com;c@c.com",
+        )
+
+        book2 = BookingServices.book(
+            restaurant.id,
+            user,
+            datetime.datetime(year=2120, month=11, day=25, hour=13),
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
+        )
+
+        assert book[0] is not None
+        assert book2[0] is None
+
+        # delete friends
+        del_friends_of_reservation(book[0].id)
+
+        # delete opening hours
+        del_time_for_rest(restaurant.id)
+
+        # delete reservations
+        del_booking_services(book[0].id)
+
+        # delete restaurants (so also tables)
+        del_restaurant_on_db(restaurant.id)
+
+        # delete users
+        del_user_on_db(user.id)
+        del_user_on_db(rest_owner.id)
+
+        # AT THE END THERE MUST TO BE ONLY ONE RESERVATION
+        q = db.session.query(func.count(Reservation.id)).scalar()
+        assert q == 1
+
+    def test_new_booking_closed(self):
+        """
+        restaurant closed
+        """
+        user = create_user_on_db()
+        rest_owner = create_user_on_db(ran=2)
+        restaurant = create_restaurants_on_db(user_id=rest_owner.id, tables=1)
+
+        book = BookingServices.book(
+            restaurant.id,
+            user,
+            datetime.datetime(year=2120, month=11, day=25, hour=10),
+            4,
+            "a@a.com;b@b.com;c@c.com",
+        )
+
+        assert book[0] is None
+
+        # delete opening hours
+        del_time_for_rest(restaurant.id)
+
+        # delete restaurants (so also tables)
+        del_restaurant_on_db(restaurant.id)
+
+        # delete users
+        del_user_on_db(user.id)
+        del_user_on_db(rest_owner.id)
+
+        # AT THE END THERE MUST TO BE ONLY ONE RESERVATION
+        q = db.session.query(func.count(Reservation.id)).scalar()
+        assert q == 1
+
+    def test_new_booking_overlaps(self):
+        """
+        overlapped reservations
+        """
+
+        user = create_user_on_db()
+        rest_owner = create_user_on_db(ran=2)
+        restaurant = create_restaurants_on_db(user_id=rest_owner.id, tables=1)
+
+        book = BookingServices.book(
+            restaurant.id,
+            user,
+            datetime.datetime(year=2120, month=11, day=25, hour=13),
+            4,
+            "a@a.com;b@b.com;c@c.com",
+        )
+
+        book2 = BookingServices.book(
+            restaurant.id,
+            user,
+            datetime.datetime(year=2120, month=11, day=25, hour=13, minute=29),
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
+        )
+
+        assert book[0] is not None
+        assert book2[0] is None
+
+        # delete friends
+        del_friends_of_reservation(book[0].id)
+
+        # delete opening hours
+        del_time_for_rest(restaurant.id)
+
+        # delete reservations
+        del_booking_services(book[0].id)
+
+        # delete restaurants (so also tables)
+        del_restaurant_on_db(restaurant.id)
+
+        # delete users
+        del_user_on_db(user.id)
+        del_user_on_db(rest_owner.id)
+
+        # AT THE END THERE MUST TO BE ONLY ONE RESERVATION
+        q = db.session.query(func.count(Reservation.id)).scalar()
+        assert q == 1
 
     def test_booking_in_past(self):
         """
         check if i can book in the past
         """
-        user = db.session.query(User).filter_by(email="john.doe@email.com").first()
-        assert user is not None
+        """
+        restaurant closed
+        """
+        user = create_user_on_db()
+        rest_owner = create_user_on_db(ran=2)
+        restaurant = create_restaurants_on_db(user_id=rest_owner.id, tables=1)
 
-        restaurant = (
-            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
-        )
-        d1 = datetime.datetime(year=1998, month=11, day=23, hour=10)
         book = BookingServices.book(
             restaurant.id,
             user,
-            d1,
-            6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
+            datetime.datetime(year=1999, month=11, day=25, hour=10),
+            4,
+            "a@a.com;b@b.com;c@c.com",
         )
-        assert book[0] is False
 
-    def test_booking_when_closed(self):
-        """
-        check if i can book when restaurant is closed
-        """
-        user = get_user_with_email("john.doe@email.com")
-        assert user is not None
-        rest_owner = create_user_on_db()
-        restaurant = create_restaurants_on_db(user_id=rest_owner.id)
-        d1 = datetime.datetime(year=2120, month=11, day=26, hour=10)
-        book = BookingServices.book(
-            restaurant.id,
-            user,
-            d1,
-            6,
-            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
-        )
-        assert book[0] is False
-        del_restaurant_on_db(id=restaurant.id)
+        assert book[0] is None
+
+        # delete opening hours
+        del_time_for_rest(restaurant.id)
+
+        # delete restaurants (so also tables)
+        del_restaurant_on_db(restaurant.id)
+
+        # delete users
+        del_user_on_db(user.id)
+        del_user_on_db(rest_owner.id)
+
+        # AT THE END THERE MUST TO BE ONLY ONE RESERVATION
+        q = db.session.query(func.count(Reservation.id)).scalar()
+        assert q == 1
 
     def test_delete_booking(self):
         """
-        test delete reservation by customer
+        test for deletion
         """
-        user = db.session.query(User).filter_by(email="john.doe@email.com").first()
-        reservation = db.session.query(Reservation).first()
-        assert reservation is not None
-        BookingServices.delete_book(reservation.id, user.id)
-        reservation_not_present = (
-            db.session.query(Reservation).filter_by(id=reservation.id).first()
+
+        user = create_user_on_db()
+        rest_owner = create_user_on_db(ran=2)
+        restaurant = create_restaurants_on_db(user_id=rest_owner.id)
+
+        book = BookingServices.book(
+            restaurant.id,
+            user,
+            datetime.datetime(year=2120, month=11, day=25, hour=12),
+            6,
+            "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com",
         )
-        assert reservation_not_present is None
+
+        assert book[0] is not None
+
+        # delete the reservation
+        BookingServices.delete_book(book[0].id, user.id)
+        # check how many reservations
+        q = db.session.query(func.count(Reservation.id)).scalar()
+        assert q == 1
+
+        # delete opening hours
+        del_time_for_rest(restaurant.id)
+
+        # delete restaurants (so also tables)
+        del_restaurant_on_db(restaurant.id)
+
+        # delete users
+        del_user_on_db(user.id)
+        del_user_on_db(rest_owner.id)
 
     def test_update_booking(self):
         """
         this test insert two reservation that should be ok
         """
-        user = db.session.query(User).filter_by(email="john.doe@email.com").first()
-        reservation = db.session.query(Reservation).first()
+        user = create_user_on_db()
+        rest_owner = create_user_on_db(ran=2)
+        restaurant = create_restaurants_on_db(user_id=rest_owner.id)
 
-        d1 = datetime.datetime(year=2120, month=11, day=25, hour=12)
-        book = BookingServices.update_book(reservation.id, user, d1, 1, "a@a.com")
-        assert book[0] is True
+        book = BookingServices.book(
+            restaurant.id,
+            user,
+            datetime.datetime(year=2120, month=11, day=25, hour=13),
+            4,
+            "a@a.com;b@b.com;c@c.com",
+        )
 
-        db.session.query(Reservation).filter_by(reservation_date=d1).delete()
-        db.session.commit()
+        assert book[0] is not None
+
+        book = BookingServices.update_book(
+            book[0].id,
+            user,
+            datetime.datetime(year=2120, month=11, day=25, hour=14),
+            2,
+            "a@a.com",
+        )
+        assert book[0] is not None
+
+        # delete friends
+        del_friends_of_reservation(book[0].id)
+
+        # delete opening hours
+        del_time_for_rest(restaurant.id)
+
+        # delete reservations
+        del_booking_services(book[0].id)
+
+        # delete restaurants (so also tables)
+        del_restaurant_on_db(restaurant.id)
+
+        # delete users
+        del_user_on_db(user.id)
+        del_user_on_db(rest_owner.id)
+
+        # AT THE END THERE MUST TO BE ONLY ONE RESERVATION
+        q = db.session.query(func.count(Reservation.id)).scalar()
+        assert q == 1
