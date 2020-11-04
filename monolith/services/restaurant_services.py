@@ -248,7 +248,15 @@ class RestaurantServices:
             .all()
         )
 
-        reservations_now = db.session.query(Reservation).filter(Reservation.checkin is True, Reservation.reservation_date <= datetime.now(), Reservation.reservation_end >= datetime.now()).all()
+        reservations_now = (
+            db.session.query(Reservation)
+            .filter(
+                Reservation.checkin is True,
+                Reservation.reservation_date <= datetime.now(),
+                Reservation.reservation_end >= datetime.now(),
+            )
+            .all()
+        )
 
         return [len(reservations_l), len(reservations_d), len(reservations_now)]
 

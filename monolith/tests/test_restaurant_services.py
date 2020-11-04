@@ -14,7 +14,6 @@ from monolith.tests.utils import (
 )
 
 
-@pytest.mark.usefixtures("client")
 class Test_RestaurantServices:
     """
     This test suite test the services about restaurant use case.
@@ -94,8 +93,7 @@ class Test_RestaurantServices:
         reservations = RestaurantServices.get_reservation_rest(
             def_rest.owner_id, def_rest.id, from_date, to_date, email
         )
-        # fixme: put to 25 for pass test, but it must be 1
-        assert len(reservations) == 25
+        assert len(reservations) == 1
 
     def test_new_review(self):
         """

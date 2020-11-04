@@ -1,17 +1,18 @@
+from datetime import datetime
+
 import pytest
-from monolith.database import db
-from monolith.services import HealthyServices, User
+from monolith.database import db, Positive
+from monolith.services import HealthyServices, User, timedelta
 from monolith.tests.utils import (
     create_user_on_db,
     del_user_on_db,
     positive_with_user_id,
     delete_positive_with_user_id,
     delete_was_positive_with_user_id,
-    get_user_with_email,
+    get_user_with_email, create_random_booking, create_restaurants_on_db, del_restaurant_on_db,
 )
 
 
-@pytest.mark.usefixtures("client")
 class Test_HealthyServices:
     """
     This test suite test the services about healthy autority use case.
@@ -226,7 +227,7 @@ class Test_HealthyServices:
         delete_was_positive_with_user_id(user.id)
         del_user_on_db(user.id)
 
-    def test_search_contacts_user_with_booking(self):
+    def test_search_contacts_user_with_booking_only_one_user(self):
         """
         Searching for list of contacts of a covid-19 positive
         customer with bookings
@@ -237,12 +238,59 @@ class Test_HealthyServices:
         positive = positive_with_user_id(user.id)
         assert positive is None
         message = HealthyServices.mark_positive("", user.phone)
-        assert len(message) is 0
+        assert len(message) == 0
 
         contacts = HealthyServices.search_contacts(user.id)
-        assert len(contacts) is 0
+        assert len(contacts) == 0
 
         message = HealthyServices.unmark_positive("", user.phone)
-        assert len(message) is 0
+        assert len(message) == 0
 
         delete_was_positive_with_user_id(user.id)
+
+    def test_search_contacts_user_with_booking(self):
+        """
+        Searching for list of contacts of a covid-19 positive
+        customer with bookings
+        """
+
+        owner = create_user_on_db(787436)
+        assert owner is not None
+        restaurant = create_restaurants_on_db("Pepperwood", user_id=owner.id)
+        assert restaurant is not None
+
+        customer1 = create_user_on_db(787437)
+        assert customer1 is not None
+
+        date_booking_1 = datetime.now() - timedelta(days=8)
+        books1 = create_random_booking(1, restaurant.id, customer1, date_booking_1, "a@aa.com")
+
+        assert len(books1) == 1
+
+        # a new user that books in the same restaurant of the previous one
+        customer2 = create_user_on_db(787438)
+        assert customer2 is not None
+
+        date_booking_2 = datetime.now() - timedelta(days=8)
+        books2 = create_random_booking(1, restaurant.id, customer2, date_booking_2, "b@b.com")
+        assert len(books2) == 1
+
+        # an user become covid19 positive
+        positive = positive_with_user_id(customer1.id)
+        assert positive is None
+        message = HealthyServices.mark_positive(user_phone=customer1.phone)
+        assert len(message) == 0
+
+        q_already_positive = db.session.query(Positive).filter_by(user_id=customer1.id, marked=True).first()
+        assert q_already_positive is not None
+
+        contacts = HealthyServices.search_contacts(customer1.id)
+        assert len(contacts) == 1
+
+        message = HealthyServices.unmark_positive("", customer1.phone)
+        assert len(message) == 0
+
+        del_user_on_db(customer1.id)
+        del_user_on_db(customer2.id)
+        del_restaurant_on_db(restaurant.id)
+        ## TODO
