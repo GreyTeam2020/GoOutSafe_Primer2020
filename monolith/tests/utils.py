@@ -317,6 +317,8 @@ def del_user_on_db(id):
 def del_restaurant_on_db(id):
     db.session.query(RestaurantTable).filter_by(restaurant_id=id).delete()
     db.session.commit()
+    db.session.query(OpeningHours).filter_by(restaurant_id=id).delete()
+    db.session.commit()
     q = db.session.query(Restaurant).filter_by(id=id).delete()
     db.session.commit()
     return q

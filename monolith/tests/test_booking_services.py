@@ -65,9 +65,6 @@ class Test_BookServices:
         del_friends_of_reservation(book[0].id)
         del_friends_of_reservation(book2[0].id)
 
-        # delete opening hours
-        del_time_for_rest(restaurant.id)
-
         # delete reservations
         del_booking_services(book[0].id)
         del_booking_services(book2[0].id)
@@ -113,9 +110,6 @@ class Test_BookServices:
         # delete friends
         del_friends_of_reservation(book[0].id)
 
-        # delete opening hours
-        del_time_for_rest(restaurant.id)
-
         # delete reservations
         del_booking_services(book[0].id)
 
@@ -147,9 +141,6 @@ class Test_BookServices:
         )
 
         assert book[0] is None
-
-        # delete opening hours
-        del_time_for_rest(restaurant.id)
 
         # delete restaurants (so also tables)
         del_restaurant_on_db(restaurant.id)
@@ -193,9 +184,6 @@ class Test_BookServices:
         # delete friends
         del_friends_of_reservation(book[0].id)
 
-        # delete opening hours
-        del_time_for_rest(restaurant.id)
-
         # delete reservations
         del_booking_services(book[0].id)
 
@@ -230,9 +218,6 @@ class Test_BookServices:
         )
 
         assert book[0] is None
-
-        # delete opening hours
-        del_time_for_rest(restaurant.id)
 
         # delete restaurants (so also tables)
         del_restaurant_on_db(restaurant.id)
@@ -270,9 +255,6 @@ class Test_BookServices:
         q = db.session.query(func.count(Reservation.id)).scalar()
         assert q == 1
 
-        # delete opening hours
-        del_time_for_rest(restaurant.id)
-
         # delete restaurants (so also tables)
         del_restaurant_on_db(restaurant.id)
 
@@ -309,9 +291,6 @@ class Test_BookServices:
 
         # delete friends
         del_friends_of_reservation(book[0].id)
-
-        # delete opening hours
-        del_time_for_rest(restaurant.id)
 
         # delete reservations
         del_booking_services(book[0].id)
