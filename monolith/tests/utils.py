@@ -315,9 +315,11 @@ def del_restaurant_on_db(id):
     del_booking_services(id)
     db.session.commit()
 
+
 def del_time_for_rest(id):
     db.session.query(OpeningHours).filter_by(restaurant_id=id).delete()
     db.session.commit()
+
 
 def del_booking_services(id_restaurant: int):
     """
@@ -327,6 +329,7 @@ def del_booking_services(id_restaurant: int):
     """
     db.session.query(RestaurantTable).filter_by(restaurant_id=id_restaurant).delete()
     db.session.commit()
+
 
 def positive_with_user_id(user_id: int = None, marked: bool = True):
     """

@@ -18,7 +18,7 @@ class BookingServices:
 
         # split friends mail and check if the number is correct
         splitted_friends = raw_friends.split(";")
-        if len(splitted_friends) != people_number:
+        if len(splitted_friends) != (people_number - 1):
             return (False, "You need to specify ONE mail for each person")
 
         restaurant_id = int(restaurant_id)

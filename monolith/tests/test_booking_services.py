@@ -3,7 +3,12 @@ import pytest
 import datetime
 from monolith.database import db, User, Restaurant, Reservation, Positive
 from monolith.services import BookingServices
-from monolith.tests.utils import get_user_with_email, create_restaurants_on_db, create_user_on_db, del_restaurant_on_db
+from monolith.tests.utils import (
+    get_user_with_email,
+    create_restaurants_on_db,
+    create_user_on_db,
+    del_restaurant_on_db,
+)
 
 
 @pytest.mark.usefixtures("client")
@@ -190,7 +195,6 @@ class Test_BookServices:
         )
         assert book[0] is False
         del_restaurant_on_db(id=restaurant.id)
-
 
     def test_delete_booking(self):
         """
