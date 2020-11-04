@@ -8,8 +8,8 @@ from monolith.utils import (
     send_positive_booking_in_restaurant,
 )
 
-BACKEND = "redis://0.0.0.0:6379"
-BROKER = "redis://0.0.0.0:6379/0"
+BACKEND = "redis://{}:6379".format("rd01")
+BROKER = "redis://{}:6379/0".format("rd01")
 celery = Celery(__name__, backend=BACKEND, broker=BROKER)
 
 
@@ -62,7 +62,6 @@ def send_possible_positive_contact_to_friend_celery(
     :param to_email:
     :param date_possible_contact:
     :param restaurant_name:
-    :return:
     """
     send_possible_positive_contact_to_friend(
         to_email, date_possible_contact, restaurant_name
@@ -80,7 +79,6 @@ def send_possible_positive_contact_celery(
     :param to_name:
     :param date_possible_contact:
     :param restaurant_name:
-    :return:
     """
     send_possible_positive_contact(
         to_email, to_name, date_possible_contact, restaurant_name
