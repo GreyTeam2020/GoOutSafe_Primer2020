@@ -115,8 +115,8 @@ def send_email(subject, body, recipient):
         html=body,
         subject=subject,
     )
-    mail.send(msg)
-    return 0
+    with app.app_context():
+        mail.send(msg)
 
 
 def send_positive_booking_in_restaurant(to_email, to_name, email_user, restaurant_name):

@@ -8,7 +8,8 @@ services:
         build: .
         ports:
             - "5000:5000"
-        network_mode: "host"
+        expose:
+            - "5000"
     celery:
         depends_on:
             - redis
@@ -16,10 +17,8 @@ services:
         build: .
         restart: always
         command: celery -A monolith.celery worker --loglevel=info
-        network_mode: "host"
     redis:
         image: "redis:alpine"
         container_name: rd01
-        ports:
-            - "6379:6379"
-        network_mode: "host"
+        expose:
+            - "6379"
