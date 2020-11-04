@@ -3,6 +3,7 @@ import pytest
 import datetime
 from monolith.database import db, User, Restaurant, Reservation, Positive
 from monolith.services import BookingServices
+from monolith.tests.utils import get_user_with_email, create_restaurants_on_db, create_user_on_db, del_restaurant_on_db
 
 
 @pytest.mark.usefixtures("client")
@@ -175,12 +176,10 @@ class Test_BookServices:
         """
         check if i can book when restaurant is closed
         """
-        user = db.session.query(User).filter_by(email="john.doe@email.com").first()
+        user = get_user_with_email("john.doe@email.com")
         assert user is not None
-
-        restaurant = (
-            db.session.query(Restaurant).filter_by(name="Trial Restaurant").first()
-        )
+        rest_owner = create_user_on_db()
+        restaurant = create_restaurants_on_db(user_id=rest_owner.id)
         d1 = datetime.datetime(year=2120, month=11, day=26, hour=10)
         book = BookingServices.book(
             restaurant.id,
@@ -190,6 +189,8 @@ class Test_BookServices:
             "a@a.com;b@b.com;c@c.com;d@d.com;e@e.com;f@f.com",
         )
         assert book[0] is False
+        del_restaurant_on_db(id=restaurant.id)
+
 
     def test_delete_booking(self):
         """

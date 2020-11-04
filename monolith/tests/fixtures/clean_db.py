@@ -2,7 +2,7 @@ import os
 import pytest
 
 
-@pytest.fixture(scope="function", autouse=True)
+@pytest.fixture(scope="session", autouse=True)
 def del_db_before_run(request):
     # prepare something ahead of all tests
     request.addfinalizer(del_db)

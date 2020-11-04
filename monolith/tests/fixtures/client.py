@@ -6,7 +6,7 @@ import pytest
 from monolith.app import create_app
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def client():
     app = create_app(tests=True)
     app.config["TESTING"] = True
