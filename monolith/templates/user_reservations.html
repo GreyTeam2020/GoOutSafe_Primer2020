@@ -87,7 +87,7 @@
     {% if new_book %}
         Swal.fire({
             position: 'center',
-            {% if new_book[0] is not None %}
+            {% if new_book[0] is not none %}
                 icon: 'success',
                 title: 'Your reservation has been updated',
             {% else %}
