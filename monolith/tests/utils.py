@@ -1,4 +1,4 @@
-from datetime import time
+from datetime import time, timedelta
 from monolith.database import (
     db,
     User,
@@ -233,6 +233,11 @@ def create_new_restaurant_with_form(client, restaurant: RestaurantForm):
         follow_redirects=True,
     )
 
+def get_today_midnight():
+    """
+    This method will return a datetime of today at midnight
+    """
+    return datetime.combine(datetime.today(), datetime.min.time())
 
 def get_user_with_email(email):
     """
@@ -357,6 +362,13 @@ def get_last_booking():
     """
     return db.session.query(Reservation).order_by(Reservation.id.desc()).first()
 
+def get_user_with_id(user_id: int = None):
+    """
+    return the User with given id
+    :param :
+    :return User:
+    """
+    return db.session.query(User).filter_by(id=user_id).first()
 
 def positive_with_user_id(user_id: int = None, marked: bool = True):
     """
@@ -523,7 +535,7 @@ def create_random_booking(num: int, rest_id: int, user: User, date_time, friends
         new_reservation.reservation_date = date_time
         new_reservation.reservation_end = date_time + timedelta(hours=1)
         new_reservation.customer_id = user.id
-        new_reservation.table_id = table.restaurant_id
+        new_reservation.table_id = table.id
         new_reservation.people_number = len(friends.split(";")) + 1
         db.session.add(new_reservation)
         db.session.commit()

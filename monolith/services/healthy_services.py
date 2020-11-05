@@ -17,6 +17,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import cast, Date, extract
 
 from monolith.services import UserService
+from monolith.tests.utils import get_user_with_id
 from monolith.utils.dispaccer_events import DispatcherMessage
 from monolith.app_constant import *
 
@@ -247,26 +248,28 @@ class HealthyServices:
     @staticmethod
     def search_contacts(id_user):
         result = []
+        f = open("logger.txt", "w")
+        f.write("Starting searching for user " + str(id_user) + "\n")
         all_reservations = (
             db.session.query(Reservation)
             .filter(
                 Reservation.reservation_date >= (datetime.today() - timedelta(days=14)),
                 Reservation.reservation_date < datetime.now(),
                 Reservation.customer_id == id_user,
-                Reservation.checkin is True,
+                #Reservation.checkin is True,
             )
             .all()
         )
-        for reservation in all_reservations:
-            restaurant = (
-                db.session.query(Restaurant, RestaurantTable)
-                .filter(
-                    Restaurant.id == RestaurantTable.restaurant_id,
-                    RestaurantTable.id == reservation.table_id,
-                )
-                .first()
-            )
+        f.write("All user reservations: " + str(len(all_reservations)) + "\n\n")
 
+
+
+        for reservation in all_reservations:
+            f.write("Reservation: " + str(reservation.id) + " at " + str(reservation.reservation_date) + " in table " + str(reservation.table_id) + "\n")
+            this_table = db.session.query(RestaurantTable).filter_by(id=reservation.table_id).first()
+            restaurant = db.session.query(Restaurant).filter_by(id=this_table.restaurant_id).first()
+
+            f.write("The restaurant was " + restaurant.name + " with id:" + str(this_table.restaurant_id) + "\n")
             opening = (
                 db.session.query(OpeningHours)
                 .filter(
@@ -280,9 +283,14 @@ class HealthyServices:
                 if (opening.open_dinner <= reservation.reservation_date.time())
                 else [opening.open_lunch, opening.close_lunch]
             )
+            f.write("The time slot was " + str(period) +"\n")
+
+            query = db.session.query(RestaurantTable.id).filter_by(restaurant_id=this_table.restaurant_id)
+            restaurant_tables = [r.id for r in query]
+            print(restaurant_tables)
 
             all_contacts = (
-                db.session.query(Reservation, RestaurantTable)
+                db.session.query(Reservation)
                 .filter(
                     extract("day", Reservation.reservation_date)
                     == extract("day", reservation.reservation_date),
@@ -294,18 +302,20 @@ class HealthyServices:
                     >= extract("hour", period[0]),
                     extract("hour", Reservation.reservation_date)
                     <= extract("hour", period[1]),
-                    restaurant.id == RestaurantTable.restaurant_id,
-                    RestaurantTable.id == Reservation.table_id,
+                    Reservation.table_id.in_(restaurant_tables)
                 )
                 .all()
             )
+
+            f.write("Found " + str(len(all_contacts)) + " contacts:\n")
             for contact in all_contacts:
+                f.write("- " + get_user_with_id(contact.customer_id).email + "\n")
                 if contact.customer_id not in result:
                     result.append(contact.customer_id)
-        touser = db.session.query(User).filter(User.id.in_(result)).all()
-        contact_users = []
 
-        for user in touser:
+        contact_users = []
+        for user_id in result:
+            user = get_user_with_id(user_id)
             if not UserService.is_positive(user.id):
                 contact_users.append(
                     [
