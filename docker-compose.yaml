@@ -19,6 +19,8 @@ services:
         build: .
         restart: always
         command: celery -A monolith.celery worker --loglevel=info
+        links:
+            -  redis
     redis:
         image: "redis:alpine"
         container_name: rd01
