@@ -168,3 +168,36 @@ def send_positive_in_restaurant(
     body = body.replace("{restaurantName}", restaurant_name)
     body = body.replace("{datePossibleContact}", date_possible_contact)
     send_email(subject, body, to_email)
+
+def _send_booking_confirmation_to_owner_table(to_email: str, to_name: str, date_time):
+    """
+    This method send the confirmation email to the owner of reservation
+    :param to_email: The owner email
+    :param to_name: The name of owner
+    :param date_time: The date of booking
+    """
+    pass
+
+def _send_booking_confirmation_to_friend(to_friend: str, to_name: str, date_time):
+    """
+    TODO comment this method
+    :param to_friend:
+    :param to_name:
+    :param date_time:
+    :return:
+    """
+    pass
+
+def send_booking_confirmation_to_friends(to_email: str, to_name: str, to_friend_list: [], date_time):
+    """
+    This is the method to share the booking information with a email to all friends,
+    that are inside the booking.
+    :param to_email:
+    :param to_name:
+    :param to_friend_list:
+    :param date_time:
+    """
+    _send_booking_confirmation_to_owner_table(to_email=to_email, to_name=to_email, date_time=date_time)
+    for friend in to_friend_list:
+        _send_booking_confirmation_to_friend(to_name=to_email, to_friend=friend, date_time=date_time)
+
