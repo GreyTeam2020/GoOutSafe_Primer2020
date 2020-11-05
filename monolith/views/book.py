@@ -45,14 +45,6 @@ def index():
             )
         people_number = int(request.form.get("people_number"))
 
-        # check on friends mail
-        if request.form.get("friends") is None or request.form.get("friends") == "":
-            return render_template(
-                "booking.html",
-                success=False,
-                error="You have to specify your friends emails",
-            )
-
         # check on restaurant_id (hidden field)
         if (
             request.form.get("restaurant_id") is None
