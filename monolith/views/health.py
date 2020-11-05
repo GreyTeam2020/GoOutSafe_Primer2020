@@ -34,11 +34,11 @@ def mark_positive():
             email = form.email.data
             phone = form.phone.data
             message = HealthyServices.mark_positive(email, phone)
-            if message == "":
+            if len(message) == 0:
                 return redirect("/")
             return render_template(
                 "mark_positive.html",
-                _test="mark_positive_page",
+                _test="mark_positive_page_error_test",
                 form=form,
                 message=message,
             )

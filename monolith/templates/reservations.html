@@ -6,16 +6,22 @@
           <h1 class="mt-5 mb-5">My Restaurant Reservations</h1>
 
         <div class="card-group text-center">
-          <div class="card mb-4">
+          <div class="card mb-3">
             <div class="card-body">
-              <h6 class="card-title">Reservation at Lunch:</h6>
+              <h6 class="card-title">Reservations at Lunch:</h6>
               <p class="card-text text-primary"><span style="font-size: 48px;">{{ reservations_n[0] }}</span></p>
             </div>
           </div>
-          <div class="card mb-4">
+          <div class="card mb-3">
             <div class="card-body">
-              <h6 class="card-title">Reservation at Dinner: </h6>
+              <h6 class="card-title">Reservations at Dinner: </h6>
               <p class="card-text text-primary"><span style="font-size: 48px;">{{ reservations_n[1] }}</span></p>
+            </div>
+          </div>
+          <div class="card mb-3">
+            <div class="card-body">
+              <h6 class="card-title">Reservations in restaurant: </h6>
+              <p class="card-text text-primary"><span style="font-size: 48px;">{{ reservations_n[2] }}</span></p>
             </div>
           </div>
         </div>
@@ -40,6 +46,7 @@
                         <td>{{my_date_formatter(reservation.reservation_date)}}</td>
                         <td>{{reservation.people_number}}</td>
                         <td>{{reservation.firstname}} {{reservation.lastname}}</td>
+                        <td>{{reservation.phone}}</td>
                         <td>{{reservation.email}}</td>
                         {% if reservation.checkin %}
                             <td>Checked in</td>

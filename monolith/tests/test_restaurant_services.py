@@ -11,10 +11,10 @@ from monolith.tests.utils import (
     del_user_on_db,
     create_user_on_db,
     login,
+    create_random_booking,
 )
 
 
-@pytest.mark.usefixtures("client")
 class Test_RestaurantServices:
     """
     This test suite test the services about restaurant use case.
@@ -83,19 +83,30 @@ class Test_RestaurantServices:
         http://localhost:5000/my_reservations?fromDate=2013-10-07&toDate=2014-10-07&email=john.doe@email.com
         :return:
         """
-        email = "john.doe@email.com"
-        user = get_user_with_email(email)
+        owner = create_user_on_db(12345543234)
+        assert owner is not None
+
+        rest = create_restaurants_on_db(user_id=owner.id)
+        assert rest is not None
+
+        user = create_user_on_db(123455432332)
         assert user is not None
+
+        date_time = datetime(2020, 10, 28, 21, 30)
+
+        books = create_random_booking(1, rest.id, user, date_time, "a@a.com")
+        assert len(books) == 1
+
         from_date = "2020-09-28"
         to_date = "2020-11-28"
 
-        def_rest = db.session.query(Restaurant).all()[0]
-        assert def_rest is not None
         reservations = RestaurantServices.get_reservation_rest(
-            def_rest.owner_id, def_rest.id, from_date, to_date, email
+            rest.owner_id, rest.id, from_date, to_date, user.email
         )
-        # fixme: put to 25 for pass test, but it must be 1
-        assert len(reservations) == 25
+        assert len(reservations) == 1
+
+        del_user_on_db(user.id)
+        del_restaurant_on_db(rest.id)
 
     def test_new_review(self):
         """
@@ -233,3 +244,26 @@ class Test_RestaurantServices:
         reservation_query.update({Reservation.checkin: False})
         db.session.commit()
         db.session.flush()
+
+    def test_get_restaurant_people_none(self):
+        """
+        [PRANZA, CENA, CHECKING]
+
+        Test flow
+        - new restaurants
+        - get all people
+        - del restaurant
+        """
+        pass
+
+    def test_get_restaurant_people(self):
+        """
+        [PRANZA, CENA, CHECKING]
+
+        Test flow
+        - new restaurants
+        - new booking
+        - get all people
+        - del restaurant
+        """
+        pass

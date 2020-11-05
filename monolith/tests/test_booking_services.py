@@ -17,7 +17,6 @@ from monolith.tests.utils import (
 from sqlalchemy import func
 
 
-@pytest.mark.usefixtures("client")
 class Test_BookServices:
     """
     This test suite test the services about booking use case.

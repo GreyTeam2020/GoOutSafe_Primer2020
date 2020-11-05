@@ -1,5 +1,4 @@
-import json
-from datetime import datetime, time
+from datetime import time, timedelta
 from monolith.database import (
     db,
     User,
@@ -19,7 +18,7 @@ from monolith.forms import (
     ReservationForm,
     PhotoGalleryForm,
 )
-from monolith.services import UserService, RestaurantServices
+from monolith.services import *
 
 
 def login(client, username, password):
@@ -166,6 +165,20 @@ def research_restaurant(client, name):
     return client.get("/restaurant/search/{}".format(name), follow_redirects=True)
 
 
+def del_reservation_client(client, id: int):
+    """
+    TODO
+    :param client:
+    :param id:
+    :return:
+    """
+    return client.get("/customer/deletereservations/{}".format(id))
+
+
+def get_reservation(client):
+    return client.get("/customer/reservations")
+
+
 def create_new_menu(client, form: DishForm):
     """
     This util have the code to perform the request with flask client
@@ -235,6 +248,13 @@ def create_new_restaurant_with_form(client, restaurant: RestaurantForm):
     )
 
 
+def get_today_midnight():
+    """
+    This method will return a datetime of today at midnight
+    """
+    return datetime.combine(datetime.today(), datetime.min.time())
+
+
 def get_user_with_email(email):
     """
     This method factorize the code to get an user with a email
@@ -274,14 +294,14 @@ def get_rest_with_name(name):
     return None
 
 
-def create_user_on_db(ran=1):
+def create_user_on_db(ran: int = 1):
     form = UserForm()
-    form.data["email"] = "alibaba" + str(ran) + "@alibaba.com"
-    form.data["password"] = "Alibaba"
-    form.firstname = "Vincenzo"
-    form.lastname = "Palazzo"
-    form.password = "Alibaba"
-    form.phone = "123456"
+    # form.data["email"] = "alibaba" + str(ran) + "@alibaba.com"
+    # form.data["password"] = "Alibaba"
+    form.firstname.data = "User_{}".format(ran)
+    form.lastname.data = "user_{}".format(ran)
+    form.password = "Alibaba{}".format(ran)
+    form.phone.data = "1234562344{}".format(ran)
     form.dateofbirth = "12/12/2000"
     form.email.data = "alibaba" + str(ran) + "@alibaba.com"
     user = User()
@@ -311,6 +331,8 @@ def create_restaurants_on_db(
 def del_user_on_db(id):
     q = db.session.query(User).filter_by(id=id).delete()
     db.session.commit()
+    delete_positive_with_user_id(id, marked=True)
+    del_booking_with_user_id(id)
     return q
 
 
@@ -320,6 +342,8 @@ def del_restaurant_on_db(id):
     db.session.query(OpeningHours).filter_by(restaurant_id=id).delete()
     db.session.commit()
     q = db.session.query(Restaurant).filter_by(id=id).delete()
+    db.session.commit()
+    db.session.query(Menu).filter_by(restaurant_id=id).delete()
     db.session.commit()
     return q
 
@@ -355,6 +379,15 @@ def get_last_booking():
     return db.session.query(Reservation).order_by(Reservation.id.desc()).first()
 
 
+def get_user_with_id(user_id: int = None):
+    """
+    return the User with given id
+    :param :
+    :return User:
+    """
+    return db.session.query(User).filter_by(id=user_id).first()
+
+
 def positive_with_user_id(user_id: int = None, marked: bool = True):
     """
     This method is an util function to search inside the positive user
@@ -371,14 +404,16 @@ def delete_positive_with_user_id(user_id: int, marked: bool = True):
     """
     This method is an util function to search inside the positive user
     """
-    return db.session.query(Positive).filter_by(user_id=user_id, marked=marked).delete()
+    db.session.query(Positive).filter_by(user_id=user_id, marked=marked).delete()
+    db.session.commit()
 
 
 def delete_was_positive_with_user_id(user_id: int, marked: bool = True):
     """
     This delete a row of a previous positive person
     """
-    return db.session.query(Positive).filter_by(user_id=user_id).delete()
+    db.session.query(Positive).filter_by(user_id=user_id).delete()
+    db.session.commit()
 
 
 def unmark_people_for_covid19(client, form: SearchUserForm):
@@ -493,3 +528,39 @@ def register_operator(client, user: UserForm):
         headers={"Content-type": "application/x-www-form-urlencoded"},
     )
     return client.post("/user/create_operator", data=data, follow_redirects=True)
+
+
+def create_random_booking(num: int, rest_id: int, user: User, date_time, friends):
+    """
+    Function to make
+    :param num:
+    :param rest_id:
+    :param user:
+    :param date_time:
+    :param friends:
+    :return:
+    """
+    books = []
+    for i in range(0, num):
+        # register on db the reservation
+        table = RestaurantTable()
+        table.name = user.lastname
+        table.max_seats = len(friends.split(";")) + 2
+        table.restaurant_id = rest_id
+        db.session.add(table)
+        db.session.commit()
+        new_reservation = Reservation()
+        new_reservation.reservation_date = date_time
+        new_reservation.reservation_end = date_time + timedelta(hours=i)
+        new_reservation.customer_id = user.id
+        new_reservation.table_id = table.id
+        new_reservation.people_number = len(friends.split(";")) + 1
+        db.session.add(new_reservation)
+        db.session.commit()
+        books.append(new_reservation)
+    return books
+
+
+def del_booking_with_user_id(user_id):
+    db.session.query(Reservation).filter_by(customer_id=user_id).delete()
+    db.session.commit()

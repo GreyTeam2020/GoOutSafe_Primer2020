@@ -17,7 +17,7 @@ from datetime import datetime, timedelta
 from sqlalchemy import cast, Date, extract
 
 from monolith.services import UserService
-from monolith.utils import send_mail
+from monolith.tests.utils import get_user_with_id
 from monolith.utils.dispaccer_events import DispatcherMessage
 from monolith.app_constant import *
 
@@ -29,39 +29,37 @@ class HealthyServices:
     """
 
     @staticmethod
-    def mark_positive(user_email: str, user_phone: str) -> str:
+    def mark_positive(user_email: str = "", user_phone: str = "") -> str:
         """
         This method mark the a people as positive on db
         :param user_email:
         :param user_phone:
         :return: return a message
         """
-        if user_email == "" and user_phone == "":
+        if len(user_email) == 0 and len(user_phone) == 0:
             return "Insert an email or a phone number"
 
-        if user_email != "":
-            q_user = db.session.query(User).filter(
-                User.email == user_email, User.role_id == 3
+        if len(user_email) != 0:
+            q_user = (
+                db.session.query(User).filter_by(email=user_email, role_id=3).first()
             )
         else:
-            q_user = db.session.query(User).filter(
-                User.phone == user_phone, User.role_id == 3
+            q_user = (
+                db.session.query(User).filter_by(phone=user_phone, role_id=3).first()
             )
 
-        if q_user.first() is None:
+        if q_user is None:
             return "The customer is not registered"
 
         q_already_positive = (
-            db.session.query(Positive)
-            .filter(Positive.user_id == q_user.first().id, Positive.marked == True)
-            .first()
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
         )
 
         if q_already_positive is None:
             new_positive = Positive()
-            new_positive.from_date = datetime.today()
+            new_positive.from_date = datetime.now()
             new_positive.marked = True
-            new_positive.user_id = q_user.first().id
+            new_positive.user_id = q_user.id
 
             db.session.add(new_positive)
             db.session.commit()
@@ -73,7 +71,7 @@ class HealthyServices:
             all_reservations = (
                 db.session.query(Reservation)
                 .filter(
-                    Reservation.reservation_date >= datetime.today(),
+                    Reservation.reservation_date >= datetime.now(),
                     Reservation.customer_id == new_positive.user_id,
                 )
                 .all()
@@ -105,7 +103,7 @@ class HealthyServices:
                         [
                             q_owner.email,
                             q_owner.firstname,
-                            q_user.first().email,
+                            q_user.email,
                             restaurant.name,
                         ],
                     )
@@ -119,8 +117,8 @@ class HealthyServices:
                 .filter(
                     Reservation.reservation_date
                     >= (datetime.today() - timedelta(days=14)),
-                    Reservation.reservation_date < datetime.today(),
-                    Reservation.customer_id == q_user.first().id,
+                    Reservation.reservation_date < datetime.now(),
+                    # Reservation.checkin is True,
                 )
                 .all()
             )
@@ -177,7 +175,7 @@ class HealthyServices:
                 # notify friends of the positive customer
                 friends_email = (
                     db.session.query(Friend.email)
-                    .filter(Friend.reservation_id == reservation.id)
+                    .filter_by(reservation_id=reservation.id)
                     .all()
                 )
 
@@ -191,7 +189,7 @@ class HealthyServices:
 
                 # send mail to contact
                 all_contacts = (
-                    db.session.query(Reservation)
+                    db.session.query(Reservation, RestaurantTable)
                     .filter(
                         extract("day", Reservation.reservation_date)
                         == extract("day", reservation.reservation_date),
@@ -204,11 +202,11 @@ class HealthyServices:
                         extract("hour", Reservation.reservation_date)
                         <= extract("hour", period[1]),
                         restaurant.id == RestaurantTable.restaurant_id,
-                        RestaurantTable.id == Reservation.table_id,
                     )
                     .all()
                 )
                 for contact in all_contacts:
+                    contact = contact[0]
                     if contact.customer_id not in user_notified:
                         user_notified.append(contact.customer_id)
                         thisuser = (
@@ -231,7 +229,7 @@ class HealthyServices:
 
                         friends_email = (
                             db.session.query(Friend.email)
-                            .filter(Friend.reservation_id == contact.id)
+                            .filter_by(reservation_id=contact.id)
                             .all()
                         )
 
@@ -253,25 +251,48 @@ class HealthyServices:
     @staticmethod
     def search_contacts(id_user):
         result = []
+        f = open("logger.txt", "w")
+        f.write("Starting searching for user " + str(id_user) + "\n")
         all_reservations = (
             db.session.query(Reservation)
             .filter(
                 Reservation.reservation_date >= (datetime.today() - timedelta(days=14)),
-                Reservation.reservation_date < datetime.today(),
+                Reservation.reservation_date < datetime.now(),
                 Reservation.customer_id == id_user,
+                # Reservation.checkin is True,
             )
             .all()
         )
+        f.write("All user reservations: " + str(len(all_reservations)) + "\n\n")
+
         for reservation in all_reservations:
+            f.write(
+                "Reservation: "
+                + str(reservation.id)
+                + " at "
+                + str(reservation.reservation_date)
+                + " in table "
+                + str(reservation.table_id)
+                + "\n"
+            )
+            this_table = (
+                db.session.query(RestaurantTable)
+                .filter_by(id=reservation.table_id)
+                .first()
+            )
             restaurant = (
                 db.session.query(Restaurant)
-                .filter(
-                    Restaurant.id == RestaurantTable.restaurant_id,
-                    RestaurantTable.id == reservation.table_id,
-                )
+                .filter_by(id=this_table.restaurant_id)
                 .first()
             )
 
+            f.write(
+                "The restaurant was "
+                + restaurant.name
+                + " with id:"
+                + str(this_table.restaurant_id)
+                + "\n"
+            )
             opening = (
                 db.session.query(OpeningHours)
                 .filter(
@@ -285,6 +306,13 @@ class HealthyServices:
                 if (opening.open_dinner <= reservation.reservation_date.time())
                 else [opening.open_lunch, opening.close_lunch]
             )
+            f.write("The time slot was " + str(period) + "\n")
+
+            query = db.session.query(RestaurantTable.id).filter_by(
+                restaurant_id=this_table.restaurant_id
+            )
+            restaurant_tables = [r.id for r in query]
+            print(restaurant_tables)
 
             all_contacts = (
                 db.session.query(Reservation)
@@ -299,18 +327,20 @@ class HealthyServices:
                     >= extract("hour", period[0]),
                     extract("hour", Reservation.reservation_date)
                     <= extract("hour", period[1]),
-                    restaurant.id == RestaurantTable.restaurant_id,
-                    RestaurantTable.id == Reservation.table_id,
+                    Reservation.table_id.in_(restaurant_tables),
                 )
                 .all()
             )
+
+            f.write("Found " + str(len(all_contacts)) + " contacts:\n")
             for contact in all_contacts:
+                f.write("- " + get_user_with_id(contact.customer_id).email + "\n")
                 if contact.customer_id not in result:
                     result.append(contact.customer_id)
-        touser = db.session.query(User).filter(User.id.in_(result)).all()
-        contact_users = []
 
-        for user in touser:
+        contact_users = []
+        for user_id in result:
+            user = get_user_with_id(user_id)
             if not UserService.is_positive(user.id):
                 contact_users.append(
                     [

@@ -168,6 +168,8 @@ class BookingServices:
             db.session.flush()
 
             # register friends
+            ## TODO added celery task to send the email
+            # all the friends to celery.
             for friend_mail in splitted_friends:
                 new_friend = Friend()
                 new_friend.reservation_id = new_reservation.id

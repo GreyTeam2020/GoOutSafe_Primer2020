@@ -83,14 +83,6 @@ class RestaurantServices:
         return all_restaurants
 
     @staticmethod
-    def get_restaurants_id():
-        """
-        Method to return a list of all restaurants inside the database
-        """
-        all_restaurants = db.session.query(Restaurant).all()
-        return all_restaurants
-
-    @staticmethod
     def get_reservation_rest(owner_id, restaurant_id, from_date, to_date, email):
         """
         This method contains the logic to find all reservation in the restaurant
@@ -201,7 +193,7 @@ class RestaurantServices:
             .first()
         )
         if openings is None:
-            return [0, 0]
+            return [0, 0, 0]
 
         tables = (
             db.session.query(RestaurantTable)
@@ -248,7 +240,17 @@ class RestaurantServices:
             .all()
         )
 
-        return [len(reservations_l), len(reservations_d)]
+        reservations_now = (
+            db.session.query(Reservation)
+            .filter(
+                Reservation.checkin is True,
+                Reservation.reservation_date <= datetime.now(),
+                Reservation.reservation_end >= datetime.now(),
+            )
+            .all()
+        )
+
+        return [len(reservations_l), len(reservations_d), len(reservations_now)]
 
     @staticmethod
     def checkin_reservations(reservation_id: int):

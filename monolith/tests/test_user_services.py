@@ -7,7 +7,6 @@ from monolith.services.user_service import UserService
 from monolith.tests.utils import get_user_with_email, login
 
 
-@pytest.mark.usefixtures("client")
 class Test_UserServices:
     """
     This test suite test the services about user use case.
