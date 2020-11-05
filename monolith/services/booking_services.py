@@ -210,7 +210,6 @@ class BookingServices:
                 db.session.commit()
             DispatcherMessage.send_message(
                 CONFIRMATION_BOOKING,
-                    current_user.email,
                 [
                     current_user.email,
                     restaurant_name,
