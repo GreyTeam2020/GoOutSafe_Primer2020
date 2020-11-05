@@ -19,7 +19,6 @@ book = Blueprint("book", __name__)
 @roles_allowed(roles=["CUSTOMER"])
 def index():
     if current_user is not None and hasattr(current_user, "id"):
-
         # check on the inputs
         if (
             request.form.get("reservation_date") is None
