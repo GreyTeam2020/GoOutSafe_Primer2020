@@ -18,7 +18,7 @@ services:
             - gooutsafe
         build: .
         restart: always
-        command: celery -A monolith.worker:celery worker
+        command: celery -A monolith.worker:celery worker -B
         volumes:
             - ./monolith/db:/code/monolith/db
         links:
