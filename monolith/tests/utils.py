@@ -165,6 +165,20 @@ def research_restaurant(client, name):
     return client.get("/restaurant/search/{}".format(name), follow_redirects=True)
 
 
+def del_reservation_client(client, id: int):
+    """
+    TODO
+    :param client:
+    :param id:
+    :return:
+    """
+    return client.get("/customer/deletereservations/{}".format(id))
+
+
+def get_reservation(client):
+    return client.get("/customer/reservations")
+
+
 def create_new_menu(client, form: DishForm):
     """
     This util have the code to perform the request with flask client
@@ -233,11 +247,13 @@ def create_new_restaurant_with_form(client, restaurant: RestaurantForm):
         follow_redirects=True,
     )
 
+
 def get_today_midnight():
     """
     This method will return a datetime of today at midnight
     """
     return datetime.combine(datetime.today(), datetime.min.time())
+
 
 def get_user_with_email(email):
     """
@@ -327,7 +343,7 @@ def del_restaurant_on_db(id):
     db.session.commit()
     q = db.session.query(Restaurant).filter_by(id=id).delete()
     db.session.commit()
-    db.session.query(Menu).filter_by(restaurant_id = id).delete()
+    db.session.query(Menu).filter_by(restaurant_id=id).delete()
     db.session.commit()
     return q
 
@@ -362,6 +378,7 @@ def get_last_booking():
     """
     return db.session.query(Reservation).order_by(Reservation.id.desc()).first()
 
+
 def get_user_with_id(user_id: int = None):
     """
     return the User with given id
@@ -369,6 +386,7 @@ def get_user_with_id(user_id: int = None):
     :return User:
     """
     return db.session.query(User).filter_by(id=user_id).first()
+
 
 def positive_with_user_id(user_id: int = None, marked: bool = True):
     """
@@ -533,7 +551,7 @@ def create_random_booking(num: int, rest_id: int, user: User, date_time, friends
         db.session.commit()
         new_reservation = Reservation()
         new_reservation.reservation_date = date_time
-        new_reservation.reservation_end = date_time + timedelta(hours=1)
+        new_reservation.reservation_end = date_time + timedelta(hours=i)
         new_reservation.customer_id = user.id
         new_reservation.table_id = table.id
         new_reservation.people_number = len(friends.split(";")) + 1

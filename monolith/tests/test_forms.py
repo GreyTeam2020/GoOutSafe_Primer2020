@@ -1,18 +1,8 @@
 """
 This test case covered all simple action that we can do from the UI
 """
-
-import pytest
-from monolith.database import (
-    Review,
-    Reservation,
-    Menu,
-)
-
 from monolith.tests.utils import *
-from monolith.services import BookingServices
 from datetime import datetime, timedelta
-import time
 
 
 class Test_GoOutSafeForm:
@@ -1284,18 +1274,16 @@ class Test_GoOutSafeForm:
         email = "john.doe@email.com"
         password = "customer"
         response = login(client, email, password)
-        user = get_user_with_email(email)
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
 
         reservation = db.session.query(Reservation).first()
         assert reservation is not None
-        id = reservation.id
 
-        response = client.get("/customer/deletereservations/" + str(id))
+        response = del_reservation_client(client, reservation.id)
+        assert response.status_code == 200
+        assert "del_rest_test" in response.data.decode("utf-8")
 
-        reservation_not_present = db.session.query(Reservation).filter_by(id=id).first()
-        assert reservation_not_present is None
 
     def test_list_customer_reservations(self, client):
         """
@@ -1307,8 +1295,7 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
 
-        response = client.get("/customer/reservations")
-
+        response = get_reservation(client)
         assert response.status_code == 200
 
     def test_operator_checkin(self, client):
@@ -1320,7 +1307,6 @@ class Test_GoOutSafeForm:
         response = login(client, email, password)
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
-
         reservation = db.session.query(Reservation).first()
         assert reservation is not None
         before_checkin = reservation.checkin
@@ -1333,6 +1319,7 @@ class Test_GoOutSafeForm:
             db.session.query(Reservation).filter_by(id=reservation.id).first()
         )
         assert reservation_after.checkin is True
+
 
     def test_update_booking(self, client):
         """
@@ -1445,8 +1432,14 @@ class Test_GoOutSafeForm:
         customer1 = create_user_on_db(787437)
         assert customer1 is not None
 
-        date_booking_1 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books1 = create_random_booking(1, restaurant.id, customer1, date_booking_1, "a@aa.com")
+        date_booking_1 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books1 = create_random_booking(
+            1, restaurant.id, customer1, date_booking_1, "a@aa.com"
+        )
 
         assert len(books1) == 1
 
@@ -1454,8 +1447,14 @@ class Test_GoOutSafeForm:
         customer2 = create_user_on_db(787438)
         assert customer2 is not None
 
-        date_booking_2 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books2 = create_random_booking(1, restaurant.id, customer2, date_booking_2, "b@b.com")
+        date_booking_2 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books2 = create_random_booking(
+            1, restaurant.id, customer2, date_booking_2, "b@b.com"
+        )
         assert len(books2) == 1
 
         response = login(client, "health_authority@gov.com", "nocovid")
@@ -1470,7 +1469,11 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
 
-        q_already_positive = db.session.query(Positive).filter_by(user_id=customer1.id, marked=True).first()
+        q_already_positive = (
+            db.session.query(Positive)
+            .filter_by(user_id=customer1.id, marked=True)
+            .first()
+        )
         assert q_already_positive is not None
 
         response = search_contact_positive_covid19(client, mark)
@@ -1512,8 +1515,14 @@ class Test_GoOutSafeForm:
         customer1 = create_user_on_db(787437)
         assert customer1 is not None
 
-        date_booking_1 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books1 = create_random_booking(1, restaurant.id, customer1, date_booking_1, "a@aa.com")
+        date_booking_1 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books1 = create_random_booking(
+            1, restaurant.id, customer1, date_booking_1, "a@aa.com"
+        )
 
         assert len(books1) == 1
 
@@ -1521,8 +1530,14 @@ class Test_GoOutSafeForm:
         customer2 = create_user_on_db(787438)
         assert customer2 is not None
 
-        date_booking_2 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books2 = create_random_booking(1, restaurant.id, customer2, date_booking_2, "b@b.com")
+        date_booking_2 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books2 = create_random_booking(
+            1, restaurant.id, customer2, date_booking_2, "b@b.com"
+        )
         assert len(books2) == 1
 
         response = login(client, "health_authority@gov.com", "nocovid")
@@ -1537,7 +1552,11 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
 
-        q_already_positive = db.session.query(Positive).filter_by(user_id=customer1.id, marked=True).first()
+        q_already_positive = (
+            db.session.query(Positive)
+            .filter_by(user_id=customer1.id, marked=True)
+            .first()
+        )
         assert q_already_positive is not None
 
         response = search_contact_positive_covid19(client, mark)
@@ -1579,8 +1598,14 @@ class Test_GoOutSafeForm:
         customer1 = create_user_on_db(787437)
         assert customer1 is not None
 
-        date_booking_1 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books1 = create_random_booking(1, restaurant.id, customer1, date_booking_1, "a@aa.com")
+        date_booking_1 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books1 = create_random_booking(
+            1, restaurant.id, customer1, date_booking_1, "a@aa.com"
+        )
 
         assert len(books1) == 1
 
@@ -1588,8 +1613,14 @@ class Test_GoOutSafeForm:
         customer2 = create_user_on_db(787438)
         assert customer2 is not None
 
-        date_booking_2 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books2 = create_random_booking(1, restaurant.id, customer2, date_booking_2, "b@b.com")
+        date_booking_2 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books2 = create_random_booking(
+            1, restaurant.id, customer2, date_booking_2, "b@b.com"
+        )
         assert len(books2) == 1
 
         response = login(client, "health_authority@gov.com", "nocovid")
@@ -1604,7 +1635,11 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "logged_test" in response.data.decode("utf-8")
 
-        q_already_positive = db.session.query(Positive).filter_by(user_id=customer1.id, marked=True).first()
+        q_already_positive = (
+            db.session.query(Positive)
+            .filter_by(user_id=customer1.id, marked=True)
+            .first()
+        )
         assert q_already_positive is not None
 
         response = search_contact_positive_covid19(client, mark)
@@ -1648,10 +1683,15 @@ class Test_GoOutSafeForm:
 
         # this user books in the restaurant
 
-        date_booking_1 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books1 = create_random_booking(1, restaurant.id, customer1, date_booking_1, "b@b.com")
+        date_booking_1 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books1 = create_random_booking(
+            1, restaurant.id, customer1, date_booking_1, "b@b.com"
+        )
         assert len(books1) == 1
-
 
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
@@ -1664,7 +1704,9 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
 
         q_already_positive = (
-            db.session.query(Positive).filter_by(user_id=customer1.id, marked=True).first()
+            db.session.query(Positive)
+            .filter_by(user_id=customer1.id, marked=True)
+            .first()
         )
         assert q_already_positive is not None
 
@@ -1716,19 +1758,45 @@ class Test_GoOutSafeForm:
 
         # this user books in the restaurant
 
-        date_booking_1 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books1 = create_random_booking(1, restaurant.id, customer1, date_booking_1, "a@a.com")
+        date_booking_1 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books1 = create_random_booking(
+            1, restaurant.id, customer1, date_booking_1, "a@a.com"
+        )
         assert len(books1) == 1
-        print("booked at table " + str(books1[0].table_id) + " for customer " + str(books1[0].customer_id) + " at " + str(books1[0].reservation_date))
+        print(
+            "booked at table "
+            + str(books1[0].table_id)
+            + " for customer "
+            + str(books1[0].customer_id)
+            + " at "
+            + str(books1[0].reservation_date)
+        )
         # a new user that books in the same restaurant of the previous one
 
         customer2 = create_user_on_db(787438)
         assert customer2 is not None
 
-        date_booking_2 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books2 = create_random_booking(1, restaurant.id, customer2, date_booking_2, "b@b.com")
+        date_booking_2 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books2 = create_random_booking(
+            1, restaurant.id, customer2, date_booking_2, "b@b.com"
+        )
         assert len(books2) == 1
-        print("booked at table " + str(books2[0].table_id) + " for customer " + str(books2[0].customer_id) + " at " + str(books2[0].reservation_date))
+        print(
+            "booked at table "
+            + str(books2[0].table_id)
+            + " for customer "
+            + str(books2[0].customer_id)
+            + " at "
+            + str(books2[0].reservation_date)
+        )
 
         # a new owner of a restaurant
         owner2 = create_user_on_db(787439)
@@ -1742,10 +1810,23 @@ class Test_GoOutSafeForm:
         customer3 = create_user_on_db(787440)
         assert customer3 is not None
 
-        date_booking_3 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
-        books3 = create_random_booking(1, restaurant2.id, customer3, date_booking_3, "c@c.com")
+        date_booking_3 = (
+            get_today_midnight()
+            - timedelta(days=datetime.today().weekday())
+            + timedelta(hours=13)
+        )
+        books3 = create_random_booking(
+            1, restaurant2.id, customer3, date_booking_3, "c@c.com"
+        )
         assert len(books3) == 1
-        print("booked at table " + str(books3[0].table_id) + " for customer " + str(books3[0].customer_id) + " at " + str(books3[0].reservation_date))
+        print(
+            "booked at table "
+            + str(books3[0].table_id)
+            + " for customer "
+            + str(books3[0].customer_id)
+            + " at "
+            + str(books3[0].reservation_date)
+        )
 
         response = login(client, "health_authority@gov.com", "nocovid")
         assert response.status_code == 200
@@ -1758,7 +1839,9 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
 
         q_already_positive = (
-            db.session.query(Positive).filter_by(user_id=customer1.id, marked=True).first()
+            db.session.query(Positive)
+            .filter_by(user_id=customer1.id, marked=True)
+            .first()
         )
         assert q_already_positive is not None
 

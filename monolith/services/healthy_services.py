@@ -40,17 +40,19 @@ class HealthyServices:
             return "Insert an email or a phone number"
 
         if len(user_email) != 0:
-            q_user = db.session.query(User).filter_by(email=user_email, role_id=3).first()
+            q_user = (
+                db.session.query(User).filter_by(email=user_email, role_id=3).first()
+            )
         else:
-            q_user = db.session.query(User).filter_by(phone=user_phone, role_id=3).first()
+            q_user = (
+                db.session.query(User).filter_by(phone=user_phone, role_id=3).first()
+            )
 
         if q_user is None:
             return "The customer is not registered"
 
         q_already_positive = (
-            db.session.query(Positive)
-            .filter_by(user_id=q_user.id, marked=True)
-            .first()
+            db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
         )
 
         if q_already_positive is None:
@@ -199,7 +201,7 @@ class HealthyServices:
                         >= extract("hour", period[0]),
                         extract("hour", Reservation.reservation_date)
                         <= extract("hour", period[1]),
-                        restaurant.id == RestaurantTable.restaurant_id
+                        restaurant.id == RestaurantTable.restaurant_id,
                     )
                     .all()
                 )
@@ -226,7 +228,7 @@ class HealthyServices:
 
                         friends_email = (
                             db.session.query(Friend.email)
-                            .filter_by(reservation_id = contact.id)
+                            .filter_by(reservation_id=contact.id)
                             .all()
                         )
 
@@ -256,20 +258,40 @@ class HealthyServices:
                 Reservation.reservation_date >= (datetime.today() - timedelta(days=14)),
                 Reservation.reservation_date < datetime.now(),
                 Reservation.customer_id == id_user,
-                #Reservation.checkin is True,
+                # Reservation.checkin is True,
             )
             .all()
         )
         f.write("All user reservations: " + str(len(all_reservations)) + "\n\n")
 
-
-
         for reservation in all_reservations:
-            f.write("Reservation: " + str(reservation.id) + " at " + str(reservation.reservation_date) + " in table " + str(reservation.table_id) + "\n")
-            this_table = db.session.query(RestaurantTable).filter_by(id=reservation.table_id).first()
-            restaurant = db.session.query(Restaurant).filter_by(id=this_table.restaurant_id).first()
+            f.write(
+                "Reservation: "
+                + str(reservation.id)
+                + " at "
+                + str(reservation.reservation_date)
+                + " in table "
+                + str(reservation.table_id)
+                + "\n"
+            )
+            this_table = (
+                db.session.query(RestaurantTable)
+                .filter_by(id=reservation.table_id)
+                .first()
+            )
+            restaurant = (
+                db.session.query(Restaurant)
+                .filter_by(id=this_table.restaurant_id)
+                .first()
+            )
 
-            f.write("The restaurant was " + restaurant.name + " with id:" + str(this_table.restaurant_id) + "\n")
+            f.write(
+                "The restaurant was "
+                + restaurant.name
+                + " with id:"
+                + str(this_table.restaurant_id)
+                + "\n"
+            )
             opening = (
                 db.session.query(OpeningHours)
                 .filter(
@@ -283,9 +305,11 @@ class HealthyServices:
                 if (opening.open_dinner <= reservation.reservation_date.time())
                 else [opening.open_lunch, opening.close_lunch]
             )
-            f.write("The time slot was " + str(period) +"\n")
+            f.write("The time slot was " + str(period) + "\n")
 
-            query = db.session.query(RestaurantTable.id).filter_by(restaurant_id=this_table.restaurant_id)
+            query = db.session.query(RestaurantTable.id).filter_by(
+                restaurant_id=this_table.restaurant_id
+            )
             restaurant_tables = [r.id for r in query]
             print(restaurant_tables)
 
@@ -302,7 +326,7 @@ class HealthyServices:
                     >= extract("hour", period[0]),
                     extract("hour", Reservation.reservation_date)
                     <= extract("hour", period[1]),
-                    Reservation.table_id.in_(restaurant_tables)
+                    Reservation.table_id.in_(restaurant_tables),
                 )
                 .all()
             )

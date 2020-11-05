@@ -135,5 +135,6 @@ def delete_reservation(reservation_id):
         reservations_as_list=reservations_as_list,
         my_date_formatter=my_date_formatter,
         deleted=deleted,
+        _test="del_rest_test",
         form=form,
     )
