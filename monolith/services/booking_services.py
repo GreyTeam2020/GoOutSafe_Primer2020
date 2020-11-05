@@ -17,9 +17,10 @@ class BookingServices:
     def book(restaurant_id, current_user, py_datetime, people_number, raw_friends):
 
         # split friends mail and check if the number is correct
-        splitted_friends = raw_friends.split(";")
-        if len(splitted_friends) != (people_number - 1):
-            return (None, "You need to specify ONE mail for each person")
+        if people_number > 1:
+            splitted_friends = raw_friends.split(";")
+            if len(splitted_friends) != (people_number - 1):
+                return (None, "You need to specify ONE mail for each person")
 
         restaurant_id = int(restaurant_id)
         #
@@ -59,11 +60,27 @@ class BookingServices:
             return (None, "The restaurant is closed")
 
         # if the resturant is open only at lunch or at dinner do some checks..
-        if (opening_hour.open_lunch is None or opening_hour.close_lunch is None) and (
-            only_time < opening_hour.open_dinner
-            or only_time > opening_hour.close_dinner
-        ):
-            return (None, "The restaurant is closed")
+        if opening_hour.open_lunch is None or opening_hour.close_lunch is None:
+            # calc the projection (py_datetime.date combined with opening hour)
+
+            open_dinner_projection = datetime.datetime.combine(
+                py_datetime.date(), opening_hour.open_dinner
+            )
+            if opening_hour.close_dinner < opening_hour.open_dinner:
+                close_dinner_projection = datetime.datetime.combine(
+                    py_datetime.date() + datetime.timedelta(days=1),
+                    opening_hour.close_dinner,
+                )
+            else:
+                close_dinner_projection = datetime.datetime.combine(
+                    py_datetime.date(), opening_hour.close_dinner
+                )
+
+            if (
+                py_datetime > close_dinner_projection
+                or py_datetime < open_dinner_projection
+            ):
+                return (None, "The restaurant is closed")
 
         if (opening_hour.open_dinner is None or opening_hour.close_dinner is None) and (
             only_time < opening_hour.open_lunch or only_time > opening_hour.close_lunch
@@ -74,16 +91,30 @@ class BookingServices:
         # if the resturant is opened both at dinner and lunch
         if opening_hour.open_lunch is not None and opening_hour.open_dinner is not None:
             # asked for some hours outside the opening hours
-            if opening_hour.open_lunch > only_time:
-                return (None, "The restaurant is closed")
+            if only_time < opening_hour.open_lunch:
+                if opening_hour.close_dinner < opening_hour.open_dinner:
+                    if only_time > opening_hour.close_dinner:
+                        return (None, "The restaurant is closed")
+                else:
+                    return (None, "The restaurant is closed")
 
             if (
-                opening_hour.open_dinner > only_time
-                and opening_hour.close_lunch < only_time
+                only_time < opening_hour.open_dinner
+                and only_time > opening_hour.close_lunch
             ):
                 return (None, "The restaurant is closed")
 
-            if opening_hour.close_dinner < only_time:
+            if opening_hour.close_dinner < opening_hour.open_dinner:
+                close_dinner_projection = datetime.datetime.combine(
+                    py_datetime.date() + datetime.timedelta(days=1),
+                    opening_hour.close_dinner,
+                )
+            else:
+                close_dinner_projection = datetime.datetime.combine(
+                    py_datetime.date(), opening_hour.close_dinner
+                )
+
+            if py_datetime > close_dinner_projection:
                 return (None, "The restaurant is closed")
             #
 
@@ -167,14 +198,15 @@ class BookingServices:
             db.session.add(new_reservation)
             db.session.flush()
 
-            # register friends
-            for friend_mail in splitted_friends:
-                new_friend = Friend()
-                new_friend.reservation_id = new_reservation.id
-                new_friend.email = friend_mail.strip()
-                db.session.add(new_friend)
+            if people_number > 1:
+                # register friends
+                for friend_mail in splitted_friends:
+                    new_friend = Friend()
+                    new_friend.reservation_id = new_reservation.id
+                    new_friend.email = friend_mail.strip()
+                    db.session.add(new_friend)
 
-            db.session.commit()
+                db.session.commit()
             return (new_reservation, restaurant_name, table_name)
         else:
             return (None, "no tables available")
