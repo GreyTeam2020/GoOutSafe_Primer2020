@@ -225,6 +225,10 @@ def my_tables():
 @login_required
 @roles_allowed(roles=["OPERATOR"])
 def my_menu():
+    if "RESTAURANT_ID" in session:
+        dishes = MenuDish.query.filter_by(restaurant_id=session["RESTAURANT_ID"]).all()
+    else:
+        dishes = []
     if request.method == "POST":
         form = DishForm()
         # add dish to the db
@@ -235,19 +239,18 @@ def my_menu():
             dish.restaurant_id = session["RESTAURANT_ID"]
             db.session.add(dish)
             db.session.commit()
+            dishes.append(dish)
             _test = "menu_ok_test"
         else:
             _test = "menu_ko_form_test"
             print(form.errors)
-        return render_template(
-            "restaurant_menu.html", _test=_test, form=form, dishes=[]
-        )
-    else:
-        dishes = MenuDish.query.filter_by(restaurant_id=session["RESTAURANT_ID"]).all()
-        form = DishForm()
-        return render_template(
-            "restaurant_menu.html", _test="menu_view_test", form=form, dishes=dishes
-        )
+            return render_template(
+                "restaurant_menu.html", _test=_test, form=form, dishes=dishes, error=form.errors
+            )
+    form = DishForm()
+    return render_template(
+        "restaurant_menu.html", _test="menu_view_test", form=form, dishes=dishes
+    )
 
 
 @restaurants.route("/restaurant/menu/delete/<dish_id>")

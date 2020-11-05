@@ -39,7 +39,7 @@
             </button>
           </div>
           <div class="modal-body">
-            <form method="POST" action="" id="addDishForm">
+            <form method="POST" action="/restaurant/menu" id="addDishForm">
                 {{ form.hidden_tag()  }}
                 {% for field in form.display %}
                    <dt>{{ form[field].label }}</dt>
