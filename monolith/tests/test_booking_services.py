@@ -27,14 +27,14 @@ class Test_BookServices:
         """
         TEST FOR ADDING A RESERVATION
         test flow
-        1- creo utente
-        2-creo rest owner
-        3-creo ristorante
-        4-test sulla prenotazione (quelli che voglio)
-        6-elimino friends delle prenotazione
-        7-elimino opening hours
-        8-elimino ristorante (quindi anche tables)
-        9-elimino utente
+        - Create a new customer
+        - Create a new restaurant owner
+        - create a new restaurant
+        - check on Reservation (what we aspect)
+        - erase friends from reservation
+        - erase opening hours
+        - erase restaurants (included the tables)
+        - erase user
         """
 
         user = create_user_on_db()

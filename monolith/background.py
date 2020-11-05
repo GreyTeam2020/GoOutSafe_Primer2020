@@ -1,5 +1,6 @@
 from celery import Celery
 from monolith.utils import *
+from monolith.services import RestaurantServices
 
 ## redis inside the http is the name of network that is called like the containser
 ## a good reference is https://stackoverflow.com/a/55410571/7290562
@@ -82,4 +83,16 @@ def send_possible_positive_contact_celery(
     """
     send_possible_positive_contact(
         to_email, to_name, date_possible_contact, restaurant_name
+    )
+
+
+@celery.on_after_configure.connect
+def calculate_rating_on_background(sender, **kwargs):
+    """
+    This task make a calculation of review rating inside each
+    this task take the db code and call the RestaurantServices for each restaurants
+    """
+    # Calls RestaurantServices.calculate_rating_for_all() every 30 seconds
+    sender.add_periodic_task(
+        30.0, RestaurantServices.calculate_rating_for_all(), expires=10
     )

@@ -1,4 +1,5 @@
-import pytest
+from random import random, randrange
+
 from monolith.database import db, User, Restaurant, Review, MenuDish, Reservation
 from monolith.forms import RestaurantForm
 from monolith.services.restaurant_services import RestaurantServices
@@ -12,6 +13,9 @@ from monolith.tests.utils import (
     create_user_on_db,
     login,
     create_random_booking,
+    create_review_for_restaurants,
+    get_rest_with_name,
+    del_all_review_for_rest,
 )
 
 
@@ -245,25 +249,162 @@ class Test_RestaurantServices:
         db.session.commit()
         db.session.flush()
 
+    def test_rating_review_restaurants(self):
+        """
+        This method test the function called by celery to calculate the rating of all restaurants
+
+        Test flow:
+        - Create 2 owner
+        - Create 2 restaurants and binding owner
+        - Create a customer
+        - Make a review for the restaurants
+        - calculate the rating for all restaurants
+        - check on db the new rating
+        - erase all data create inside the test
+        """
+        owner_one = create_user_on_db(123444223)
+        assert owner_one is not None
+        owner_two = create_user_on_db(123444226)
+        assert owner_two is not None
+
+        restaurant_one = create_restaurants_on_db(name="First", user_id=owner_one.id)
+        assert restaurant_one is not None
+        restaurant_two = create_restaurants_on_db(name="Second", user_id=owner_two.id)
+        assert restaurant_two is not None
+
+        start_one = 3.0
+        start_two = 5.0
+        review = create_review_for_restaurants(
+            starts=start_one, rest_id=restaurant_one.id
+        )
+        assert review is not None
+        review = create_review_for_restaurants(
+            starts=start_two, rest_id=restaurant_one.id
+        )
+        assert review is not None
+
+        start_tree = 2.0
+        review = create_review_for_restaurants(
+            starts=start_tree, rest_id=restaurant_two.id
+        )
+        assert review is not None
+
+        rating_rest_one = (start_one + start_two) / 2
+        rating_rest_two = start_tree
+
+        RestaurantServices.calculate_rating_for_all()
+
+        rest = get_rest_with_name(restaurant_one.name)
+        assert rest.rating == rating_rest_one
+        rest = get_rest_with_name(restaurant_two.name)
+        assert rest.rating == rating_rest_two
+
+        del_all_review_for_rest(restaurant_one.id)
+        del_all_review_for_rest(restaurant_two.id)
+        del_restaurant_on_db(restaurant_one.id)
+        del_restaurant_on_db(restaurant_two.id)
+        del_user_on_db(owner_one.id)
+        del_user_on_db(owner_two.id)
+
+    def test_rating_single_restaurant(self):
+        """
+        This method test the method to calculate a rating inside a new restautants
+
+        Test flow:
+        - Create owner
+        - Create restaurant1 and binding owner
+        - Create a customer
+        - Make a review for the restaurant
+        - check the result of the function
+        - check on bd the new rating
+        - erase all data create inside the test
+        """
+        owner_one = create_user_on_db(randrange(100000))
+        assert owner_one is not None
+
+        restaurant_one = create_restaurants_on_db(name="First", user_id=owner_one.id)
+        assert restaurant_one is not None
+
+        start_one = 3.0
+        start_two = 4.5
+        review = create_review_for_restaurants(
+            starts=start_one, rest_id=restaurant_one.id
+        )
+        assert review is not None
+        review = create_review_for_restaurants(
+            starts=start_two, rest_id=restaurant_one.id
+        )
+        assert review is not None
+
+        rating_rest_one = (start_one + start_two) / 2.0
+
+        rating = RestaurantServices.get_rating_restaurant(restaurant_one.id)
+        assert rating == rating_rest_one
+
+        rest = get_rest_with_name(restaurant_one.name)
+        assert rest.rating == rating_rest_one
+
+        del_all_review_for_rest(restaurant_one.id)
+        del_restaurant_on_db(restaurant_one.id)
+        del_user_on_db(owner_one.id)
+
     def test_get_restaurant_people_none(self):
         """
-        [PRANZA, CENA, CHECKING]
+        The method test the function inside the RestaurantServices to search all the people
+        inside the restaurants, the function return an array that looks like
+        [people_to_lunch, people_to_dinner, people_checkin]
 
         Test flow
         - new restaurants
         - get all people
         - del restaurant
         """
-        pass
+        owner_one = create_user_on_db(randrange(100000))
+        assert owner_one is not None
 
-    def test_get_restaurant_people(self):
-        """
-        [PRANZA, CENA, CHECKING]
+        restaurant_one = create_restaurants_on_db(name="First", user_id=owner_one.id)
+        assert restaurant_one is not None
 
+        all_people = RestaurantServices.get_restaurant_people(restaurant_one.id)
+        assert all_people is not None
+        assert len(all_people) == 3
+        assert all_people[0] == 0
+        assert all_people[1] == 0
+        assert all_people[2] == 0
+        del_restaurant_on_db(restaurant_one.id)
+        del_user_on_db(owner_one.id)
+
+
+"""
+          The method test the function inside the RestaurantServices to search all the people
+        inside the restaurants, the function return an array that looks like
+        [people_to_lunch, people_to_dinner, people_checkin]
         Test flow
         - new restaurants
         - new booking
         - get all people
         - del restaurant
         """
-        pass
+""" 
+    def test_get_restaurant_people(self):
+        
+        owner_one = create_user_on_db(randrange(100000))
+        assert owner_one is not None
+
+        restaurant_one = create_restaurants_on_db(name="First", user_id=owner_one.id)
+        assert restaurant_one is not None
+        
+        customer_one = create_user_on_db(randrange(100000))
+        customer_two = create_user_on_db(randrange(100000))
+        # TODO I missing the logic, this is possible?
+
+        # books_lunch = create_random_booking(1, rest_id=restaurant_one.id, customer_one, date_time=datetime(2020))
+
+        all_people = RestaurantServices.get_restaurant_people(restaurant_one.id)
+        assert all_people is not None
+        assert len(all_people) == 3
+        assert all_people[0] == 0
+        assert all_people[1] == 0
+        assert all_people[2] == 0
+        del_restaurant_on_db(restaurant_one.id)
+"""

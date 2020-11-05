@@ -1,6 +1,7 @@
 """
 This test case covered all simple action that we can do from the UI
 """
+from monolith.database import Review
 from monolith.tests.utils import *
 from datetime import datetime, timedelta
 

@@ -9,6 +9,24 @@ import sqlalchemy.types as types
 db = SQLAlchemy()
 
 
+class SqliteNumeric(types.TypeDecorator):
+    """
+    Pysql doesn't support the floating point and we need to support it
+    to avoid the warning during the tests
+    """
+
+    impl = types.String
+
+    def load_dialect_impl(self, dialect):
+        return dialect.type_descriptor(types.VARCHAR(100))
+
+    def process_bind_param(self, value, dialect):
+        return str(value)
+
+    def process_result_value(self, value, dialect):
+        return D(value)
+
+
 class User(db.Model):
     __tablename__ = "user"
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
@@ -75,6 +93,8 @@ class Restaurant(db.Model):
     # avg_time = db.Column(db.Interval())
     # I store the avg time in integer THAT REPRESENTS MINUTES
     avg_time = db.Column(db.Integer, default=30)
+
+    rating = db.Column(db.Float, default=0.0)
 
     def __init__(self, *args, **kw):
         super(Restaurant, self).__init__(*args, **kw)
@@ -213,24 +233,6 @@ class MenuPhotoGallery(db.Model):
     # menu reference
     menu_id = db.Column(db.Integer, db.ForeignKey("menu.id"))
     menu = relationship("Menu", foreign_keys="MenuPhotoGallery.menu_id")
-
-
-class SqliteNumeric(types.TypeDecorator):
-    """
-    Pysql doesn't support the floating point and we need to support it
-    to avoid the warning during the tests
-    """
-
-    impl = types.String
-
-    def load_dialect_impl(self, dialect):
-        return dialect.type_descriptor(types.VARCHAR(100))
-
-    def process_bind_param(self, value, dialect):
-        return str(value)
-
-    def process_result_value(self, value, dialect):
-        return D(value)
 
 
 class Review(db.Model):

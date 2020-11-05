@@ -1,16 +1,8 @@
-from datetime import time, timedelta
-from monolith.database import (
-    db,
-    User,
-    Restaurant,
-    Positive,
-    OpeningHours,
-    RestaurantTable,
-    Reservation,
-    Friend,
-)
+from datetime import time, timedelta, datetime
+from random import randrange
+
+from monolith.database import *
 from monolith.forms import (
-    UserForm,
     RestaurantForm,
     SearchUserForm,
     ReviewForm,
@@ -563,4 +555,36 @@ def create_random_booking(num: int, rest_id: int, user: User, date_time, friends
 
 def del_booking_with_user_id(user_id):
     db.session.query(Reservation).filter_by(customer_id=user_id).delete()
+    db.session.commit()
+
+
+def create_review_for_restaurants(
+    starts: float,
+    rest_id: int,
+    comment: str = "random_coment{}".format(randrange(100000)),
+) -> Review:
+    """
+    This method contains the code to add a new review inside the db
+    for the restaurant with id
+    :param starts: Number of starts
+    :param comment: a comment for review, by default a random value
+    :param rest_id: restaurants id
+    :return Review db object
+    """
+    review = Review()
+    review.restaurant_id = rest_id
+    review.stars = starts
+    review.review = comment
+    db.session.add(review)
+    db.session.commit()
+    return review
+
+
+def del_all_review_for_rest(rest_id: int):
+    """
+    This method contains the code to remove all review inside the db
+    about the restaurant with id
+    :param rest_id: restaurants id
+    """
+    db.session.query(Review).filter_by(restaurant_id=rest_id).delete()
     db.session.commit()

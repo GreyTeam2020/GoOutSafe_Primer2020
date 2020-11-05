@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, session, redirect
+from flask import Blueprint, render_template, session, redirect, abort
 from flask_login import current_user
 
 from monolith.database import (
@@ -11,7 +11,12 @@ from monolith.database import (
     MenuDish,
 )
 from monolith.forms import ReservationForm
-from monolith.services import UserService, RestaurantServices
+from monolith.services import (
+    UserService,
+    RestaurantServices,
+    DispatcherMessage,
+    CALCULATE_RATING_RESTAURANTS,
+)
 
 home = Blueprint("home", __name__)
 
@@ -41,11 +46,9 @@ def index():
         elif session["ROLE"] == "OPERATOR":
             if "RESTAURANT_ID" in session:
                 restaurant_id = session["RESTAURANT_ID"]
-                record = (
-                    db.session.query(Restaurant)
-                    .filter_by(id=int(restaurant_id))
-                    .first()
-                )
+                model = RestaurantServices.get_all_restaurants_info(restaurant_id)
+                if model is None:
+                    abort(501)
                 weekDaysLabel = [
                     "Monday",
                     "Tuesday",
@@ -55,39 +58,45 @@ def index():
                     "Saturday",
                     "Sunday",
                 ]
-                q_hours = (
-                    db.session.query(OpeningHours)
-                    .filter_by(restaurant_id=int(restaurant_id))
-                    .all()
-                )
-                q_cuisine = (
-                    db.session.query(Menu)
-                    .filter_by(restaurant_id=int(restaurant_id))
-                    .all()
-                )
-                photos = PhotoGallery.query.filter_by(
-                    restaurant_id=int(restaurant_id)
-                ).all()
-                dishes = (
-                    db.session.query(MenuDish)
-                    .filter_by(restaurant_id=restaurant_id)
-                    .all()
-                )
+                # record = (
+                #    db.session.query(Restaurant)
+                #    .filter_by(id=int(restaurant_id))
+                #    .first()
+                # )
+
+                # q_hours = (
+                #    db.session.query(OpeningHours)
+                #    .filter_by(restaurant_id=int(restaurant_id))
+                #    .all()
+                # )
+                # q_cuisine = (
+                #    db.session.query(Menu)
+                #    .filter_by(restaurant_id=int(restaurant_id))
+                #    .all()
+                # )
+                # photos = PhotoGallery.query.filter_by(
+                #    restaurant_id=int(restaurant_id)
+                # ).all()
+                # dishes = (
+                #    db.session.query(MenuDish)
+                #    .filter_by(restaurant_id=restaurant_id)
+                #    .all()
+                # )
 
                 return render_template(
                     "restaurantsheet.html",
                     id=restaurant_id,
-                    name=record.name,
-                    lat=record.lat,
-                    lon=record.lon,
-                    phone=record.phone,
-                    covid_measures=record.covid_measures,
-                    hours=q_hours,
-                    cuisine=q_cuisine,
+                    name=model.name,
+                    lat=model.lat,
+                    lon=model.lon,
+                    phone=model.phone,
+                    covid_measures=model.covid_measures,
+                    hours=model.opening_hours,
+                    cuisine=model.cusine,
                     weekDaysLabel=weekDaysLabel,
-                    photos=photos,
+                    photos=model.photos,
                     reviews=RestaurantServices.get_three_reviews(restaurant_id),
-                    dishes=dishes,
+                    dishes=model.dishes,
                     _test=_test,
                 )
             else:
