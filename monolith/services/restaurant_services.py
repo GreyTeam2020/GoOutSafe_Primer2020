@@ -306,7 +306,7 @@ class RestaurantServices:
         :param restaurant_id: the restaurant id
         :return: the rating value, as 0.0 or 5.0
         """
-        rating_value = Decimal(0.0)
+        rating_value = 0.0
         restaurant = db.session.query(Restaurant).filter_by(id=restaurant_id).first()
         if restaurant is None:
             raise Exception(
@@ -319,20 +319,15 @@ class RestaurantServices:
             return rating_value
 
         for review in reviews_list:
-            rating_value = rating_value + review.stars
+            rating_value = rating_value + float(review.stars)
 
-        rating_value = rating_value / len(reviews_list)
-        print(
-            "Rating calculate for restaurant with name {} is {}".format(
-                restaurant.name, rating_value
-            )
-        )
+        rating_value = rating_value / float(len(reviews_list))
         current_app.logger.debug(
             "Rating calculate for restaurant with name {} is {}".format(
                 restaurant.name, rating_value
             )
         )
-        restaurant.rating = rating_value
+        restaurant.rating = Decimal(rating_value)
         db.session.commit()
         return rating_value
 

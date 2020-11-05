@@ -94,7 +94,7 @@ class Restaurant(db.Model):
     # I store the avg time in integer THAT REPRESENTS MINUTES
     avg_time = db.Column(db.Integer, default=30)
 
-    rating = db.Column(SqliteNumeric(), default=0.0)
+    rating = db.Column(db.Float, default=0.0)
 
     def __init__(self, *args, **kw):
         super(Restaurant, self).__init__(*args, **kw)
