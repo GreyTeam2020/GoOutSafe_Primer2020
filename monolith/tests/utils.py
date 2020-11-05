@@ -286,7 +286,7 @@ def get_rest_with_name(name):
     return None
 
 
-def create_user_on_db(ran: int = 1):
+def create_user_on_db(ran: int = randrange(100000)):
     form = UserForm()
     # form.data["email"] = "alibaba" + str(ran) + "@alibaba.com"
     # form.data["password"] = "Alibaba"
