@@ -1284,7 +1284,6 @@ class Test_GoOutSafeForm:
         assert response.status_code == 200
         assert "del_rest_test" in response.data.decode("utf-8")
 
-
     def test_list_customer_reservations(self, client):
         """
         test list customer reservations
@@ -1319,7 +1318,6 @@ class Test_GoOutSafeForm:
             db.session.query(Reservation).filter_by(id=reservation.id).first()
         )
         assert reservation_after.checkin is True
-
 
     def test_update_booking(self, client):
         """

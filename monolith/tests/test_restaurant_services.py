@@ -10,7 +10,8 @@ from monolith.tests.utils import (
     del_restaurant_on_db,
     del_user_on_db,
     create_user_on_db,
-    login, create_random_booking,
+    login,
+    create_random_booking,
 )
 
 
@@ -103,7 +104,7 @@ class Test_RestaurantServices:
             rest.owner_id, rest.id, from_date, to_date, user.email
         )
         assert len(reservations) == 1
-        
+
         del_user_on_db(user.id)
         del_restaurant_on_db(rest.id)
 
