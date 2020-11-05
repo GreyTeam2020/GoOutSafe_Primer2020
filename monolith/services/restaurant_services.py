@@ -268,7 +268,7 @@ class RestaurantServices:
         """
         model = RestaurantModel()
         rest = db.session.query(Restaurant).filter_by(id=restaurant_id).all()
-        if rest is None:
+        if (rest is None) and (len(rest) == 0):
             return None
         rest = rest[0]
         model.bind_restaurant(rest)
