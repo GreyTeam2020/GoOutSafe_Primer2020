@@ -546,8 +546,16 @@ def create_random_booking(num: int, rest_id: int, user: User, date_time, friends
         new_reservation.reservation_end = date_time + timedelta(hours=i)
         new_reservation.customer_id = user.id
         new_reservation.table_id = table.id
-        new_reservation.people_number = len(friends.split(";")) + 1
+        friends = friends.split(";")
+        new_reservation.people_number = len(friends) + 1
         db.session.add(new_reservation)
+        db.session.flush()
+        for friend in friends:
+            friend_db = Friend()
+            friend_db.reservation_id = new_reservation.id
+            friend_db.email = friend
+            db.session.add(friend_db)
+            db.session.flush()
         db.session.commit()
         books.append(new_reservation)
     return books
