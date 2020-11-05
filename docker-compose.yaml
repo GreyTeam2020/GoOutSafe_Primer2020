@@ -10,6 +10,8 @@ services:
             - "5000:5000"
         expose:
             - "5000"
+        volumes:
+            - ./monolith/db:/code/monolith/db
     celery:
         depends_on:
             - redis
@@ -17,6 +19,8 @@ services:
         build: .
         restart: always
         command: celery -A monolith.celery worker --loglevel=info
+        links:
+            -  redis
     redis:
         image: "redis:alpine"
         container_name: rd01
