@@ -39,3 +39,5 @@ class DispatcherMessage:
             send_possible_positive_contact_celery.apply_async(args=params)
         elif type_message == CONFIRMATION_BOOKING:
             send_booking_confirmation_to_friends_celery.apply_async(args=params)
+        elif type_message == CALCULATE_RATING_RESTAURANTS:
+            RestaurantServices.calculate_rating_for_all()
