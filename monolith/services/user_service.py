@@ -1,6 +1,6 @@
 from flask_login import current_user
 
-from monolith.database import db, User, Positive, Reservation
+from monolith.database import db, User, Positive, Reservation, Role
 from monolith.forms import UserForm
 
 
@@ -10,6 +10,27 @@ class UserService:
     - create a new user
     - deleter a user if exist
     """
+
+    @staticmethod
+    def get_user_role(user_id: int):
+        """
+        This method return the user role with id
+        :param user_id:
+        :return: role value of the user
+        """
+        return db.session.query(Role).filter_by(id=user_id).first()
+
+    @staticmethod
+    def user_is_present(email: str = None, phone: str = None):
+        """
+        This method contains the logic to search a user with the
+        :param email: user email if it is present we use to filter user
+        :param phone: phone number, if it is present we use to filter user
+        :return: use user if exist otherwise, it is return None
+        """
+        if phone is not None:
+            return db.session.query(User).filter_by(phone=phone).first()
+        return db.session.query(User).filter_by(email=email).first()
 
     @staticmethod
     def create_user(new_user: User, password, role_id: int = 3):

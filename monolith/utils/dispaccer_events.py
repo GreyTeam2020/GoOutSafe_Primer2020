@@ -1,7 +1,7 @@
 from monolith.background import *
 from monolith.app_constant import *
 
-_CELERY = False
+_CELERY = True
 
 
 class DispatcherMessage:

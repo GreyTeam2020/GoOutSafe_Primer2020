@@ -1,4 +1,6 @@
 from flask import Flask
+
+from monolith import background
 from monolith.database import (
     db,
     User,
@@ -24,7 +26,7 @@ def create_app(tests=False):
     app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
     app.config["SECRET_KEY"] = "ANOTHER ONE"
     if tests is False:
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///gooutsafe.db"
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/gooutsafe.db"
     else:
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tests/gooutsafe.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
@@ -284,9 +286,20 @@ def create_app(tests=False):
 
             db.session.add(review)
             db.session.commit()
-    # CALCULATE_RATING_RESTAURANTS
+
+    background.init_celery(app)
     return app
 
+def create_worker_app():
+    """Minimal App without routes for celery worker."""
+    app = Flask(__name__)
+    app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
+    app.config["SECRET_KEY"] = "ANOTHER ONE"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/gooutsafe.db"
+
+    db.init_app(app)
+    background.init_celery(app, worker=True)
+    return app
 
 if __name__ == "__main__":
     app = create_app()
