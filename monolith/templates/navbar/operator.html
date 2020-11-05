@@ -3,9 +3,6 @@
 </li>
 {% if "RESTAURANT_ID" in session %}
     <li class="nav-item">
-        <a class="nav-link" href="/restaurant/data">Restaurant Data</a>
-    </li>
-    <li class="nav-item">
         <a class="nav-link" href="/restaurant/menu">Menu</a>
     </li>
     <li class="nav-item">
@@ -14,11 +11,14 @@
     <li class="nav-item">
         <a class="nav-link" href="/restaurant/reservations">List Reservations</a>
     </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/restaurant/data">Restaurant Settings</a>
+    </li>
 {% else %}
     <li class="nav-item">
         <a class="nav-link" href="/restaurant/create">Create your Restaurant</a>
     </li>
 {% endif %}
 <li class="nav-item">
-    <a class="nav-link" href="/user/data">Settings</a>
+    <a class="nav-link" href="/user/data">User Profile</a>
 </li>
