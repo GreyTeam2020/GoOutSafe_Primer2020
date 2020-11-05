@@ -245,6 +245,18 @@ class Test_RestaurantServices:
         db.session.commit()
         db.session.flush()
 
+    def test_rating_review_restaurants(self):
+        pass
+
+    def test_rating_single_restaurant(self):
+        """
+        This method test the method to calculate a rating inside a new restautants
+
+        Test flow:
+        -
+        """
+        pass
+
     def test_get_restaurant_people_none(self):
         """
         [PRANZA, CENA, CHECKING]

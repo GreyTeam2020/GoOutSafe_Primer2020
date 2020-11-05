@@ -7,7 +7,7 @@ from monolith.database import (
     OpeningHours,
     RestaurantTable,
     Reservation,
-    Friend,
+    Friend, Menu,
 )
 from monolith.forms import (
     UserForm,
