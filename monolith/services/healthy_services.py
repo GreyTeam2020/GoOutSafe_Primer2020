@@ -56,7 +56,13 @@ class HealthyServices:
             db.session.query(Positive).filter_by(user_id=q_user.id, marked=True).first()
         )
 
-        f.write("User " + str(q_user.email) + " positive status:" + str(q_already_positive) + "\n")
+        f.write(
+            "User "
+            + str(q_user.email)
+            + " positive status:"
+            + str(q_already_positive)
+            + "\n"
+        )
         if q_already_positive is None:
             new_positive = Positive()
             new_positive.from_date = datetime.now()
@@ -78,7 +84,9 @@ class HealthyServices:
                 )
                 .all()
             )
-            f.write("Restaurant with future bookings: " + str(len(all_reservations)) + "\n")
+            f.write(
+                "Restaurant with future bookings: " + str(len(all_reservations)) + "\n"
+            )
             # for each future booking
             for reservation in all_reservations:
                 restaurant = (
@@ -119,18 +127,27 @@ class HealthyServices:
             all_reservations = (
                 db.session.query(Reservation)
                 .filter(
-                    Reservation.reservation_date >= (datetime.today() - timedelta(days=14)),
+                    Reservation.reservation_date
+                    >= (datetime.today() - timedelta(days=14)),
                     Reservation.reservation_date < datetime.now(),
                     Reservation.customer_id == q_user.id,
-                    #Reservation.checkin is True,
+                    # Reservation.checkin is True,
                 )
                 .all()
             )
             f.write("There are " + str(len(all_reservations)) + " past reservations\n")
             for reservation in all_reservations:
                 f.write(" - " + str(reservation.reservation_date) + "\n")
-                this_table = db.session.query(RestaurantTable).filter_by(id=reservation.table_id).first()
-                restaurant = db.session.query(Restaurant).filter_by(id=this_table.restaurant_id).first()
+                this_table = (
+                    db.session.query(RestaurantTable)
+                    .filter_by(id=reservation.table_id)
+                    .first()
+                )
+                restaurant = (
+                    db.session.query(Restaurant)
+                    .filter_by(id=this_table.restaurant_id)
+                    .first()
+                )
 
                 opening = (
                     db.session.query(OpeningHours)
@@ -178,7 +195,9 @@ class HealthyServices:
                     .filter_by(reservation_id=reservation.id)
                     .all()
                 )
-                f.write("\t\tI have to notify " + str(len(friends_email)) + " friends\n")
+                f.write(
+                    "\t\tI have to notify " + str(len(friends_email)) + " friends\n"
+                )
                 # Mail to friends of the positive person
 
                 for friend in friends_email:
@@ -213,7 +232,9 @@ class HealthyServices:
                     )
                     .all()
                 )
-                f.write("\t\tI have to notify " + str(len(all_contacts)) + " contacts\n")
+                f.write(
+                    "\t\tI have to notify " + str(len(all_contacts)) + " contacts\n"
+                )
                 for contact in all_contacts:
                     if contact.customer_id not in user_notified:
                         user_notified.append(contact.customer_id)
@@ -240,7 +261,11 @@ class HealthyServices:
                             .filter_by(reservation_id=contact.id)
                             .all()
                         )
-                        f.write("\t\t\t this contact had " + str(len(friends_email)) + " friends\n")
+                        f.write(
+                            "\t\t\t this contact had "
+                            + str(len(friends_email))
+                            + " friends\n"
+                        )
                         # Mail to friends of people with this reservation
                         for friend in friends_email:
                             friend = friend[0]
