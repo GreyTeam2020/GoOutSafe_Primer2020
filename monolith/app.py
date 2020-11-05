@@ -24,7 +24,7 @@ def create_app(tests=False):
     app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
     app.config["SECRET_KEY"] = "ANOTHER ONE"
     if tests is False:
-        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///gooutsafe.db"
+        app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/gooutsafe.db"
     else:
         app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///tests/gooutsafe.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
