@@ -12,6 +12,7 @@ from monolith.database import (
 import decimal
 from monolith.views import blueprints
 from monolith.auth import login_manager
+from monolith import background
 from monolith.utils.dispaccer_events import (
     DispatcherMessage,
     CALCULATE_RATING_RESTAURANTS,
@@ -284,7 +285,20 @@ def create_app(tests=False):
 
             db.session.add(review)
             db.session.commit()
-    # CALCULATE_RATING_RESTAURANTS
+
+    background.init_celery(app)
+    return app
+
+
+def create_worker_app():
+    """Minimal App without routes for celery worker."""
+    app = Flask(__name__)
+    app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
+    app.config["SECRET_KEY"] = "ANOTHER ONE"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/gooutsafe.db"
+
+    db.init_app(app)
+    background.init_celery(app, worker=True)
     return app
 
 

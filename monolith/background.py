@@ -1,5 +1,9 @@
+import time
+from decimal import Decimal
+
 from celery import Celery
 from monolith.utils import *
+from monolith.database import db, Restaurant, Review
 from monolith.services import RestaurantServices
 
 ## redis inside the http is the name of network that is called like the containser
@@ -9,10 +13,8 @@ from monolith.utils import (
     send_positive_booking_in_restaurant,
 )
 
-BACKEND = "redis://{}:6379".format("rd01")
-BROKER = "redis://{}:6379/0".format("rd01")
-celery = Celery(__name__, backend=BACKEND, broker=BROKER)
-
+celery = Celery()
+_APP = None
 
 @celery.task()
 def send_email_to_confirm_registration(to_email: str, to_name: str, with_toke: str):
@@ -85,13 +87,9 @@ def send_possible_positive_contact_celery(
         to_email, to_name, date_possible_contact, restaurant_name
     )
 
-
 @celery.task()
-def send_booking_confirmation_to_friends_celery(
-    to_email: str, to_name: str, to_restaurants: str, to_friend_list: [], date_time
-):
+def send_booking_confirmation_to_friends_celery(to_email: str, to_name: str, to_restaurants: str, to_friend_list: [], date_time):
     """
-
     :param to_email:
     :param to_name:
     :param to_restaurants:
@@ -99,18 +97,21 @@ def send_booking_confirmation_to_friends_celery(
     :param date_time:
     :return:
     """
-    send_booking_confirmation_to_friends(
-        to_email, to_name, to_restaurants, to_friend_list, date_time
-    )
+    send_booking_confirmation_to_friends(to_email, to_name, to_restaurants, to_friend_list, date_time)
 
-
-@celery.on_after_configure.connect
-def calculate_rating_on_background(sender, **kwargs):
+@celery.task
+def calculate_rating_on_background():
     """
     This task make a calculation of review rating inside each
     this task take the db code and call the RestaurantServices for each restaurants
     """
     # Calls RestaurantServices.calculate_rating_for_all() every 30 seconds
-    sender.add_periodic_task(
-        30.0, RestaurantServices.calculate_rating_for_all(), expires=10
-    )
+    with _APP.app_context():
+        RestaurantServices.calculate_rating_for_all()
+
+def init_celery(app, worker=False):
+    global _APP
+
+    # Load Celery with mock app
+    celery.config_from_object(app.config)
+    _APP = app

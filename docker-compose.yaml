@@ -11,16 +11,14 @@ services:
         expose:
             - "5000"
         volumes:
-            - ./monolith/db:/code/monolith/db
-        links:
-            - redis
+              - ./monolith/db:/code/monolith/db
     celery:
         depends_on:
             - redis
             - gooutsafe
         build: .
         restart: always
-        command: celery -A monolith.celery worker --loglevel=info
+        command: celery -A monolith.worker:celery worker
         volumes:
             - ./monolith/db:/code/monolith/db
         links:
