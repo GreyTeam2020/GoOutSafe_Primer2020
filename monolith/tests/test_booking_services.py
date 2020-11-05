@@ -1,3 +1,5 @@
+from random import randrange
+
 import pytest
 
 import datetime
@@ -37,7 +39,7 @@ class Test_BookServices:
         - erase user
         """
 
-        user = create_user_on_db()
+        user = create_user_on_db(randrange(100000))
         rest_owner = create_user_on_db(ran=2)
         restaurant = create_restaurants_on_db(user_id=rest_owner.id)
 
