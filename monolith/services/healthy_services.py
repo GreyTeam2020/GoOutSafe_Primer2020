@@ -118,7 +118,7 @@ class HealthyServices:
                     Reservation.reservation_date
                     >= (datetime.today() - timedelta(days=14)),
                     Reservation.reservation_date < datetime.now(),
-                    Reservation.checkin is True,
+                    # Reservation.checkin is True,
                 )
                 .all()
             )
@@ -206,6 +206,7 @@ class HealthyServices:
                     .all()
                 )
                 for contact in all_contacts:
+                    contact = contact[0]
                     if contact.customer_id not in user_notified:
                         user_notified.append(contact.customer_id)
                         thisuser = (

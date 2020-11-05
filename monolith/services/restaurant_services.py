@@ -193,7 +193,7 @@ class RestaurantServices:
             .first()
         )
         if openings is None:
-            return [0, 0]
+            return [0, 0, 0]
 
         tables = (
             db.session.query(RestaurantTable)

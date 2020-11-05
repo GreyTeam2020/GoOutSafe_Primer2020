@@ -244,3 +244,26 @@ class Test_RestaurantServices:
         reservation_query.update({Reservation.checkin: False})
         db.session.commit()
         db.session.flush()
+
+    def test_get_restaurant_people_none(self):
+        """
+        [PRANZA, CENA, CHECKING]
+
+        Test flow
+        - new restaurants
+        - get all people
+        - del restaurant
+        """
+        pass
+
+    def test_get_restaurant_people(self):
+        """
+        [PRANZA, CENA, CHECKING]
+
+        Test flow
+        - new restaurants
+        - new booking
+        - get all people
+        - del restaurant
+        """
+        pass
