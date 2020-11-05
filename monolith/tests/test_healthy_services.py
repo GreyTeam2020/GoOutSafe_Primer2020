@@ -9,7 +9,7 @@ from monolith.tests.utils import (
     positive_with_user_id,
     delete_positive_with_user_id,
     delete_was_positive_with_user_id,
-    get_user_with_email, create_random_booking, create_restaurants_on_db, del_restaurant_on_db,
+    get_user_with_email, create_random_booking, create_restaurants_on_db, del_restaurant_on_db, get_today_midnight,
 )
 
 
@@ -262,7 +262,7 @@ class Test_HealthyServices:
         customer1 = create_user_on_db(787437)
         assert customer1 is not None
 
-        date_booking_1 = datetime.now() - timedelta(days=8)
+        date_booking_1 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
         books1 = create_random_booking(1, restaurant.id, customer1, date_booking_1, "a@aa.com")
 
         assert len(books1) == 1
@@ -271,7 +271,7 @@ class Test_HealthyServices:
         customer2 = create_user_on_db(787438)
         assert customer2 is not None
 
-        date_booking_2 = datetime.now() - timedelta(days=8)
+        date_booking_2 = get_today_midnight() - timedelta(days=datetime.today().weekday()) + timedelta(hours=13)
         books2 = create_random_booking(1, restaurant.id, customer2, date_booking_2, "b@b.com")
         assert len(books2) == 1
 
