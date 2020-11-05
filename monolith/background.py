@@ -85,6 +85,18 @@ def send_possible_positive_contact_celery(
         to_email, to_name, date_possible_contact, restaurant_name
     )
 
+@celery.task()
+def send_booking_confirmation_to_friends_celery(to_email: str, to_name: str, to_restaurants: str, to_friend_list: [], date_time):
+    """
+
+    :param to_email:
+    :param to_name:
+    :param to_restaurants:
+    :param to_friend_list:
+    :param date_time:
+    :return:
+    """
+    send_booking_confirmation_to_friends(to_email, to_name, to_restaurants, to_friend_list, date_time)
 
 @celery.on_after_configure.connect
 def calculate_rating_on_background(sender, **kwargs):

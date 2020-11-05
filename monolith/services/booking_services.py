@@ -1,5 +1,6 @@
 import datetime
-from sqlalchemy import or_, cast
+from sqlalchemy import or_
+from monolith.utils.dispaccer_events import DispatcherMessage, CONFIRMATION_BOOKING
 
 from monolith.database import (
     db,
@@ -175,8 +176,17 @@ class BookingServices:
                 new_friend.reservation_id = new_reservation.id
                 new_friend.email = friend_mail.strip()
                 db.session.add(new_friend)
-
             db.session.commit()
+            DispatcherMessage.send_message(
+                CONFIRMATION_BOOKING,
+                [
+                    current_user.email,
+                    current_user.email,
+                    restaurant_name,
+                    splitted_friends,
+                    new_reservation.reservation_date,
+                ],
+            )
             return (new_reservation, restaurant_name, table_name)
         else:
             return (None, "no tables available")

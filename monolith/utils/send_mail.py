@@ -169,26 +169,61 @@ def send_positive_in_restaurant(
     body = body.replace("{datePossibleContact}", date_possible_contact)
     send_email(subject, body, to_email)
 
-def _send_booking_confirmation_to_owner_table(to_email: str, to_name: str, date_time):
+
+def _send_booking_confirmation_to_owner_table(
+    to_email: str, to_name: str, to_restaurants: str, date_time
+):
     """
+    TODO add the position on the map
     This method send the confirmation email to the owner of reservation
     :param to_email: The owner email
     :param to_name: The name of owner
+    :param to_restaurants: Tha name of restaurant
     :param date_time: The date of booking
     """
-    pass
+    subject = "New Reservation in {toRestaurants}"
+    body = """ 
+        Hi {toName},<br>
+        Your Reservation in {toRestaurants} was accepted on {toDate}.
+        <br>Regards.<br> 
+        <br>GoOutSafe Team</br>
+        """
+    body = body.replace("{toRestaurants}", to_restaurants)
+    body = body.replace("{toName}", to_name)
+    body = body.replace("{toRestaurants}", to_restaurants)
+    body = body.replace("{toDate}", str(date_time))
+    send_email(subject, body, to_email)
 
-def _send_booking_confirmation_to_friend(to_friend: str, to_name: str, date_time):
+
+def _send_booking_confirmation_to_friend(
+    to_friend: str, to_name: str, to_restaurants: str, date_time
+):
     """
-    TODO comment this method
+    TODO add the position on the map
+    This method send the confirmation email to a email friend with the name of the
     :param to_friend:
     :param to_name:
     :param date_time:
+    :param to_restaurants: Tha name of restaurant
     :return:
     """
-    pass
+    subject = "New Reservation in {toRestaurants}"
+    body = """ 
+        Hi {toName},<br>
+        You have a reservation in {toRestaurants} by {toName} in {toDate}.
+        <br>Regards.<br> 
+        <br>GoOutSafe Team</br>
+        """
+    body = body.replace("{toRestaurants}", to_restaurants)
+    body = body.replace("{toName}", to_name)
+    body = body.replace("{toRestaurants}", to_restaurants)
+    body = body.replace("{toDate}", str(date_time))
+    send_email(subject, body, to_friend)
 
-def send_booking_confirmation_to_friends(to_email: str, to_name: str, to_friend_list: [], date_time):
+
+def send_booking_confirmation_to_friends(
+    to_email: str, to_name: str, to_restaurants: str, to_friend_list: [], date_time
+):
     """
     This is the method to share the booking information with a email to all friends,
     that are inside the booking.
@@ -197,7 +232,16 @@ def send_booking_confirmation_to_friends(to_email: str, to_name: str, to_friend_
     :param to_friend_list:
     :param date_time:
     """
-    _send_booking_confirmation_to_owner_table(to_email=to_email, to_name=to_email, date_time=date_time)
+    _send_booking_confirmation_to_owner_table(
+        to_email=to_email,
+        to_name=to_name,
+        to_restaurants=to_restaurants,
+        date_time=date_time,
+    )
     for friend in to_friend_list:
-        _send_booking_confirmation_to_friend(to_name=to_email, to_friend=friend, date_time=date_time)
-
+        _send_booking_confirmation_to_friend(
+            to_name=to_name,
+            to_friend=friend,
+            to_restaurants=to_restaurants,
+            date_time=date_time,
+        )

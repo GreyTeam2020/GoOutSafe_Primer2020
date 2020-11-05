@@ -1,7 +1,7 @@
 from monolith.background import *
 from monolith.app_constant import *
 
-_CELERY = False
+_CELERY = True
 
 
 class DispatcherMessage:
@@ -37,3 +37,5 @@ class DispatcherMessage:
             send_possible_positive_contact_to_friend.apply_async(args=params)
         elif type_message == NEW_POSITIVE_CONTACT:
             send_possible_positive_contact_celery.apply_async(args=params)
+        elif type_message == CONFIRMATION_BOOKING:
+            send_booking_confirmation_to_friends_celery.apply_async(args=params)
