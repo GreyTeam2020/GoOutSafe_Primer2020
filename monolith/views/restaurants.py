@@ -229,7 +229,7 @@ def my_menu():
         dishes = MenuDish.query.filter_by(restaurant_id=session["RESTAURANT_ID"]).all()
     else:
         dishes = []
-    _test="menu_view_test"
+    _test = "menu_view_test"
     if request.method == "POST":
         form = DishForm()
         # add dish to the db
@@ -246,11 +246,18 @@ def my_menu():
             _test = "menu_ko_form_test"
             print(form.errors)
             return render_template(
-                "restaurant_menu.html", _test=_test, form=form, dishes=dishes, error=form.errors
+                "restaurant_menu.html",
+                _test=_test,
+                form=form,
+                dishes=dishes,
+                error=form.errors,
             )
     form = DishForm()
     return render_template(
-        "restaurant_menu.html", _test=_test, form=form, dishes=dishes,
+        "restaurant_menu.html",
+        _test=_test,
+        form=form,
+        dishes=dishes,
     )
 
 
