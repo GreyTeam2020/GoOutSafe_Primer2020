@@ -206,8 +206,9 @@ class BookingServices:
                     new_friend.reservation_id = new_reservation.id
                     new_friend.email = friend_mail.strip()
                     db.session.add(new_friend)
-
-                db.session.commit()
+            else:
+                splitted_friends = []
+            db.session.commit()
             DispatcherMessage.send_message(
                 CONFIRMATION_BOOKING,
                 [
