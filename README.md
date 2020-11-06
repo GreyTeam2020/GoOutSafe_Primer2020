@@ -12,9 +12,11 @@
 - [Download API description]()
 
 
-## How Build the project
-
-## How run the project
+## How Build and run with Docker
+Clone the repository and run in the root folder the command
+`docker-compose up --build`
+This will make docker downloads all the file needed and start building the containers. 
+After that, you can browse to http://localhost:5000/ to use the app.
 
 ## Developing
 
