@@ -9,6 +9,7 @@ from monolith.forms import (
     DishForm,
     ReservationForm,
     PhotoGalleryForm,
+    UserForm,
 )
 from monolith.services import *
 

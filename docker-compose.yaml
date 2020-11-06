@@ -18,9 +18,13 @@ services:
             - gooutsafe
         build: .
         restart: always
-        command: celery -A monolith.celery worker --loglevel=info
+        ports:
+            - "465:465"
+        command: celery -A monolith.worker:celery worker --loglevel=DEBUG
         links:
             -  redis
+        volumes:
+            - ./monolith/db:/code/monolith/db
     redis:
         image: "redis:alpine"
         container_name: rd01

@@ -1,17 +1,18 @@
-from celery import Celery
 from monolith.utils import *
 from monolith.services import RestaurantServices
 
-## redis inside the http is the name of network that is called like the containser
-## a good reference is https://stackoverflow.com/a/55410571/7290562
+# from .app import create_worker_app
 from monolith.utils import (
     send_positive_in_restaurant,
     send_positive_booking_in_restaurant,
 )
+from monolith.worker import celery
 
-BACKEND = "redis://{}:6379".format("rd01")
-BROKER = "redis://{}:6379/0".format("rd01")
-celery = Celery(__name__, backend=BACKEND, broker=BROKER)
+## redis inside the http is the name of network that is called like the containser
+## a good reference is https://stackoverflow.com/a/55410571/7290562
+# BACKEND = "redis://{}:6379".format("rd01")
+# BROKER = "redis://{}:6379/0".format("rd01")
+# celery = Celery(__name__, backend=BACKEND, broker=BROKER)
 
 
 @celery.task()
@@ -104,13 +105,10 @@ def send_booking_confirmation_to_friends_celery(
     )
 
 
-@celery.on_after_configure.connect
-def calculate_rating_on_background(sender, **kwargs):
+@celery.task
+def calculate_rating_for_all_celery():
     """
-    This task make a calculation of review rating inside each
-    this task take the db code and call the RestaurantServices for each restaurants
+    TODO
+    :return:
     """
-    # Calls RestaurantServices.calculate_rating_for_all() every 30 seconds
-    sender.add_periodic_task(
-        30.0, RestaurantServices.calculate_rating_for_all(), expires=10
-    )
+    RestaurantServices.calculate_rating_for_all()

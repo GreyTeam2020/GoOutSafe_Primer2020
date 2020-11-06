@@ -14,9 +14,9 @@ from monolith.forms import ReservationForm
 from monolith.services import (
     UserService,
     RestaurantServices,
-    DispatcherMessage,
-    CALCULATE_RATING_RESTAURANTS,
 )
+from monolith.utils.dispaccer_events import DispatcherMessage
+from monolith.app_constant import *
 
 home = Blueprint("home", __name__)
 
