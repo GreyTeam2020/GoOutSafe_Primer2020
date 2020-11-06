@@ -8,16 +8,14 @@
 - [How Build the project]()
 - [How run the project]()
 - [Developing]()
-- [Conclusion]()
-- [Download API description]()
-
 
 ## How Build and run with Docker
+
+>To enable celery you need to change the value inside the `monolith/utils/dispaccer_events.py` at line 4 
+the propriety `_CELERY` from `False` to `True`.
+
 Clone the repository and run in the root folder the command
-
-`docker-compose up --build`
-
-
+`docker-compose up`
 This will make docker downloads all the file needed and start building the containers. 
 After that, you can browse to http://localhost:5000/ to use the app.
 
@@ -36,7 +34,6 @@ When you see the following line, you are done to push your PR
 
 All done! ✨ 🍰 ✨
 
-## Conclusion
 
 ## Additional information
 
