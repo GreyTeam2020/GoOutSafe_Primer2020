@@ -1,4 +1,4 @@
-version: '3.2'
+version: "3.8"
 
 services:
     gooutsafe:
@@ -20,7 +20,7 @@ services:
         restart: always
         ports:
             - "465:465"
-        command: celery -A monolith:celery worker --loglevel=DEBUG
+        command: celery -A monolith:celery worker --loglevel=DEBUG -B
         links:
             -  redis
         volumes:

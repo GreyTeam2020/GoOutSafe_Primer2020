@@ -1,5 +1,4 @@
 from flask import Flask
-from celery import Celery
 import decimal
 from monolith.database import (
     db,

@@ -158,4 +158,4 @@ def setup_periodic_tasks(sender, **kwargs):
     this task take the db code and call the RestaurantServices for each restaurants
     """
     # Calls RestaurantServices.calculate_rating_for_all() every 30 seconds
-    sender.add_periodic_task(30.0, calculate_rating_for_all_celery, name="Rating")
+    sender.add_periodic_task(30.0, calculate_rating_for_all_celery.s(), name="Rating")
