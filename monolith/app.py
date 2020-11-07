@@ -1,4 +1,6 @@
 from flask import Flask
+from celery import Celery
+import decimal
 from monolith.database import (
     db,
     User,
@@ -9,30 +11,9 @@ from monolith.database import (
     OpeningHours,
     Review,
 )
-import decimal
 from monolith.views import blueprints
 from monolith.auth import login_manager
-from monolith.utils.dispaccer_events import (
-    DispatcherMessage,
-)
 import datetime
-
-
-def create_worker_app():
-    """
-    This application create the flask app for the worker
-    Thanks https://github.com/nebularazer/flask-celery-example
-    """
-    app = Flask(__name__)
-    app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
-    app.config["SECRET_KEY"] = "ANOTHER ONE"
-    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/gooutsafe.db"
-    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-    db.init_app(app)
-    db.create_all(app=app)
-
-    return app
 
 
 def create_app(tests=False):

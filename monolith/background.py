@@ -1,21 +1,58 @@
-from monolith.utils import *
-from monolith.services import RestaurantServices
+from celery import Celery
+from flask import Flask
 
-# from .app import create_worker_app
-from monolith.utils import (
+from monolith.database import db
+from monolith.utils.send_mail import (
+    send_registration_confirm,
+    send_possible_positive_contact_to_friend,
+    send_possible_positive_contact,
+    send_booking_confirmation_to_friends,
     send_positive_in_restaurant,
     send_positive_booking_in_restaurant,
 )
-from monolith.worker import celery
+from monolith.services import RestaurantServices
 
-## redis inside the http is the name of network that is called like the containser
-## a good reference is https://stackoverflow.com/a/55410571/7290562
+
 # BACKEND = "redis://{}:6379".format("rd01")
 # BROKER = "redis://{}:6379/0".format("rd01")
 # celery = Celery(__name__, backend=BACKEND, broker=BROKER)
+def create_celery_app():
+    """
+    This application create the flask app for the worker
+    Thanks https://github.com/nebularazer/flask-celery-example
+    """
+    app = Flask(__name__)
+    app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
+    app.config["SECRET_KEY"] = "ANOTHER ONE"
+    app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///db/gooutsafe.db"
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    db.init_app(app)
+    db.create_all(app=app)
+
+    ## redis inside the http is the name of network that is called like the containser
+    ## a good reference is https://stackoverflow.com/a/55410571/7290562
+    BACKEND = "redis://{}:6379".format("rd01")
+    BROKER = "redis://{}:6379/0".format("rd01")
+
+    celery_app = Celery(app.import_name, backend=BACKEND, broker=BROKER)
+
+    # celery.conf.update(app.config)
+
+    class ContextTask(celery_app.Task):
+        def __call__(self, *args, **kwargs):
+            with app.app_context():
+                return self.run(*args, **kwargs)
+
+    celery_app.Task = ContextTask
+
+    return celery_app
 
 
-@celery.task()
+celery_app = create_celery_app()
+
+
+@celery_app.task()
 def send_email_to_confirm_registration(to_email: str, to_name: str, with_toke: str):
     """
     Perform the celery task to send the email registration
@@ -27,7 +64,7 @@ def send_email_to_confirm_registration(to_email: str, to_name: str, with_toke: s
     send_registration_confirm(to_email, to_name, with_toke)
 
 
-@celery.task()
+@celery_app.task()
 def send_alert_new_covid19_about_previous_booking(
     to_email: str, to_name: str, email_user: str, restaurant_name: str
 ):
@@ -43,7 +80,7 @@ def send_alert_new_covid19_about_previous_booking(
     send_positive_booking_in_restaurant(to_email, to_name, email_user, restaurant_name)
 
 
-@celery.task()
+@celery_app.task()
 def send_positive_in_restaurant_celery(
     to_email: str, to_name: str, date_possible_contact: str, restaurant_name: str
 ):
@@ -55,7 +92,7 @@ def send_positive_in_restaurant_celery(
     )
 
 
-@celery.task()
+@celery_app.task()
 def send_possible_positive_contact_to_friend_celery(
     to_email: str, date_possible_contact: str, restaurant_name: str
 ):
@@ -70,7 +107,7 @@ def send_possible_positive_contact_to_friend_celery(
     )
 
 
-@celery.task()
+@celery_app.task()
 def send_possible_positive_contact_celery(
     to_email: str, to_name: str, date_possible_contact: str, restaurant_name: str
 ):
@@ -87,7 +124,7 @@ def send_possible_positive_contact_celery(
     )
 
 
-@celery.task()
+@celery_app.task()
 def send_booking_confirmation_to_friends_celery(
     to_email: str, to_name: str, to_restaurants: str, to_friend_list: [], date_time
 ):
@@ -105,10 +142,20 @@ def send_booking_confirmation_to_friends_celery(
     )
 
 
-@celery.task
+@celery_app.task
 def calculate_rating_for_all_celery():
     """
     TODO
     :return:
     """
     RestaurantServices.calculate_rating_for_all()
+
+
+@celery_app.on_after_configure.connect
+def setup_periodic_tasks(sender, **kwargs):
+    """
+    This task make a calculation of review rating inside each
+    this task take the db code and call the RestaurantServices for each restaurants
+    """
+    # Calls RestaurantServices.calculate_rating_for_all() every 30 seconds
+    sender.add_periodic_task(30.0, calculate_rating_for_all_celery, name="Rating")

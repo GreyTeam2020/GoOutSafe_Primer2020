@@ -4,7 +4,7 @@ from monolith.auth import roles_allowed
 from monolith.database import db, User, Positive
 from monolith.forms import SearchUserForm
 
-from monolith.services import HealthyServices, RestaurantServices
+from monolith.services import HealthyServices
 
 health = Blueprint("health", __name__)
 

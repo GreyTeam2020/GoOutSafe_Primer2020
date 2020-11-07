@@ -9,7 +9,7 @@ from monolith.background import (
 from monolith.app_constant import *
 from monolith.services.restaurant_services import RestaurantServices
 
-_CELERY = False
+_CELERY = True
 
 
 class DispatcherMessage:

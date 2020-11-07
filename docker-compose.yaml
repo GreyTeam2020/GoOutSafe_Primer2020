@@ -20,7 +20,7 @@ services:
         restart: always
         ports:
             - "465:465"
-        command: celery -A monolith.worker:celery worker --loglevel=DEBUG
+        command: celery -A monolith:celery worker --loglevel=DEBUG
         links:
             -  redis
         volumes:

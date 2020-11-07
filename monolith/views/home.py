@@ -1,29 +1,23 @@
-from flask import Blueprint, render_template, session, redirect, abort
+from flask import Blueprint, render_template, session, abort
 from flask_login import current_user
 
 from monolith.database import (
     db,
     Restaurant,
     Positive,
-    OpeningHours,
-    Menu,
-    PhotoGallery,
-    MenuDish,
 )
 from monolith.forms import ReservationForm
 from monolith.services import (
     UserService,
     RestaurantServices,
 )
-from monolith.utils.dispaccer_events import DispatcherMessage
-from monolith.app_constant import *
 
 home = Blueprint("home", __name__)
 
 
 @home.route("/")
 def index():
-    DispatcherMessage.send_message(CALCULATE_RATING_RESTAURANTS, [])
+    # DispatcherMessage.send_message(CALCULATE_RATING_RESTAURANTS, [])
     restaurants = db.session.query(Restaurant).all()
     if current_user is None:
         _test = "anonymous_test"
