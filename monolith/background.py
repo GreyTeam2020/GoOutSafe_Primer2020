@@ -22,8 +22,12 @@ def create_celery_app():
     This application create the flask app for the worker
     Thanks https://github.com/nebularazer/flask-celery-example
     """
+    ## redis inside the http is the name of network that is called like the containser
+    ## a good reference is https://stackoverflow.com/a/55410571/7290562
+    BACKEND = "redis://{}:6379".format("rd01")
+    BROKER = "redis://{}:6379/0".format("rd01")
     if _CELERY is False:
-        return
+        return Celery(__name__, backend=BACKEND, broker=BROKER)
     app = Flask(__name__)
     app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
     app.config["SECRET_KEY"] = "ANOTHER ONE"
@@ -33,10 +37,6 @@ def create_celery_app():
     db.init_app(app)
     db.create_all(app=app)
 
-    ## redis inside the http is the name of network that is called like the containser
-    ## a good reference is https://stackoverflow.com/a/55410571/7290562
-    BACKEND = "redis://{}:6379".format("rd01")
-    BROKER = "redis://{}:6379/0".format("rd01")
 
     celery_app = Celery(app.import_name, backend=BACKEND, broker=BROKER)
 
