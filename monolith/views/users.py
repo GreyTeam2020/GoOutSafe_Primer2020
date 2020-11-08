@@ -26,10 +26,10 @@ def _create_generic_user(role_id: int = 3, name_on_page: str = "customer"):
             q_user_email = UserService.user_is_present(email=form.email.data)
             q_user_phone = UserService.user_is_present(phone=form.phone.data)
             current_app.logger.error(
-                "user with email is null? ".format(q_user_email is None)
+                "user with email is null? {}".format(q_user_email is None)
             )
             current_app.logger.error(
-                "user with phone is null? ".format(q_user_phone is None)
+                "user with phone is null? {}".format(q_user_phone is None)
             )
             if (q_user_email is not None) or (q_user_phone is not None):
                 return render_template(

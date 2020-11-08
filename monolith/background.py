@@ -143,10 +143,24 @@ def send_booking_confirmation_to_friends_celery(
 
 
 @celery_app.task
+def calculate_rating_about_restaurant(restaurants_id: int):
+    """
+    This celery task is called inside the monolith app after a new review
+    this give the possibility to maintain the the rating update and run a big task
+    only to balance one time of day the rating.
+    e.g: the task that we can run one  time per day is calculate_rating_for_all_celery
+    :param restaurants_id: the restaurants id were the new review was created
+    :return: the rating, only to have some feedback
+    """
+    RestaurantServices.get_rating_restaurant(restaurants_id)
+
+
+@celery_app.task
 def calculate_rating_for_all_celery():
     """
-    TODO
-    :return:
+    This method is called inside a periodic task initialized below.
+    The work of this task if get all restaurants inside the database and
+    calculate the rating for each restaurants.
     """
     RestaurantServices.calculate_rating_for_all()
 

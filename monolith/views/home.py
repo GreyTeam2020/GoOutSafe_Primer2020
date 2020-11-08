@@ -1,6 +1,5 @@
 from flask import Blueprint, render_template, session, abort
 from flask_login import current_user
-
 from monolith.database import (
     db,
     Restaurant,
@@ -11,13 +10,15 @@ from monolith.services import (
     UserService,
     RestaurantServices,
 )
+from monolith.utils import DispatcherMessage
+from monolith.app_constant import CALCULATE_RATING_RESTAURANTS
 
 home = Blueprint("home", __name__)
 
 
 @home.route("/")
 def index():
-    # DispatcherMessage.send_message(CALCULATE_RATING_RESTAURANTS, [])
+    DispatcherMessage.send_message(CALCULATE_RATING_RESTAURANTS, [])
     restaurants = db.session.query(Restaurant).all()
     if current_user is None:
         _test = "anonymous_test"

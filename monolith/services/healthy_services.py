@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from flask import current_app
 
 from monolith.database import (
@@ -12,9 +10,8 @@ from monolith.database import (
     Restaurant,
     Friend,
 )
-from sqlalchemy.orm import aliased
 from datetime import datetime, timedelta
-from sqlalchemy import cast, Date, extract
+from sqlalchemy import extract
 
 from monolith.services import UserService
 from monolith.tests.utils import get_user_with_id

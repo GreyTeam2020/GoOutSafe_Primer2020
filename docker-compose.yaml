@@ -18,8 +18,6 @@ services:
             - gooutsafe
         build: .
         restart: always
-        ports:
-            - "465:465"
         command: celery -A monolith:celery worker --loglevel=DEBUG -B
         links:
             -  redis

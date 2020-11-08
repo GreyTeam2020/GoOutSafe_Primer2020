@@ -5,6 +5,7 @@ from monolith.background import (
     send_possible_positive_contact_celery,
     send_booking_confirmation_to_friends_celery,
     send_positive_in_restaurant,
+    calculate_rating_about_restaurant,
 )
 from monolith.app_constant import *
 from monolith.services.restaurant_services import RestaurantServices
@@ -34,6 +35,8 @@ class DispatcherMessage:
         if _CELERY is False:
             if type_message == CALCULATE_RATING_RESTAURANTS:
                 RestaurantServices.calculate_rating_for_all()
+            elif type_message == CALCULATE_RATING_RESTAURANT:
+                RestaurantServices.get_rating_restaurant(params[0])
             return
         if type_message == REGISTRATION_EMAIL:
             send_email_to_confirm_registration.apply_async(args=params)
@@ -47,5 +50,5 @@ class DispatcherMessage:
             send_possible_positive_contact_celery.apply_async(args=params)
         elif type_message == CONFIRMATION_BOOKING:
             send_booking_confirmation_to_friends_celery.apply_async(args=params)
-        elif type_message == CALCULATE_RATING_RESTAURANTS:
-            RestaurantServices.calculate_rating_for_all()
+        elif type_message == CALCULATE_RATING_RESTAURANT:
+            calculate_rating_about_restaurant.apply_async(args=params)

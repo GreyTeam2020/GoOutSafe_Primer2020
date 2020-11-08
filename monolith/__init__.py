@@ -7,6 +7,7 @@ from .background import (
     send_possible_positive_contact_celery,
     send_booking_confirmation_to_friends_celery,
     calculate_rating_for_all_celery,
-    celery_app as celery
+    calculate_rating_about_restaurant,
+    celery_app as celery,
 )
 from .app_constant import *
