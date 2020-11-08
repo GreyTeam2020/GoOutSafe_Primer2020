@@ -12,6 +12,7 @@ from monolith.utils.send_mail import (
 )
 from monolith.services import RestaurantServices
 
+_CELERY = False
 
 # BACKEND = "redis://{}:6379".format("rd01")
 # BROKER = "redis://{}:6379/0".format("rd01")
@@ -21,6 +22,8 @@ def create_celery_app():
     This application create the flask app for the worker
     Thanks https://github.com/nebularazer/flask-celery-example
     """
+    if _CELERY is False:
+        return
     app = Flask(__name__)
     app.config["WTF_CSRF_SECRET_KEY"] = "A SECRET KEY"
     app.config["SECRET_KEY"] = "ANOTHER ONE"
