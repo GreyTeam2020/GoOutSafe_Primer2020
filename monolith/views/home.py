@@ -1,22 +1,17 @@
-from flask import Blueprint, render_template, session, redirect, abort
+from flask import Blueprint, render_template, session, abort
 from flask_login import current_user
-
 from monolith.database import (
     db,
     Restaurant,
     Positive,
-    OpeningHours,
-    Menu,
-    PhotoGallery,
-    MenuDish,
 )
 from monolith.forms import ReservationForm
 from monolith.services import (
     UserService,
     RestaurantServices,
-    DispatcherMessage,
-    CALCULATE_RATING_RESTAURANTS,
 )
+from monolith.utils import DispatcherMessage
+from monolith.app_constant import CALCULATE_RATING_RESTAURANTS
 
 home = Blueprint("home", __name__)
 

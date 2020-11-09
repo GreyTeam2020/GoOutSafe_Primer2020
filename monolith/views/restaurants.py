@@ -23,6 +23,8 @@ from monolith.auth import roles_allowed
 from flask_login import current_user, login_required
 from monolith.forms import RestaurantForm, RestaurantTableForm
 from monolith.utils.formatter import my_date_formatter
+from monolith.utils.dispaccer_events import DispatcherMessage
+from monolith.app_constant import CALCULATE_RATING_RESTAURANT
 
 restaurants = Blueprint("restaurants", __name__)
 
@@ -311,8 +313,8 @@ def restaurant_review(restaurant_id):
                 restaurant_name=RestaurantServices.get_restaurant_name(restaurant_id),
                 review=review,
             )
-        rating_value = RestaurantServices.get_rating_restaurant(restaurant_id)
-        current_app.logger.debug("New rating value is: {}".format(rating_value))
+        DispatcherMessage.send_message(CALCULATE_RATING_RESTAURANT, [restaurant_id])
+        current_app.logger.debug("New rating event ran")
     return render_template(
         "review.html",
         _test="review_done_test",

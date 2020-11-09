@@ -1,4 +1,4 @@
-version: '3.2'
+version: "3.8"
 
 services:
     gooutsafe:
@@ -18,9 +18,11 @@ services:
             - gooutsafe
         build: .
         restart: always
-        command: celery -A monolith.celery worker --loglevel=info
+        command: celery -A monolith:celery worker --loglevel=DEBUG -B
         links:
             -  redis
+        volumes:
+            - ./monolith/db:/code/monolith/db
     redis:
         image: "redis:alpine"
         container_name: rd01

@@ -1,8 +1,6 @@
-from datetime import datetime
-
-import pytest
+from datetime import datetime, timedelta
 from monolith.database import db, Positive
-from monolith.services import HealthyServices, User, timedelta
+from monolith.services import HealthyServices
 from monolith.tests.utils import (
     create_user_on_db,
     del_user_on_db,

@@ -1,4 +1,5 @@
 from flask import Flask
+import decimal
 from monolith.database import (
     db,
     User,
@@ -9,13 +10,8 @@ from monolith.database import (
     OpeningHours,
     Review,
 )
-import decimal
 from monolith.views import blueprints
 from monolith.auth import login_manager
-from monolith.utils.dispaccer_events import (
-    DispatcherMessage,
-    CALCULATE_RATING_RESTAURANTS,
-)
 import datetime
 
 

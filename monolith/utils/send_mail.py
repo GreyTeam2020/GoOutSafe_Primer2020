@@ -85,7 +85,7 @@ def send_reservation_notification(
     # body = body.replace("{numberSeat}", str(numberSeat))
     body = body.replace("{dateReservation}", date_reservation)
     body = body.replace("{tableNumber}", str(table_number))
-    send_email(subject, body, number_seat)
+    send_email(subject, body, to_email)
 
 
 def send_registration_confirm(to_email, to_name, token):
