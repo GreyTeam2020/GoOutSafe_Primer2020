@@ -69,13 +69,11 @@ def create_user():
 @users.route("/user/data", methods=["GET", "POST"])
 @login_required
 def user_data():
-    message = None
     if request.method == "POST":
         form = UserEditForm()
         if form.validate_on_submit():
             UserService.modify_user(form)
             return render_template("user_data.html", form=form)
-        print(form.errors.items())
         return render_template("user_data.html", form=form, error="Error in the data")
     else:
         q = User.query.filter_by(id=current_user.id).first()
