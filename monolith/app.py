@@ -31,7 +31,7 @@ def create_app(tests=False):
 
     db.init_app(app)
     login_manager.init_app(app)
-    db.e(app=app)
+    db.create_all(app=app)
 
     # create a first admin user
     with app.app_context():
